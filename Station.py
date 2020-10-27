@@ -16,12 +16,11 @@
 
 __author__ = ["Julien Paul"]
 __credits__ = ""
-__license__ = "GPL-3.0"
+__license__ = "CC BY-SA 4.0"
 __version__ = "0.0.0"
 __maintainer__ = "BCDC"
 __email__ = ['julien.paul@uib.no','']
 __status__ = ""
-__date__ = "2019-10-19"
 
 # ----------------------------------------------
 class Station():
