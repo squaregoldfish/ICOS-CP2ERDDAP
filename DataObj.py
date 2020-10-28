@@ -2,16 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-    The DataObj module is used to explore ICOS DataObjs and the corresponding
-    data products. Since you need to know the "DataObj id" to create a DataObj
-    object, convenience functions are provided:
+    The DataObj module is used to explore ICOS dataObjs metadata.
 
     Example usage:
 
-    from icoscp.DataObj import DataObj
-    DataObj.getIdList() # returns a pandas data frame with all DataObj Id's'
-    myDataObj = DataObj.get('DataObjId') # create a single statino object
-    myList = DataObj.getList('AS') #  returns a list of Atmospheric DataObjs
+    import DataObj
+
+    dataObjs = DataObj.get_meta() # return a list of dataObjs' dictionary
+    myDataObj = dataObjs[uri]     # uri is the ICOS CP URI
 """
 
 __author__ = ["Julien Paul"]
@@ -19,7 +17,7 @@ __credits__ = ""
 __license__ = "CC BY-SA 4.0"
 __version__ = "0.0.0"
 __maintainer__ = "BCDC"
-__email__ = ['julien.paul@uib.no','']
+__email__ = ['julien.paul@uib.no']
 __status__ = ""
 
 # ----------------------------------------------
@@ -28,11 +26,11 @@ from SPARQLWrapper import SPARQLWrapper2
 
 # ----------------------------------------------
 abc = {
-    'citationString' : 'citation',
-    'sha256sum' : 'toto'
+    'citationString': 'citation',
+    'sha256sum': 'toto'
 }
 
-# ----------------------------------------------
+
 def query(lastupdate='', endupdate='', product='', lastVersion=False, uri=''):
     """
     This functions create and run a sparql query on ICOS CP.
@@ -45,7 +43,7 @@ def query(lastupdate='', endupdate='', product='', lastVersion=False, uri=''):
     - only from the 'lastVersion'
     - with ICOS CP 'uri'
 
-    exemple:
+    Example:
         query(lastupdate = '2020-01-01T00:00:00.000Z',
               endupdate = '2020-01-05T00:00:00.000Z',
               product = 'icosOtcL1Product_v2',
@@ -59,7 +57,6 @@ def query(lastupdate='', endupdate='', product='', lastVersion=False, uri=''):
     :return: SPARQLWrapper Bindings object (each binding is a dictionary)
     """
 
-
     filterLastUpDate = ''
     if lastupdate:
         filterLastUpDate = "FILTER( ?submTime >= '%s'^^xsd:dateTime )" % lastupdate
@@ -69,7 +66,7 @@ def query(lastupdate='', endupdate='', product='', lastVersion=False, uri=''):
         filterEndUpDate = "FILTER( ?submTime <= '%s'^^xsd:dateTime )" % endupdate
 
     filterProdcut = ''
-    if  product:
+    if product:
         filterProdcut = "VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/%s>}" % product
 
     filterLastVersion = ''
@@ -93,7 +90,7 @@ def query(lastupdate='', endupdate='', product='', lastVersion=False, uri=''):
         where {
             %s #VALUES ?dataObj {<http://meta.icos-cp.eu/object>}
             %s #VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/icosOtcL1Product_v2>}
-            ?dataObj cpmeta:hasObjectSpec ?spec . # restiction property for DataObject and/or SimpleDataObject
+            ?dataObj cpmeta:hasObjectSpec ?spec . # restriction property for DataObject and/or SimpleDataObject
             ?dataObj cpmeta:wasSubmittedBy [
                 prov:endedAtTime ?submTime ;
                 prov:wasAssociatedWith ?submitter
@@ -135,40 +132,41 @@ def query(lastupdate='', endupdate='', product='', lastVersion=False, uri=''):
     try:
         return sparql.query()
     except Exception as err:
-        print("\nAn exception was catched!\n")
+        print("\nAn exception was caught!\n")
         print(str(err))
-        raise(err)
+        raise err
 
-def download(url,o):
+
+def download(uri, o):
     """
 
     curl -JO -H "Cookie: CpLicenseAcceptedFor=PID" URL
 
-    :param url:
-    :return:
+    :param uri: ICOS CP dataObj URI
+    :param o: output file
     """
     import requests
     from requests.exceptions import HTTPError
-    #from requests.auth import HTTPDigestAuth
+    # from requests.auth import HTTPDigestAuth
 
-    #url = 'https://data.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
-    pid = url.split("/")[-1]
+    # uri = 'https://data.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
+    pid = uri.split("/")[-1]
     cookies = dict(CpLicenseAcceptedFor=pid)
     # Fill in your details here to be posted to the login form.
-    #user, pswd = 'julien.paul@uib.no', 'Lw9ucQr5EEQ9SaK'
+    # user, pswd = 'julien.paul@uib.no', 'Lw9ucQr5EEQ9SaK'
 
-    ## Use 'with' to ensure the session context is closed after use.
+    # Use 'with' to ensure the session context is closed after use.
     with requests.Session() as s:
-        #LOGIN_URL = 'https://cpauth.icos-cp.eu/login/'
-        #p = s.post(LOGIN_URL, data={user : pswd})
-        ## print the html returned or something more intelligent to see if it's a successful login page.
-        #print('html return ')#, p.text)
+        # LOGIN_URL = 'https://cpauth.icos-cp.eu/login/'
+        # p = s.post(LOGIN_URL, data={user : pswd})
+        # print the html returned or something more intelligent to see if it's a successful login page.
+        # print('html return ')#, p.text)
 
         try:
             # an authorised request.
-            #r = s.get(url, auth=(user,pswd), stream=True)
-            #r = requests.get(url, auth=HTTPDigestAuth(user, pswd), stream=True)
-            print(url,type(url))
+            # r = s.get(url, auth=(user,pswd), stream=True)
+            # r = requests.get(url, auth=HTTPDigestAuth(user, pswd), stream=True)
+            print(uri, type(uri))
             print(cookies)
             r = s.get(str(url), cookies=cookies, stream=True)
             # If the response was successful, no Exception will be raised
@@ -181,10 +179,10 @@ def download(url,o):
         else:
             print('Success!')
             # etc...
-            print('download file ',url,' on ',o)
+            print('download file ', uri, ' on ', o)
             with open(o, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=1024):
-                    if chunk: # filter out keep-alive new chunks
+                    if chunk:  # filter out keep-alive new chunks
                         f.write(chunk)
 
 
@@ -196,6 +194,7 @@ def renameKeyDic(mydict):
     for oldKey, newKey in abc.items():
         mydict = dict((newKey, v) if k == oldKey else (k, v) for k, v in mydict.items())
     return mydict
+
 
 def get_meta(lastupdate='', endupdate='', product='', lastVersion=False, uri=''):
     """
@@ -219,7 +218,7 @@ def get_meta(lastupdate='', endupdate='', product='', lastVersion=False, uri='')
 
     return dataObjs
 
-# Press the green button in the gutter to run the script.
+
 if __name__ == '__main__':
 
     uri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
@@ -238,9 +237,9 @@ if __name__ == '__main__':
             print(kk, ' : ', 'type:', vv.type, 'value:', vv.value)
 
     print('\n\n')
-    #url = 'https://data.icos-cp.eu/objects/8Pj-v7cmVZUm-8j0zFG96USA'   # 26NA_NRT_20190327.csv
+    # url = 'https://data.icos-cp.eu/objects/8Pj-v7cmVZUm-8j0zFG96USA'   # 26NA_NRT_20190327.csv
     url = 'https://data.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
-    out='toto.csv'
-    #download(url,out)
+    out = 'toto.csv'
+    # download(url,out)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

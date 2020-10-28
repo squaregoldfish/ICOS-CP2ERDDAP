@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    The Station module is used to explore ICOS stations metadta.
+    The Station module is used to explore ICOS stations metadata.
 
     Example usage:
 
@@ -62,9 +62,10 @@ def query():
     try:
         return sparql.query()
     except Exception as err:
-        print("\nAn exception was catched!\n")
+        print("\nAn exception was caught!\n")
         print(str(err))
-        raise(err)
+        raise err
+
 
 def get_meta():
     """
@@ -83,7 +84,7 @@ def get_meta():
 
     return stations
 
-# Press the green button in the gutter to run the script.
+
 if __name__ == '__main__':
 
     stations = get_meta()
@@ -91,7 +92,6 @@ if __name__ == '__main__':
     for k, v in stations.items():
         for kk, vv in v.items():
             print(kk, ' : ', 'type:', vv.type, 'value:', vv.value)
-
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
