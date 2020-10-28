@@ -154,11 +154,15 @@ def queryStations():
         limit 10
     """
 
-    sparql = SPARQLWrapper2("https://meta.icos-cp.eu/sparqlclient")
+    sparql = SPARQLWrapper2("https://meta.icos-cp.eu/sparql")
 
     sparql.setQuery(queryString)
-
-    return sparql.query()
+    try:
+        return sparql.query()
+    except Exception as err:
+        print("\nAn exception was catched!\n")
+        print(str(err))
+        raise(err)
 
 def get_meta():
     """

@@ -337,11 +337,15 @@ def queryDataObjs(lastupdate='', endupdate='', product='', lastVersion=False, do
         limit 10
     """ % (filterDobj, filterProdcut, filterLastUpDate, filterEndUpDate, filterLastVersion)
 
-    sparql = SPARQLWrapper2("https://meta.icos-cp.eu/sparqlclient")
+    sparql = SPARQLWrapper2("https://meta.icos-cp.eu/sparql")
 
     sparql.setQuery(queryString)
-
-    return sparql.query()
+    try:
+        return sparql.query()
+    except Exception as err:
+        print("\nAn exception was catched!\n")
+        print(str(err))
+        raise(err)
 
 def load_data():
     """
