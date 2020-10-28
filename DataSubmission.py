@@ -23,10 +23,19 @@ __email__ = ['julien.paul@uib.no','']
 __status__ = ""
 
 # ----------------------------------------------
-def query():
-    from SPARQLWrapper import SPARQLWrapper2
+from SPARQLWrapper import SPARQLWrapper2
 
-    queryString="""
+
+# ----------------------------------------------
+def query():
+    """
+    This functions create and run a sparql query on ICOS CP.
+    Here we select metadata from every dataSubmissions store in the ICOS CP.
+
+    :return: SPARQLWrapper Bindings object (each binding is a dictionary)
+    """
+
+    queryString = """
         prefix cpmeta: <http://meta.icos-cp.eu/ontologies/cpmeta/>
         prefix otcmeta: <http://meta.icos-cp.eu/ontologies/otcmeta/>
         prefix prov: <http://www.w3.org/ns/prov#>
@@ -59,29 +68,30 @@ def query():
 
 def get_meta():
     """
+    get all dataSubmissions, and their attributes from ICOS CP
 
-    :return: geoRegions' dictionary
+    :return: dataSubmissions' dictionary
     """
     # init empty dict
-    dataSubmissions={}
+    dataSubmissions = {}
 
-    res=query()
+    res = query()
 
     for result in res.bindings:
-        uri=result.pop("dataSubmission").value
-        dataSubmissions[uri]=result
+        uri = result.pop("dataSubmission").value
+        dataSubmissions[uri] = result
 
     return dataSubmissions
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
-    dataSubmissions=get_meta()
+    dataSubmissions = get_meta()
 
     for k,v in dataSubmissions.items():
-        print('k:',k)
+        print('k:', k)
         for kk, vv in v.items():
-            print(kk, ' : ','type:',vv.type,'value:',vv.value)
+            print(kk, ' : ', 'type:', vv.type,'value:', vv.value)
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

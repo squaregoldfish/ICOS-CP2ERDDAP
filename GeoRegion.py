@@ -23,70 +23,19 @@ __email__ = ['julien.paul@uib.no','']
 __status__ = ""
 
 # ----------------------------------------------
-class GeoRegion():
-    """ Create an ICOS Station object. This class intends to create
-        an instance of GeoRegion, providing meta data as store in ICOS CP,
-        including
-        label, comment, seeAlso
+from SPARQLWrapper import SPARQLWrapper2
 
-        Examples:
-        import station
-        myList = station.getList(['AS'])
-        myStation = station.get('HTM')
 
-        station.info()
+# ----------------------------------------------
+def query():
+    """
+    This functions create and run a sparql query on ICOS CP.
+    Here we select metadata from every geoRegions store in the ICOS CP.
 
-        # extract single attribute
-        station.lat -> returns latitude as float
+    :return: SPARQLWrapper Bindings object (each binding is a dictionary)
     """
 
-    def __init__(self, label=None, comment=None, seeAlso=None):
-        """
-        Initialize your Station either with NO arguments, or
-        provide a list of arguments in the exact order how the
-        attributes are listed
-        [ stationID | stationName | countryCode | uriGeoRegion | label | comment |
-         seeAlso ]
-
-        """
-
-        # Be aware, that attrList needs to be in the same ORDER as attributes
-        # info
-        self._label = label
-        self._comment = comment
-        self._seeAlso = seeAlso
-
-
-    # super().__init__() # for subclasses
-    # -------------------------------------
-    @property
-    def label(self):
-        return self._label
-
-    @label.setter
-    def label(self, label):
-        self._label = label
-    # -------------------------------------
-    @property
-    def comment(self):
-        return self._comment
-
-    @comment.setter
-    def comment(self, comment):
-        self._comment = comment
-    # -------------------------------------
-    @property
-    def seeAlso(self):
-        return self._seeAlso
-
-    @seeAlso.setter
-    def seeAlso(self, seeAlso):
-        self._seeAlso = seeAlso
-
-def queryStations():
-    from SPARQLWrapper import SPARQLWrapper2
-
-    queryString="""
+    queryString = """
         prefix cpmeta: <http://meta.icos-cp.eu/ontologies/cpmeta/>
         prefix otcmeta: <http://meta.icos-cp.eu/ontologies/otcmeta/>
         prefix prov: <http://www.w3.org/ns/prov#>
@@ -116,47 +65,29 @@ def queryStations():
 
 def get_meta():
     """
+    get all geoRegions, and their attributes from ICOS CP
 
     :return: geoRegions' dictionary
     """
     # init empty dict
-    geoRegions={}
+    geoRegions = {}
 
-    res=queryStations()
+    res = query()
+
     for result in res.bindings:
-        uri=None
-        label=None
-        comment=None
-        seeAlso=None
-        if "geoRegion" in result:
-            #print('geoRegion: %s: %s' % (result["geoRegion"].type, result["geoRegion"].value))
-            uri=result["geoRegion"].value
-        if "label" in result:
-            #print('label: %s: %s' % (result["label"].type, result["label"].value))
-            label=result["label"].value
-        if "comment" in result:
-            #print('comment: %s: %s' % (result["comment"].type, result["comment"].value))
-            comment=result["comment"].value
-        if "seeAlso" in result:
-            #print('seeAlso: %s: %s' % (result["seeAlso"].type, result["seeAlso"].value))
-            seeAlso=result["seeAlso"].value
-
-        #geoRegions[uri]=GeoRegion(label, comment, seeAlso)
-
-        #print("\n--------\n")
-        result.pop("geoRegion")
-        geoRegions[uri]=result
+        uri = result.pop("geoRegion").value
+        geoRegions[uri] = result
 
     return geoRegions
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
-    geoRegions=get_meta()
+    geoRegions = get_meta()
 
-    for k,v in geoRegions.items():
+    for k, v in geoRegions.items():
         for kk, vv in v.items():
-            print(kk, ' : ','type:',vv.type,'value:',vv.value)
+            print(kk, ' : ', 'type:', vv.type, 'value:', vv.value)
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
