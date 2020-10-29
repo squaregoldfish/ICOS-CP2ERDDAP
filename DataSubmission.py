@@ -12,8 +12,6 @@
     myDataSubmission = dataSubmissions[uri]     # uri is the ICOS CP URI
 """
 
-<<<<<<< HEAD
-=======
 __author__ = ["Julien Paul"]
 __credits__ = ""
 __license__ = "CC BY-SA 4.0"
@@ -26,7 +24,6 @@ __status__ = ""
 from SPARQLWrapper import SPARQLWrapper2
 
 
->>>>>>> 00-simplifyIcosCpObjectReading
 # ----------------------------------------------
 def query():
     """

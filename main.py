@@ -67,11 +67,11 @@ if __name__ == '__main__':
 
     wait('loop on every new dataset load on ICOS CP (here just one)')
     # dataobjs=DataObj.get_meta(lastupdate='2020-01-01T00:00:00.000Z', endupdate='2020-08-05T00:00:00.000Z',
-    #                           product='icosOtcL1Product_v2', lastVersion=True, dobj=)
+    #                           product='icosOtcL1Product_v2', lastVersion=True, uri=)
 
     wait('\tget dataObj metadata from ICOS CP')
-    dobj = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
-    dataobjs = DataObj.get_meta(dobj=dobj)
+    uri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
+    dataobjs = DataObj.get_meta(uri=uri)
 
     # output directory
     datasetDir = Path('/home/jpa029/Data/ICOS2ERDDAP/dataset')
