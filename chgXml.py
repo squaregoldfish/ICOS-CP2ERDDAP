@@ -146,7 +146,7 @@ def changeAttr(i, o, m):
                             attrNode.remove(att)
                     # for k, v in gloatt[dsID].items():
                     for k, v in gloatt.items():
-                        subnode = etree.SubElement(attrNode, 'att', name=k)\
+                        subnode = etree.SubElement(attrNode, 'att', name=k)
                         subnode.text = str(v)
         etree.indent(node)
 
