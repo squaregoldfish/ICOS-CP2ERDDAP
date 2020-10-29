@@ -338,7 +338,7 @@ def queryDataObjs(lastupdate='', endupdate='', product='', lastVersion=False, do
         limit 10
     """ % (filterDobj, filterProdcut, filterLastUpDate, filterEndUpDate, filterLastVersion)
 
-    sparql = SPARQLWrapper2("https://meta.icos-cp.eu/sparqlclient")
+    sparql = SPARQLWrapper2("https://meta.icos-cp.eu/sparql")
 
     sparql.setQuery(queryString)
 

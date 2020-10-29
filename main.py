@@ -119,7 +119,7 @@ if __name__ == '__main__':
         StartingDirectory = dirout
         cmdList.append(StartingDirectory)
         # File name regex (e.g., ".*\.asc") (default="")
-        FileNameRegex = '.*\.csv'
+        FileNameRegex = r'.*\.csv'
         cmdList.append(FileNameRegex)
         # Full file name of one file (or leave empty to use first matching fileName) (default="")
         FullFileNameOfOneFile = 'nothing'
