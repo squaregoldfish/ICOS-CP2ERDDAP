@@ -3,7 +3,14 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
+__author__ = ["Julien Paul"]
+__credits__ = ""
+__license__ = "CC BY-SA 4.0"
+__version__ = "0.0.0"
+__maintainer__ = "BCDC"
+__email__ = ['julien.paul@uib.no','']
 
+# ----------------------------------------------
 import lxml.etree as etree
 from pathlib import Path
 
