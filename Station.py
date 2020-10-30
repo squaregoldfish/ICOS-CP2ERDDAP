@@ -21,7 +21,11 @@ __email__ = ['julien.paul@uib.no']
 __status__ = ""
 
 # ----------------------------------------------
+# import from standard lib
+# import from other lib
+# > conda-forge
 from SPARQLWrapper import SPARQLWrapper2
+# import from my project
 
 
 # ----------------------------------------------

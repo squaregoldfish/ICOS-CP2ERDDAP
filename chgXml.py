@@ -8,13 +8,19 @@ __credits__ = ""
 __license__ = "CC BY-SA 4.0"
 __version__ = "0.0.0"
 __maintainer__ = "BCDC"
-__email__ = ['julien.paul@uib.no','']
+__email__ = ['julien.paul@uib.no']
 
 # ----------------------------------------------
-import lxml.etree as etree
+# import from standard lib
 from pathlib import Path
+import re
+# import from other lib
+# > conda forge
+import lxml.etree as etree
+# import from my project
 
 
+# ----------------------------------------------
 class CamelCase:
     """
 
@@ -49,7 +55,6 @@ def renameDatasetId(i, newDatasetId):
     :param newDatasetId: datasetId name to be put in
     :return: overwrite input file
     """
-    import re
 
     content = i.read_text()
     regex = '(^<dataset .* datasetID=")(.*)(" .*>$)'
@@ -118,9 +123,7 @@ def changeAttr(i, o, m):
     #     newDatasetId = 'icos'+cc.formatted(fname, sep='_')
     #     gloatt[newDatasetId] = truc(m,'dataObj',k)
     #     #gloatt[k] = truc(m,'dataObj',k)
-    gloatt = {}
-    gloatt['title'] = 'toto'
-    gloatt['summay'] = 'tutu'
+    gloatt = {'title': 'toto', 'summay': 'tutu'}
 
     print('gloatt\n', gloatt)
 

@@ -8,23 +8,29 @@ __credits__ = ""
 __license__ = "CC BY-SA 4.0"
 __version__ = "0.0.0"
 __maintainer__ = "BCDC"
-__email__ = ['julien.paul@uib.no','']
+__email__ = ['julien.paul@uib.no']
 __status__ = ""
 
+# ----------------------------------------------
+# import from standard lib
+from pathlib import Path
+import subprocess
+# import from other lib
+# import from my project
 import Station
 import GeoRegion
 import DataSubmission
 import DataObj
 import chgXml
 import chgCsv
-from pathlib import Path
-import subprocess
 
+# ----------------------------------------------
 cc = chgXml.CamelCase()
 
 storage = Path('/home/jpa029/Data/ICOS2ERDDAP')
 
 
+# ----------------------------------------------
 def wait(msg=''):
     """
 

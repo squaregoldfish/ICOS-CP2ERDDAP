@@ -21,8 +21,13 @@ __email__ = ['julien.paul@uib.no']
 __status__ = ""
 
 # ----------------------------------------------
+# import from standard lib
+# import from other lib
+import requests
+from requests.exceptions import HTTPError
+# > conda-forge
 from SPARQLWrapper import SPARQLWrapper2
-
+# import from my project
 
 # ----------------------------------------------
 abc = {
@@ -145,9 +150,6 @@ def download(uri, o):
     :param uri: ICOS CP dataObj URI
     :param o: output file
     """
-    import requests
-    from requests.exceptions import HTTPError
-    # from requests.auth import HTTPDigestAuth
 
     # uri = 'https://data.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
     pid = uri.split("/")[-1]
