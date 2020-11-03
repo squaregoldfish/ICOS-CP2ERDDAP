@@ -21,13 +21,14 @@ __maintainer__ = "BCDC"
 __email__ = ['julien.paul@uib.no']
 __status__ = ""
 
-# ----------------------------------------------
+# --- import -----------------------------------
 # import from standard lib
 # import from other lib
 # import from my project
 from ICPObj import ICPObj
 
 
+# ----------------------------------------------
 class Station(ICPObj):
     """
     >>> t.getMeta()
@@ -95,8 +96,8 @@ class Station(ICPObj):
 
 
 if __name__ == '__main__':
-
     import doctest
+
     doctest.testmod(extraglobs={'t': Station(limit=10)},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 

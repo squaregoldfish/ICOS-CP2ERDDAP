@@ -21,13 +21,14 @@ __maintainer__ = "BCDC"
 __email__ = ['julien.paul@uib.no']
 __status__ = ""
 
-# ----------------------------------------------
+# --- import -----------------------------------
 # import from standard lib
 # import from other lib
 # import from my project
 from ICPObj import ICPObj
 
 
+# ----------------------------------------------
 class GeoRegion(ICPObj):
     """
     >>> t.getMeta()

@@ -21,7 +21,7 @@ __maintainer__ = "BCDC"
 __email__ = ['julien.paul@uib.no']
 __status__ = ""
 
-# ----------------------------------------------
+# --- import -----------------------------------
 # import from standard lib
 from urllib.parse import urlparse
 # import from other lib
@@ -31,6 +31,7 @@ from dateutil.parser import parse
 # import from my project
 
 
+# ----------------------------------------------
 class ICPObj(object):
     """
     >>> t.getMeta()
@@ -374,8 +375,8 @@ class ICPObj(object):
 
 
 if __name__ == '__main__':
-
     import doctest
+
     doctest.testmod(extraglobs={'t': ICPObj(limit=10)},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 

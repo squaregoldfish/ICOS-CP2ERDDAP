@@ -172,11 +172,15 @@ class DataObj(ICPObj):
         download every file associated with the dataobjs selected on ICOS CP,
         and store them on local directory named by the dataset 'name'
 
+        :return: dictionary with csv file as key, and dirout as value
+
         >>> t.getMeta()
         >>> t.download()
         download file  https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z  on
             .../58GS20190711_SOCAT_enhanced/58GS20190711_SOCAT_enhanced.csv
         """
+
+        d = {}
         for _, val in self._meta.items():
 
             uri = val['uri'].value  # Warning do not convert to Path (https:// => https./)
@@ -193,6 +197,7 @@ class DataObj(ICPObj):
 
             url = str(uri).replace('meta', 'data')
             fileout = dirout / filename
+            d[filename] = dirout
 
             cookies = dict(CpLicenseAcceptedFor=pid)
             # Fill in your details here to be posted to the login form.
@@ -224,6 +229,8 @@ class DataObj(ICPObj):
                         for chunk in r.iter_content(chunk_size=1024):
                             if chunk:  # filter out keep-alive new chunks
                                 f.write(chunk)
+
+        return d
 
 
 if __name__ == '__main__':
