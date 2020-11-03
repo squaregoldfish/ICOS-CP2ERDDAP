@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-    The Station module is used to explore ICOS stations metadata.
+    The Station module is used to explore ICOS CP stations' metadata.
 
     Example usage:
 
-    import Station
+    From Station import Station
 
-    stations = Station.get_meta() # return a list of stations' dictionary
-    myStation = stations[uri]     # uri is the ICOS CP URI
+    stations = Station()    # initialise ICOS CP Station object
+    stations.get_meta()     # get stations' metadata from ICOS CP
+    stations.show()         # print stations' metadata
 """
 
 __author__ = ["Julien Paul"]
@@ -23,79 +24,80 @@ __status__ = ""
 # ----------------------------------------------
 # import from standard lib
 # import from other lib
-# > conda-forge
-from SPARQLWrapper import SPARQLWrapper2
 # import from my project
+from ICPObj import ICPObj
 
 
-# ----------------------------------------------
-def query():
+class Station(ICPObj):
     """
-    This functions create and run a sparql query on ICOS CP.
-    Here we select metadata from every stations store in the ICOS CP.
-
-    :return: SPARQLWrapper Bindings object (each binding is a dictionary)
-    """
-
-    queryString = """
-        prefix cpmeta: <http://meta.icos-cp.eu/ontologies/cpmeta/>
-        prefix otcmeta: <http://meta.icos-cp.eu/ontologies/otcmeta/>
-        prefix prov: <http://www.w3.org/ns/prov#>
-        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        
-        
-        select ?station ?uriGeoRegion ?stationId ?name ?countryCode ?label ?comment ?seeAlso
-        where {
-           ?station rdf:type/rdfs:subClassOf*  <http://meta.icos-cp.eu/ontologies/otcmeta/Station> .
-        
-           OPTIONAL { ?station otcmeta:hasGeoRegion ?uriGeoRegion .}    
-           OPTIONAL { ?station otcmeta:hasStationId ?stationId .}       
-           OPTIONAL { ?station otcmeta:hasName ?name .}                 
-           OPTIONAL { ?station otcmeta:countryCode ?countryCode .}      
-        
-           OPTIONAL { ?station rdfs:label ?label .}
-           OPTIONAL { ?station rdfs:comment ?comment .}
-           OPTIONAL { ?station rdfs:seeAlso ?seeAlso .}
-        }
-        limit 10
+    >>> t.getMeta()
+    >>> t.show()
+    <BLANKLINE>
+    type: <class '__main__.Station'>
+    <BLANKLINE>
+    Class name: Station
+    ...
+    <BLANKLINE>
+    \tGeoRegion           : type: uri        value: ...
+    \tstationId           : type: literal    value: ...
+    \tname                : type: literal    value: ...
+    \tcountryCode         : type: literal    value: ...
+    \tlabel               : type: literal    value: ...
+    \tcomment             : type: literal    value: ...
+    \tseeAlso             : type: literal    value: ...
+    \turi                 : type: uri        value: ...
+    <BLANKLINE>
+    ...
     """
 
-    sparql = SPARQLWrapper2("https://meta.icos-cp.eu/sparql")
+    def __init__(self, limit=None, uri=None):
+        """
+        This functions initialise instance of Station(ICPObj).
+        Set up a sparql query to get all metadata of Station from ICOS CP.
 
-    sparql.setQuery(queryString)
-    try:
-        return sparql.query()
-    except Exception as err:
-        print("\nAn exception was caught!\n")
-        print(str(err))
-        raise err
+        Optionally we could limit the number of output:
+        - limit the amount of returned results
 
+        and/or select Station:
+        - with ICOS CP 'uri'
 
-def get_meta():
-    """
-    get all stations, and their attributes from ICOS CP
+        Example:
+            Station(limit=5)
 
-    :return: stations' dictionary
-    """
-    # init empty dict
-    stations = {}
+        :param limit: number of returned results
+        :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
+        """
+        super().__init__()
+        # overwrite class name
+        self._name = 'Station'
+        # overwrite conventional attributes renaming dictionary
+        self._convAttr = {}
+        # overwrite query string
+        self._queryString = """
+            select ?xxx ?GeoRegion ?stationId ?name ?countryCode ?label ?comment ?seeAlso
+            where {
+                %s # _filterObj(uri_=uri)
+                ?Station rdf:type/rdfs:subClassOf*  <http://meta.icos-cp.eu/ontologies/otcmeta/Station> .
 
-    res = query()
+                OPTIONAL { ?xxx otcmeta:hasGeoRegion ?GeoRegion .}
+                OPTIONAL { ?xxx otcmeta:hasStationId ?stationId .}
+                OPTIONAL { ?xxx otcmeta:hasName ?name .}
+                OPTIONAL { ?xxx otcmeta:countryCode ?countryCode .}
 
-    for result in res.bindings:
-        uri = result.pop("station").value
-        stations[uri] = result
-
-    return stations
+                OPTIONAL { ?xxx rdfs:label ?label .}
+                OPTIONAL { ?xxx rdfs:comment ?comment .}
+                OPTIONAL { ?xxx rdfs:seeAlso ?seeAlso .}
+            }
+            %s  # _checkLimit(limit_=limit)
+        """ % (self._filterObj(uri_=uri),
+               self._checkLimit(limit_=limit))
+        #
 
 
 if __name__ == '__main__':
 
-    stations = get_meta()
-
-    for k, v in stations.items():
-        for kk, vv in v.items():
-            print(kk, ' : ', 'type:', vv.type, 'value:', vv.value)
-
+    import doctest
+    doctest.testmod(extraglobs={'t': Station(limit=10)},
+                    optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
