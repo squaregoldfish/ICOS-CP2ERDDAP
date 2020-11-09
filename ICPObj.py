@@ -140,7 +140,7 @@ class ICPObj(object):
                self._filterLastVersion(lastversion_=lastversion),
                self._checkLimit(limit_=limit))
         #
-        self._meta = {}
+        self.meta = {}
 
     def _query(self):
         """
@@ -164,21 +164,28 @@ class ICPObj(object):
         """
         fill instance's dictionary _meta (keys are: 'type','value')
         with metadata, and their attributes from ICOS CP
+
+        meta = { ?uri : ?result, ... }
+            ?result = { ?attr : {type: ? , value: ?}, ... }
         """
         # init empty dict
         res = self._query()
         for result in res.bindings:
+            # result = { ? :{type: ? , value: ?}, ... }
             result['uri'] = result.pop("xxx")
             uri = result['uri'].value
-            self._meta[uri] = self._renameKeyDic(result)
+            self.meta[uri] = self._renameKeyDic(result)
 
     def show(self):
         """
         print metadata read (name, type and value)
+
+        ICPObj.meta = { ?uri = ?result }
+         ?result = { ?attr : {type: ? , value: ? }, ... }
         """
         print("\ntype: {}".format(type(self)))
         print("\nClass name: {}".format(self._name))
-        for k, v in self._meta.items():
+        for k, v in self.meta.items():
             print('')
             for kk, vv in v.items():
                 print('\t{:20}: type: {:10} value: {}'.format(kk, vv.type, vv.value))
@@ -291,10 +298,22 @@ class ICPObj(object):
             ...
             raise TypeError('Invalid product format', product)
         TypeError: ('Invalid product format', 22)
+        >>> t._filterProduct(['product','product2'])
+        'VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/product http://meta.icos-cp.eu/resources/cpmeta/%sproduct2>}'
+        >>> t._filterProduct(['product',2])
+        Traceback (most recent call last):
+        ...
+            raise TypeError('Invalid product format', product_)
+        TypeError: ('Invalid product format', ['product', 2])
+        >>> t._filterProduct(['product'])
+        'VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/product>}'
         """
         if product_:
             if isinstance(product_, str):
                 return "VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/%s>}" % product_
+            elif isinstance(product_, list) and all(isinstance(n, str)for n in product_):
+                _ = " http://meta.icos-cp.eu/resources/cpmeta/%s".join(product_)
+                return "VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/%s>}" % _
             else:
                 raise TypeError('Invalid product format', product_)
         else:
@@ -340,7 +359,7 @@ class ICPObj(object):
         try:
             result = urlparse(url_)
             return all([result.scheme, result.netloc])
-        except ValueError:
+        except Exception:
             return False
 
     def _filterObj(self, uri_=''):
@@ -359,15 +378,24 @@ class ICPObj(object):
         TypeError: ('Invalid object format', 'toto')
         >>> t._filterObj(33)
         Traceback (most recent call last):
-            ...
-            return tuple(x.decode(encoding, errors) if x else '' for x in args)
-        AttributeError: 'int' object has no attribute 'decode'
+        ...
+            raise TypeError('Invalid object format', uri_)
+        TypeError: ('Invalid object format', 33)
         >>> t._filterObj('https://www.jetbrains.com/help/pycharm')
         'VALUES ?xxx {<https://www.jetbrains.com/help/pycharm>}'
+        >>> t._filterObj(['toto',33])
+        Traceback (most recent call last):
+        ...
+            raise TypeError('Invalid object format', uri_)
+        TypeError: ('Invalid object format', ['toto', 33])
+        >>> t._filterObj(['https://www.jetbrains.com/help/pycharm','https://docs.python.org/3/tutorial/errors.html'])
+        'VALUES ?xxx {<https://www.jetbrains.com/help/pycharm https://docs.python.org/3/tutorial/errors.html>}'
         """
         if uri_:
             if self._is_url(uri_):
                 return "VALUES ?xxx {<%s>}" % uri_
+            elif isinstance(uri_, list) and all(self._is_url(n) for n in uri_):
+                return "VALUES ?xxx {<%s>}" % " ".join(uri_)
             else:
                 raise TypeError('Invalid object format', uri_)
         else:

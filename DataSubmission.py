@@ -27,6 +27,12 @@ __status__ = ""
 # import from my project
 from ICPObj import ICPObj
 
+# --- module's variable ------------------------
+renameAtt = {
+    'startedAtTime': 'submission_started_at_time',
+    'endedAtTime': 'submission_ended_at_time'
+}
+
 
 # ----------------------------------------------
 class DataSubmission(ICPObj):
@@ -40,8 +46,8 @@ class DataSubmission(ICPObj):
     ...
     <BLANKLINE>
     \tProject             : type: uri        value: ...
-    \tstartedAtTime       : type: literal    value: ...
-    \tendedAtTime         : type: literal    value: ...
+    \tsubmission_started_at_time: type: literal    value: ...
+    \tsubmission_ended_at_time: type: literal    value: ...
     \turi                 : type: uri        value: ...
     <BLANKLINE>
     ...
@@ -68,7 +74,10 @@ class DataSubmission(ICPObj):
         # overwrite class name
         self._name = 'DataSubmission'
         # overwrite conventional attributes renaming dictionary
-        self._convAttr = {}
+        if isinstance(renameAtt, dict):
+            self._convAttr = renameAtt
+        else:
+            self._convAttr = {}
         # overwrite query string
         self._queryString = """
             select ?xxx ?Project ?startedAtTime ?endedAtTime ?label ?comment ?seeAlso

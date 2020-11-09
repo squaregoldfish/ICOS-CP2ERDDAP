@@ -175,13 +175,13 @@ class DataObj(ICPObj):
         :return: dictionary with csv file as key, and dirout as value
 
         >>> t.getMeta()
-        >>> t.download()
+        >>> output = t.download()
         download file  https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z  on
             .../58GS20190711_SOCAT_enhanced/58GS20190711_SOCAT_enhanced.csv
         """
 
         d = {}
-        for _, val in self._meta.items():
+        for _, val in self.meta.items():
 
             uri = val['uri'].value  # Warning do not convert to Path (https:// => https./)
             pid = uri.split("/")[-1]
