@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-    The DataSubmission module is used to explore ICOS dataSubmissions metadata.
+    The DataSubmission module is used to explore ICOS CP datasubmissions' metadata.
 
     Example usage:
 
-    import DataSubmission
+    From DataSubmission import DataSubmission
 
-    dataSubmissions = DataSubmission.get_meta() # return a list of dataSubmissions' dictionary
-    myDataSubmission = dataSubmissions[uri]     # uri is the ICOS CP URI
+    datasubmissions = DataSubmission()  # initialise ICOS CP DataSubmission object
+    datasubmissions.get_meta()          # get datasubmissions' metadata from ICOS CP
+    datasubmissions.show()              # print datasubmissions' metadata
 """
 
 __author__ = ["Julien Paul"]
@@ -20,77 +21,88 @@ __maintainer__ = "BCDC"
 __email__ = ['julien.paul@uib.no']
 __status__ = ""
 
-# ----------------------------------------------
-from SPARQLWrapper import SPARQLWrapper2
+# --- import -----------------------------------
+# import from standard lib
+# import from other lib
+# import from my project
+from ICPObj import ICPObj
+
+# --- module's variable ------------------------
+renameAtt = {
+    'startedAtTime': 'submission_started_at_time',
+    'endedAtTime': 'submission_ended_at_time'
+}
 
 
 # ----------------------------------------------
-def query():
+class DataSubmission(ICPObj):
     """
-    This functions create and run a sparql query on ICOS CP.
-    Here we select metadata from every dataSubmissions store in the ICOS CP.
-
-    :return: SPARQLWrapper Bindings object (each binding is a dictionary)
-    """
-
-    queryString = """
-        prefix cpmeta: <http://meta.icos-cp.eu/ontologies/cpmeta/>
-        prefix otcmeta: <http://meta.icos-cp.eu/ontologies/otcmeta/>
-        prefix prov: <http://www.w3.org/ns/prov#>
-        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-
-        select ?dataSubmission ?project ?startedAtTime ?endedAtTime ?label ?comment ?seeAlso
-        where {
-           ?dataSubmission rdf:type/rdfs:subClassOf*  <http://meta.icos-cp.eu/ontologies/cpmeta/DataSubmission> .
-           OPTIONAL { ?dataSubmission prov:wasAssociatedWith ?project .}
-           OPTIONAL { ?dataSubmission prov:startedAtTime     ?startedAtTime .}
-           OPTIONAL { ?dataSubmission prov:endedAtTime       ?endedAtTime   .}
-
-           OPTIONAL { ?dataSubmission rdfs:label   ?label .}
-           OPTIONAL { ?dataSubmission rdfs:comment ?comment .}
-           OPTIONAL { ?dataSubmission rdfs:seeAlso ?seeAlso .}
-        }
-        #limit 100
+    >>> t.getMeta()
+    >>> t.show()
+    <BLANKLINE>
+    type: <class '__main__.DataSubmission'>
+    <BLANKLINE>
+    Class name: DataSubmission
+    ...
+    <BLANKLINE>
+    \tProject             : type: uri        value: ...
+    \tsubmission_started_at_time: type: literal    value: ...
+    \tsubmission_ended_at_time: type: literal    value: ...
+    \turi                 : type: uri        value: ...
+    <BLANKLINE>
+    ...
     """
 
-    sparql = SPARQLWrapper2("https://meta.icos-cp.eu/sparql")
+    def __init__(self, limit=None, uri=None):
+        """
+        This functions initialise instance of DataSubmission(ICPObj).
+        Set up a sparql query to get all metadata of DataSubmission from ICOS CP.
 
-    sparql.setQuery(queryString)
-    try:
-        return sparql.query()
-    except Exception as err:
-        print("\nAn exception was caught!\n")
-        print(str(err))
-        raise err
+        Optionally we could limit the number of output:
+        - limit the amount of returned results
 
+        and/or select DataSubmission:
+        - with ICOS CP 'uri'
 
-def get_meta():
-    """
-    get all dataSubmissions, and their attributes from ICOS CP
+        Example:
+            DataSubmission(limit=5)
 
-    :return: dataSubmissions' dictionary
-    """
-    # init empty dict
-    dataSubmissions = {}
+        :param limit: number of returned results
+        :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
+        """
+        super().__init__()
+        # overwrite class name
+        self._name = 'DataSubmission'
+        # overwrite conventional attributes renaming dictionary
+        if isinstance(renameAtt, dict):
+            self._convAttr = renameAtt
+        else:
+            self._convAttr = {}
+        # overwrite query string
+        self._queryString = """
+            select ?xxx ?Project ?startedAtTime ?endedAtTime ?label ?comment ?seeAlso
+            where {
+                %s # _filterObj(uri=uri)
+               ?xxx rdf:type/rdfs:subClassOf*  <http://meta.icos-cp.eu/ontologies/cpmeta/DataSubmission> .
+               OPTIONAL { ?xxx prov:wasAssociatedWith ?Project .}
+               OPTIONAL { ?xxx prov:startedAtTime     ?startedAtTime .}
+               OPTIONAL { ?xxx prov:endedAtTime       ?endedAtTime   .}
 
-    res = query()
-
-    for result in res.bindings:
-        uri = result.pop("dataSubmission").value
-        dataSubmissions[uri] = result
-
-    return dataSubmissions
+               OPTIONAL { ?xxx rdfs:label   ?label .}
+               OPTIONAL { ?xxx rdfs:comment ?comment .}
+               OPTIONAL { ?xxx rdfs:seeAlso ?seeAlso .}
+            }
+            %s  # _checklimit(limit)
+        """ % (self._filterObj(uri_=uri),
+               self._checkLimit(limit_=limit))
+        #
 
 
 if __name__ == '__main__':
+    import doctest
 
-    dataSubmissions = get_meta()
-
-    for k, v in dataSubmissions.items():
-        print('k:', k)
-        for kk, vv in v.items():
-            print(kk, ' : ', 'type:', vv.type, 'value:', vv.value)
+    doctest.testmod(extraglobs={'t': DataSubmission(limit=10)},
+                    optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
