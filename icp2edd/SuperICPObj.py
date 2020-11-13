@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# SuperICPObj.py
 
 """
     This module set up a generic class for ICOS CP Object.
@@ -13,24 +14,16 @@
     icpobj.show()       # print metadata
 """
 
-__author__ = ["Julien Paul"]
-__credits__ = ""
-__license__ = "CC BY-SA 4.0"
-__version__ = "0.0.0"
-__maintainer__ = "BCDC"
-__email__ = ['julien.paul@uib.no']
-__status__ = ""
-
 # --- import -----------------------------------
 # import from standard lib
 # import from other lib
 # > conda-forge
 # import from my project
-from DataObj import DataObj
-from Station import Station
-from GeoRegion import GeoRegion
-from DataSubmission import DataSubmission
-import case
+from icp2edd.DataObj import DataObj
+from icp2edd.Station import Station
+from icp2edd.GeoRegion import GeoRegion
+from icp2edd.DataSubmission import DataSubmission
+import icp2edd.case as case
 
 
 # ----------------------------------------------

@@ -1,3 +1,12 @@
 # ICOS-CP2ERDDAP
 
-version: 0.0.1
+
+# to run 'module.main' from terminal
+$ python -m icp2edd
+
+or
+
+$ python wrapper.py
+
+# to set up package library
+$ python setup.py sdist

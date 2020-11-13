@@ -1,14 +1,6 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-__author__ = ["Julien Paul"]
-__credits__ = ""
-__license__ = "CC BY-SA 4.0"
-__version__ = "0.0.0"
-__maintainer__ = "BCDC"
-__email__ = ['julien.paul@uib.no']
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Xml4Erddap.py
 
 # --- import -----------------------------------
 # import from standard lib
@@ -16,11 +8,12 @@ from pathlib import Path
 import re
 import os
 import subprocess
+# from importlib import resources
 # import from other lib
 # > conda forge
 import lxml.etree as etree
 # import from my project
-import case
+import icp2edd.case as case
 
 # --- module's variable ------------------------
 # TODO create config file
@@ -293,9 +286,12 @@ def concatenate():
 
     dsxmlout = datasetDir / 'datasets.xml'
     print('concatenate in {}'.format(dsxmlout))
+    mod_path = Path(__file__).parent
     with dsxmlout.open("w") as fp:
         # add header
-        header = Path('./Dataset') / 'header.xml'
+        header = mod_path / 'dataset' / 'header.xml'
+        # TODO see how to use resources
+        # header = resources.path('dataset', 'header.xml')
         print('\t{}'.format(header))
         fp.write(header.read_text())
         # add single dataset
@@ -303,7 +299,7 @@ def concatenate():
             print('\t{}'.format(ff))
             fp.write(ff.read_text())
         # add footer
-        footer = Path('./Dataset') / 'footer.xml'
+        footer = mod_path / 'dataset' / 'footer.xml'
         print('\t{}'.format(footer))
         fp.write(footer.read_text())
 

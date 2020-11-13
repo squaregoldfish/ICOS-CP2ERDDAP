@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# DataSubmission.py
 
 """
     The DataSubmission module is used to explore ICOS CP datasubmissions' metadata.
@@ -13,19 +14,11 @@
     datasubmissions.show()              # print datasubmissions' metadata
 """
 
-__author__ = ["Julien Paul"]
-__credits__ = ""
-__license__ = "CC BY-SA 4.0"
-__version__ = "0.0.0"
-__maintainer__ = "BCDC"
-__email__ = ['julien.paul@uib.no']
-__status__ = ""
-
 # --- import -----------------------------------
 # import from standard lib
 # import from other lib
 # import from my project
-from ICPObj import ICPObj
+from icp2edd.ICPObj import ICPObj
 
 # --- module's variable ------------------------
 renameAtt = {

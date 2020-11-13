@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# ICPObj.py
 
 """
     This module set up a generic class for ICOS CP Object.
@@ -12,14 +13,6 @@
     icpobj.get_meta()   # get metadata from ICOS CP
     icpobj.show()       # print metadata
 """
-
-__author__ = ["Julien Paul"]
-__credits__ = ""
-__license__ = "CC BY-SA 4.0"
-__version__ = "0.0.0"
-__maintainer__ = "BCDC"
-__email__ = ['julien.paul@uib.no']
-__status__ = ""
 
 # --- import -----------------------------------
 # import from standard lib
