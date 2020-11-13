@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import os
 import subprocess
+# from importlib import resources
 # import from other lib
 # > conda forge
 import lxml.etree as etree
@@ -289,6 +290,8 @@ def concatenate():
     with dsxmlout.open("w") as fp:
         # add header
         header = mod_path / 'dataset' / 'header.xml'
+        # TODO see how to use resources
+        # header = resources.path('dataset', 'header.xml')
         print('\t{}'.format(header))
         fp.write(header.read_text())
         # add single dataset

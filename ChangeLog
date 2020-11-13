@@ -1,0 +1,24 @@
+CHANGES
+=======
+
+* Add setup files
+* create subdirectoy -icp2edd- to store sources
+* remove former file
+* remove former files
+* creates repository to store dataset's header and footer
+* create case module
+* refactorize code, add some doctest
+* DataObj.download return dictionary {filename:repository}
+* creates a generic class ICPObj, which runs sparql query to get metadata. creates Station class, as subclass of ICPObj. creates GeoRegion class, as subcalss of ICPObj. creates DataSubmission class, ass subclass of ICPObj. creates a DataObj class, as subclass of ICPObj. Adds a download method to this class only
+* replace all 'import' in the beginning of the file
+* fix forgeted conflict
+* fix typo introduce in mergingi branch 00-fixCdataReading
+* implements some PEP8 recommendations
+* use lxml.etree instead of xml.etree.ElementTree (better way to handle ixml file for CDATA, indentation), implements some PEP8 recommendations
+* implements some PEP8 recommendations, improve docstring
+* remove useless class improve doccstring put import at the top of the file
+* fix SPARQL endpoint URL
+* fix SPARQL endpoint URL raise SPARQLExceptions
+* change licence to CC BY-SA 4.0 remove useless Module level "dunders" date variable
+* create a demonstrator to load data and metadata from ICOS CP to an ERDDAP server add .gitignore file
+* Initial commit
