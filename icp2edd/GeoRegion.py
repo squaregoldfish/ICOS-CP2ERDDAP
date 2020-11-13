@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# GeoRegion.py
 
 """
     The GeoRegion is used to explore ICOS CP georegions' metadata.
@@ -12,14 +13,6 @@
     georegions.get_meta()       # get georegions' metadata from ICOS CP
     georegions.show()           # print georegions' metadata
 """
-
-__author__ = ["Julien Paul"]
-__credits__ = ""
-__license__ = "CC BY-SA 4.0"
-__version__ = "0.0.0"
-__maintainer__ = "BCDC"
-__email__ = ['julien.paul@uib.no']
-__status__ = ""
 
 # --- import -----------------------------------
 # import from standard lib

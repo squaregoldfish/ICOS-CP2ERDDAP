@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# DataObj.py
 
 """
     The DataObj module is used to explore ICOS CP dataobjs' metadata.
@@ -13,14 +14,6 @@
     dataobjs.show()         # print dataobjs' metadata
     dataobjs.download()     # download every files associated with dataobjs selected
 """
-
-__author__ = ["Julien Paul"]
-__credits__ = ""
-__license__ = "CC BY-SA 4.0"
-__version__ = "0.0.0"
-__maintainer__ = "BCDC"
-__email__ = ['julien.paul@uib.no']
-__status__ = ""
 
 # --- import -----------------------------------
 # import from standard lib
