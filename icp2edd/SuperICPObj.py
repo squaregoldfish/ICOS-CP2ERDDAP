@@ -26,11 +26,11 @@ __status__ = ""
 # import from other lib
 # > conda-forge
 # import from my project
-from DataObj import DataObj
-from Station import Station
-from GeoRegion import GeoRegion
-from DataSubmission import DataSubmission
-import case
+from icp2edd.DataObj import DataObj
+from icp2edd.Station import Station
+from icp2edd.GeoRegion import GeoRegion
+from icp2edd.DataSubmission import DataSubmission
+import icp2edd.case as case
 
 
 # ----------------------------------------------

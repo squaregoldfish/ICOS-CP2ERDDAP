@@ -16,13 +16,13 @@ __status__ = ""
 from pathlib import Path
 # import from other lib
 # import from my project
-from SuperICPObj import SuperICPObj
-from Station import Station
-from GeoRegion import GeoRegion
-from DataSubmission import DataSubmission
-from DataObj import DataObj
-import Xml4Erddap as x4edd
-import csv4Erddap
+from icp2edd.SuperICPObj import SuperICPObj
+from icp2edd.Station import Station
+from icp2edd.GeoRegion import GeoRegion
+from icp2edd.DataSubmission import DataSubmission
+from icp2edd.DataObj import DataObj
+import icp2edd.Xml4Erddap as x4edd
+import icp2edd.csv4Erddap as c4edd
 
 # ----------------------------------------------
 storage = Path('/home/jpa029/Data/ICOS2ERDDAP')
@@ -42,8 +42,7 @@ def wait(msg=''):
     print('\n')
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
+def main():
 
     # TODO create config file
     # TODO first part get new dataObj on ICOS CP, and create associated ERDDAP dataset.xml
@@ -66,7 +65,7 @@ if __name__ == '__main__':
         wait('\t change in csv file :\n\t\t- change Date/Time format\n\t\t- remove units for variable name')
 
         fileout = Path.joinpath(rep, csv)
-        csv4Erddap.modify(fileout)
+        c4edd.modify(fileout)
 
         wait('\trun ERDDAP GenerateDatasetXml tool to create dataset.xml file')
         dirout = fileout.parents[0]
@@ -120,5 +119,9 @@ if __name__ == '__main__':
 
     wait('replace erddap datasets.xml file with the new one')
     x4edd.replaceXmlBy(dsxmlout)
+
+# Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+    main()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

@@ -25,7 +25,7 @@ __status__ = ""
 # import from standard lib
 # import from other lib
 # import from my project
-from ICPObj import ICPObj
+from icp2edd.ICPObj import ICPObj
 
 # --- module's variable ------------------------
 renameAtt = {

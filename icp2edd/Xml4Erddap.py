@@ -20,7 +20,7 @@ import subprocess
 # > conda forge
 import lxml.etree as etree
 # import from my project
-import case
+import icp2edd.case as case
 
 # --- module's variable ------------------------
 # TODO create config file
@@ -293,9 +293,10 @@ def concatenate():
 
     dsxmlout = datasetDir / 'datasets.xml'
     print('concatenate in {}'.format(dsxmlout))
+    mod_path = Path(__file__).parent
     with dsxmlout.open("w") as fp:
         # add header
-        header = Path('./Dataset') / 'header.xml'
+        header = mod_path / 'Dataset' / 'header.xml'
         print('\t{}'.format(header))
         fp.write(header.read_text())
         # add single dataset
@@ -303,7 +304,7 @@ def concatenate():
             print('\t{}'.format(ff))
             fp.write(ff.read_text())
         # add footer
-        footer = Path('./Dataset') / 'footer.xml'
+        footer = mod_path / 'Dataset' / 'footer.xml'
         print('\t{}'.format(footer))
         fp.write(footer.read_text())
 

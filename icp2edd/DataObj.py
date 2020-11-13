@@ -29,7 +29,7 @@ from pathlib import Path
 import requests
 from requests.exceptions import HTTPError
 # import from my project
-from ICPObj import ICPObj
+from icp2edd.ICPObj import ICPObj
 
 # --- module's variables -----------------------
 storage = Path('/home/jpa029/Data/ICOS2ERDDAP')
