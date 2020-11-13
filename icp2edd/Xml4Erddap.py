@@ -288,7 +288,7 @@ def concatenate():
     mod_path = Path(__file__).parent
     with dsxmlout.open("w") as fp:
         # add header
-        header = mod_path / 'Dataset' / 'header.xml'
+        header = mod_path / 'dataset' / 'header.xml'
         print('\t{}'.format(header))
         fp.write(header.read_text())
         # add single dataset
@@ -296,7 +296,7 @@ def concatenate():
             print('\t{}'.format(ff))
             fp.write(ff.read_text())
         # add footer
-        footer = mod_path / 'Dataset' / 'footer.xml'
+        footer = mod_path / 'dataset' / 'footer.xml'
         print('\t{}'.format(footer))
         fp.write(footer.read_text())
 
