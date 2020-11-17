@@ -24,11 +24,42 @@ from requests.exceptions import HTTPError
 # import from my project
 from icp2edd.ICPObj import ICPObj
 
-# --- module's variables -----------------------
-storage = Path('/home/jpa029/Data/ICOS2ERDDAP')
+# --- module's variable -------------------------
+global datasetCsvPath
 
 
 # ----------------------------------------------
+def setupcfg(cfg_=None):
+    """
+
+    >>> setupcfg()
+    >>> setupcfg(toto)
+    Traceback (most recent call last):
+    ...
+        setupcfg(toto)
+    NameError: name 'toto' is not defined
+    >>> setupcfg('toto')
+    Traceback (most recent call last):
+    ...
+        erddapPath = Path(cfg_['ERDDAP']['path'].get('string'))
+    TypeError: string indices must be integers
+    """
+    import confuse  # Initialize config with your app
+    global datasetCsvPath
+
+    if cfg_ is None:
+        cfg_ = confuse.Configuration('icp2edd', modname='icp2edd')  # Get a value from your YAML file
+        _ = Path(cfg_._package_path)
+        cfg_.default_config_path = _ / confuse.DEFAULT_FILENAME
+
+    datasetCsvPath = Path(cfg_['paths']['dataset']['csv'].as_filename())
+    if not datasetCsvPath.is_dir():
+        raise FileNotFoundError('Can not find path where store dataset csv file {}.\n'
+                                'Check config file(s) {} and/or {}'.format(datasetCsvPath,
+                                                                           cfg_.user_config_path(),
+                                                                           cfg_.default_config_path))
+
+
 class DataObj(ICPObj):
     """
     >>> t.getMeta()
@@ -181,7 +212,7 @@ class DataObj(ICPObj):
             filename = Path(val['name'].value)
             stemname = filename.stem
 
-            dirout = storage / stemname
+            dirout = datasetCsvPath / stemname
             try:
                 dirout.mkdir(parents=True)
             except FileExistsError:
@@ -203,6 +234,8 @@ class DataObj(ICPObj):
                 # print the html returned or something more intelligent to see if it's a successful login page.
                 # print('html return ')#, p.text)
 
+                # TODO check error case
+                # TODO use this 'try except else' format everywhere
                 try:
                     # an authorised request.
                     # r = s.get(url, auth=(user,pswd), stream=True)
@@ -230,8 +263,8 @@ if __name__ == '__main__':
     import doctest
 
     uri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
-
-    doctest.testmod(extraglobs={'t': DataObj(uri=uri)},
+    setupcfg()
+    doctest.testmod(extraglobs={'t': DataObj(uri=uri), 'datasetCsvPath': datasetCsvPath},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
