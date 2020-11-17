@@ -4,7 +4,7 @@
 
 # --- import -----------------------------------
 # import from standard lib
-from pathlib import Path
+# from pathlib import Path
 import re
 # import from other lib
 # > conda forge
@@ -79,9 +79,8 @@ if __name__ == '__main__':
 
     doctest.testmod(optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
-    #csvDir = Path('/home/jpa029/Data/ICOS2ERDDAP/58GS20190711_SOCAT_enhanced')
-    #csv = csvDir / '58GS20190711_SOCAT_enhanced.csv.bak'
-
-    #modify(csv)
+    # csvDir = Path('/home/jpa029/Data/ICOS2ERDDAP/58GS20190711_SOCAT_enhanced')
+    # csv = csvDir / '58GS20190711_SOCAT_enhanced.csv.bak'
+    # modify(csv)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

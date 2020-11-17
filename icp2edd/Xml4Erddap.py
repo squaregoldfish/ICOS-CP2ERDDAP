@@ -16,37 +16,56 @@ import lxml.etree as etree
 import icp2edd.case as case
 
 # --- module's variable ------------------------
-# TODO create config file
-# output directory
-datasetDir = Path('/home/jpa029/Data/ICOS2ERDDAP/dataset')
-# erddap directories
-erddapDir = Path('/home/jpa029/Code/apache-tomcat-8.5.57')
-erddapWebInfDir = erddapDir / 'webapps' / 'erddap' / 'WEB-INF'
-erddapContentDir = erddapDir / 'content' / 'erddap'
+global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath
 
 
-def checkErddapPath(path_=None):
+def setupcfg(cfg_=None):
     """
-    >>> checkErddapPath()
+
+    >>> setupcfg()
+    >>> setupcfg(toto)
+    Traceback (most recent call last):
+    ...
+        setupcfg(toto)
+    NameError: name 'toto' is not defined
+    >>> setupcfg('toto')
+    Traceback (most recent call last):
+    ...
+        erddapPath = Path(cfg_['ERDDAP']['path'].get('string'))
+    TypeError: string indices must be integers
     """
-    # This is a global variable
-    global erddapDir
+    import confuse  # Initialize config with your app
+    global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath
 
-    # erddap directories
-    if path_ is not None:
-        erddapDir = Path(path_)
-        # erddapDir = Path('/home/jpa029/Code/apache-tomcat-8.5.57')
+    if cfg_ is None:
+        cfg_ = confuse.Configuration('icp2edd', modname='icp2edd')  # Get a value from your YAML file
+        pkg_path = Path(cfg_._package_path)
+        cfg_.default_config_path = pkg_path / confuse.DEFAULT_FILENAME
 
-    if not erddapDir.is_dir():
-        raise FileNotFoundError('can not find ERDDAP directory {}'.format(erddapDir))
+    erddapPath = Path(cfg_['paths']['erddap'].get('string'))
 
-    # erddapWebInfDir = erddapDir / 'webapps' / 'erddap' / 'WEB-INF'
+    if not erddapPath.is_dir():
+        raise FileNotFoundError('can not find ERDDAP path {}.\n'
+                                'Check config file(s) {} and/or {}'.format(erddapPath,
+                                                                           cfg_.user_config_path(),
+                                                                           cfg_.default_config_path))
+
+    erddapWebInfDir = erddapPath / 'webapps' / 'erddap' / 'WEB-INF'
     if not erddapWebInfDir.is_dir():
-        raise FileNotFoundError('can not find ERDDAP directory {}'.format(erddapWebInfDir))
+        raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
+                                'check ERDDAP installation. '.format(erddapWebInfDir))
 
-    # erddapContentDir = erddapDir / 'content' / 'erddap'
+    erddapContentDir = erddapPath / 'content' / 'erddap'
     if not erddapContentDir.is_dir():
-        raise FileNotFoundError('can not find ERDDAP directory {}'.format(erddapContentDir))
+        raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
+                                'check ERDDAP installation'.format(erddapContentDir))
+
+    datasetXmlPath = Path(cfg_['paths']['dataset']['xml'].as_filename())
+    if not datasetXmlPath.is_dir():
+        raise FileNotFoundError('can not find path where store dataset xml file {}.\n'
+                                'Check config file(s) {} and/or {}'.format(datasetXmlPath,
+                                                                           cfg_.user_config_path(),
+                                                                           cfg_.default_config_path))
 
 
 class Xml4Erddap(object):
@@ -171,17 +190,17 @@ class Xml4Erddap(object):
         """ generate dataset.xml file using ERDDAP tools -GenerateDatasetsXml.sh-
         """
         # This is a global variable
-        global datasetDir
+        global datasetXmlPath
 
         if len(self._cmd) != self._checkArgs():
             raise ValueError('Invalid arguments number -{}-, expected -{}-'.format(len(self._cmd), self._checkArgs()))
 
         # output dataset file
-        if not isinstance(datasetDir, Path):
-            datasetDir = Path(datasetDir)
+        if not isinstance(datasetXmlPath, Path):
+            datasetXmlPath = Path(datasetXmlPath)
 
         # creates sub directory
-        datasetSubDir = datasetDir / self._stem
+        datasetSubDir = datasetXmlPath / self._stem
         try:
             datasetSubDir.mkdir(parents=True)
         except FileExistsError:
@@ -279,12 +298,12 @@ def concatenate():
     '.../datasets.xml'
     """
     # This is a global variable
-    global datasetDir
+    global datasetXmlPath
 
-    if not isinstance(datasetDir, Path):
-        datasetDir = Path(datasetDir)
+    if not isinstance(datasetXmlPath, Path):
+        datasetXmlPath = Path(datasetXmlPath)
 
-    dsxmlout = datasetDir / 'datasets.xml'
+    dsxmlout = datasetXmlPath / 'datasets.xml'
     print('concatenate in {}'.format(dsxmlout))
     mod_path = Path(__file__).parent
     with dsxmlout.open("w") as fp:
@@ -295,7 +314,7 @@ def concatenate():
         print('\t{}'.format(header))
         fp.write(header.read_text())
         # add single dataset
-        for ff in datasetDir.glob('**/dataset.*.xml'):
+        for ff in datasetXmlPath.glob('**/dataset.*.xml'):
             print('\t{}'.format(ff))
             fp.write(ff.read_text())
         # add footer
@@ -421,8 +440,9 @@ if __name__ == '__main__':
     # changeAttr(i, o, m)
 
     import doctest
-
-    doctest.testmod(extraglobs={'dd': 'toto'},
+    setupcfg()
+    doctest.testmod(extraglobs={'datasetXmlPath': datasetXmlPath, 'erddapPath': erddapPath,
+                                'erddapWebInfDir': erddapWebInfDir, 'erddapContentDir': erddapContentDir},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
     dirout = '/home/jpa029/Data/ICOS2ERDDAP/58GS20190711_SOCAT_enhanced'
