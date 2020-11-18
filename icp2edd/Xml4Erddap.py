@@ -122,7 +122,8 @@ class Xml4Erddap(object):
 
         self._cmd = []
         if self._eddType == 'EDDTableFromAsciiFiles':
-            # TODO read those parameters in some config file
+            # TODO read those parameters in some config file,
+            #  see https://github.com/beetbox/confuse/issues/30
             # Which EDDType (default="EDDGridFromDap")
             self._eddType = 'EDDTableFromAsciiFiles'
             self._cmd.append(self._eddType)
@@ -228,8 +229,6 @@ class Xml4Erddap(object):
         # add tag to dataset name
         dstag = Path.joinpath(datasetSubDir, self._ds + tag)
         self._cmd.append('-i' + str(dstag))
-
-        # TODO check executable really exists
 
         e = Path.joinpath(erddapWebInfDir, exe)
         # Check file exists
@@ -423,8 +422,6 @@ def replaceXmlBy(dsxmlout):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-
-    # TODO load directories needed from config file
 
     # d = Path('/home/jpa029/Data/ICOS2ERDDAP/dataset/58GS20190711_SOCAT_enhanced')
     # i = d / 'dataset.58GS20190711_SOCAT_enhanced.xml'
