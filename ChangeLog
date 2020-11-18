@@ -1,6 +1,15 @@
 CHANGES
 =======
 
+* use configuration file to set up ERDDAP and storage directories
+* initialise requirements.txt
+* update README, and add some package file
+* add wrapper to run module from outside
+* rename 'dataset' directory
+* improve file header, and remove useless 'dunder' variables
+* change import and main to allow running the module with command line
+* add LICENSE
+* add some pbr output to .gitignore
 * Add setup files
 * create subdirectoy -icp2edd- to store sources
 * remove former file

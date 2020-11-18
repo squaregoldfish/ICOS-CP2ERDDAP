@@ -1,6 +1,5 @@
-# TODO voir pipdeptree
-python>=3.8.5
-lxml>=4.6.4
+# see pipdeptree
+lxml>=4.6.1
 pbr>=5.5.1
 requests>=2.24.0
 sparqlwrapper>=1.8.5
