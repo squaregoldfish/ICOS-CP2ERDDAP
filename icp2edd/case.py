@@ -4,9 +4,13 @@
 
 # --- import -----------------------------------
 # import from standard lib
+import logging
 # import from other lib
 # > conda forge
 # import from my project
+
+# load logger
+_logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------

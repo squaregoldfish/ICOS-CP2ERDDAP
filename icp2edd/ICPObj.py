@@ -17,11 +17,15 @@
 # --- import -----------------------------------
 # import from standard lib
 from urllib.parse import urlparse
+import logging
 # import from other lib
 # > conda-forge
 from SPARQLWrapper import SPARQLWrapper2
 from dateutil.parser import parse
 # import from my project
+
+# load logger
+_logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------
@@ -148,10 +152,9 @@ class ICPObj(object):
         sparql.setQuery(query)
         try:
             return sparql.query()
-        except Exception as err:
-            print("\nAn exception was caught!\n")
-            print(str(err))
-            raise err
+        except Exception:  # as err:
+            _logger.exception("ERROR with SPARQL query")
+            raise  #
 
     def getMeta(self):
         """
@@ -219,9 +222,9 @@ class ICPObj(object):
                 else:
                     return ''
             except TypeError:
-                raise TypeError('limit has wrong type')
+                raise TypeError('limit -{}- has wrong type'.format(limit_))
             except ValueError:
-                raise ValueError('limit is not an integer')
+                raise ValueError('limit -{}- is not an integer'.format(limit_))
         else:
             return ''
 
@@ -259,14 +262,14 @@ class ICPObj(object):
         # check operator
         valid_operator = ['<=', '>=', '<', '>']
         if op_ not in valid_operator:
-            raise ValueError("Invalid operator: {}; valid operator are {}".format(op_, valid_operator))
+            raise ValueError("Invalid operator: {} ; valid operator are {}".format(op_, valid_operator))
 
         if datestr_:
             try:
                 date_time_string = parse(datestr_, fuzzy=False).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
                 return "FILTER( ?submTime %s '%s'^^xsd:dateTime )" % (op_, date_time_string)
             except TypeError:
-                raise TypeError('Invalid date format ', datestr_)
+                raise TypeError('Invalid date format: {}'.format(datestr_))
         else:
             return ''
 
@@ -308,7 +311,7 @@ class ICPObj(object):
                 _ = " http://meta.icos-cp.eu/resources/cpmeta/%s".join(product_)
                 return "VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/%s>}" % _
             else:
-                raise TypeError('Invalid product format', product_)
+                raise TypeError('Invalid product format: {}'.format(product_))
         else:
             return ''
 
@@ -337,7 +340,7 @@ class ICPObj(object):
             if isinstance(lastversion_, bool):
                 return "FILTER NOT EXISTS {[] cpmeta:isNextVersionOf ?xxx}"
             else:
-                raise TypeError('Invalid ', lastversion_)
+                raise TypeError('Invalid lastVersion type: {}'.format(lastversion_))
         else:
             return ''
 
@@ -390,7 +393,7 @@ class ICPObj(object):
             elif isinstance(uri_, list) and all(self._is_url(n) for n in uri_):
                 return "VALUES ?xxx {<%s>}" % " ".join(uri_)
             else:
-                raise TypeError('Invalid object format', uri_)
+                raise TypeError('Invalid object format: {}'.format(uri_))
         else:
             return ''
 

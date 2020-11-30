@@ -18,48 +18,19 @@
 # --- import -----------------------------------
 # import from standard lib
 from pathlib import Path
+import logging
 # import from other lib
 import requests
 from requests.exceptions import HTTPError
 # import from my project
+import icp2edd.setup as setup
 from icp2edd.ICPObj import ICPObj
 
-# --- module's variable -------------------------
-global datasetCsvPath
+# load logger
+_logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------
-def setupcfg(cfg_=None):
-    """
-
-    >>> setupcfg()
-    >>> setupcfg(toto)
-    Traceback (most recent call last):
-    ...
-        setupcfg(toto)
-    NameError: name 'toto' is not defined
-    >>> setupcfg('toto')
-    Traceback (most recent call last):
-    ...
-        erddapPath = Path(cfg_['ERDDAP']['path'].get('string'))
-    TypeError: string indices must be integers
-    """
-    import confuse  # Initialize config with your app
-    global datasetCsvPath
-
-    if cfg_ is None:
-        cfg_ = confuse.Configuration('icp2edd', modname='icp2edd')  # Get a value from your YAML file
-        _ = Path(cfg_._package_path)
-        cfg_.default_config_path = _ / confuse.DEFAULT_FILENAME
-
-    datasetCsvPath = Path(cfg_['paths']['dataset']['csv'].as_filename())
-    if not datasetCsvPath.is_dir():
-        raise FileNotFoundError('Can not find path where store dataset csv file {}.\n'
-                                'Check config file(s) {} and/or {}'.format(datasetCsvPath,
-                                                                           cfg_.user_config_path(),
-                                                                           cfg_.default_config_path))
-
-
 class DataObj(ICPObj):
     """
     >>> t.getMeta()
@@ -133,6 +104,9 @@ class DataObj(ICPObj):
         :param lastversion: select only last release [True,False]
         :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
         """
+        _logger.debug('DataObj arguments use:\n\tlimit: {}\n\t, lastupdate: {}\n\t '
+                      'endupdate: {}\n\t product: {}\n\t lastversion: {}\n\t uri: {}'.
+                      format(limit, lastupdate, endupdate, product, lastversion, uri))
         super().__init__()
         # overwrite class name
         self._name = 'DataObj'
@@ -212,7 +186,7 @@ class DataObj(ICPObj):
             filename = Path(val['name'].value)
             stemname = filename.stem
 
-            dirout = datasetCsvPath / stemname
+            dirout = setup.datasetCsvPath / stemname
             try:
                 dirout.mkdir(parents=True)
             except FileExistsError:
@@ -243,14 +217,18 @@ class DataObj(ICPObj):
                     r = s.get(str(url), cookies=cookies, stream=True)
                     # If the response was successful, no Exception will be raised
                     r.raise_for_status()
-                except HTTPError as http_err:
+                except HTTPError:  # as http_err:
                     # https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
-                    print(f'HTTP error occurred: {http_err}')  # Python 3.6
-                except Exception as err:
-                    print(f'Other error occurred: {err}')  # Python 3.6
+                    # raise HTTPError(f'HTTP error occurred: {http_err}')  # Python 3.6
+                    _logger.exception(f'HTTP error occurred:')
+                    raise  #
+                except Exception:  # as err:
+                    # raise Exception(f'Other error occurred: {err}')  # Python 3.6
+                    _logger.exception(f'Other error occurred:')
+                    raise  #
                 else:
                     # Success!
-                    print('download file ', uri, ' on ', fileout)
+                    _logger.info(f'download file {uri} on {fileout}')
                     with open(fileout, 'wb') as f:
                         for chunk in r.iter_content(chunk_size=1024):
                             if chunk:  # filter out keep-alive new chunks
@@ -263,8 +241,7 @@ if __name__ == '__main__':
     import doctest
 
     uri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
-    setupcfg()
-    doctest.testmod(extraglobs={'t': DataObj(uri=uri), 'datasetCsvPath': datasetCsvPath},
+    doctest.testmod(extraglobs={'t': DataObj(uri=uri), 'datasetCsvPath': setup.datasetCsvPath},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

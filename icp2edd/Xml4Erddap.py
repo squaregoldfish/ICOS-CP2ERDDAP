@@ -8,64 +8,18 @@ from pathlib import Path
 import re
 import os
 import subprocess
+import logging
+import warnings
 # from importlib import resources
 # import from other lib
 # > conda forge
 import lxml.etree as etree
 # import from my project
 import icp2edd.case as case
+import icp2edd.setup as setup
 
-# --- module's variable ------------------------
-global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath
-
-
-def setupcfg(cfg_=None):
-    """
-
-    >>> setupcfg()
-    >>> setupcfg(toto)
-    Traceback (most recent call last):
-    ...
-        setupcfg(toto)
-    NameError: name 'toto' is not defined
-    >>> setupcfg('toto')
-    Traceback (most recent call last):
-    ...
-        erddapPath = Path(cfg_['ERDDAP']['path'].get('string'))
-    TypeError: string indices must be integers
-    """
-    import confuse  # Initialize config with your app
-    global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath
-
-    if cfg_ is None:
-        cfg_ = confuse.Configuration('icp2edd', modname='icp2edd')  # Get a value from your YAML file
-        pkg_path = Path(cfg_._package_path)
-        cfg_.default_config_path = pkg_path / confuse.DEFAULT_FILENAME
-
-    erddapPath = Path(cfg_['paths']['erddap'].get('string'))
-
-    if not erddapPath.is_dir():
-        raise FileNotFoundError('can not find ERDDAP path {}.\n'
-                                'Check config file(s) {} and/or {}'.format(erddapPath,
-                                                                           cfg_.user_config_path(),
-                                                                           cfg_.default_config_path))
-
-    erddapWebInfDir = erddapPath / 'webapps' / 'erddap' / 'WEB-INF'
-    if not erddapWebInfDir.is_dir():
-        raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
-                                'check ERDDAP installation. '.format(erddapWebInfDir))
-
-    erddapContentDir = erddapPath / 'content' / 'erddap'
-    if not erddapContentDir.is_dir():
-        raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
-                                'check ERDDAP installation'.format(erddapContentDir))
-
-    datasetXmlPath = Path(cfg_['paths']['dataset']['xml'].as_filename())
-    if not datasetXmlPath.is_dir():
-        raise FileNotFoundError('can not find path where store dataset xml file {}.\n'
-                                'Check config file(s) {} and/or {}'.format(datasetXmlPath,
-                                                                           cfg_.user_config_path(),
-                                                                           cfg_.default_config_path))
+# load logger
+_logger = logging.getLogger(__name__)
 
 
 class Xml4Erddap(object):
@@ -109,9 +63,12 @@ class Xml4Erddap(object):
         if not isinstance(dirout_, Path):
             dirout_ = Path(dirout_)
 
+        if not isinstance(eddType, str):
+            raise TypeError(f'Invalid type value, eddType -{eddType}- must be string')
+
         # TODO check for csv file in sub directories
         if len(list(dirout_.glob('*.csv'))) <= 0:
-            raise FileNotFoundError('no csv file in '+dirout_)
+            raise FileNotFoundError(f'Can not find any csv file in {dirout_}')
 
         self._stem = dirout_.stem
         self._eddType = eddType
@@ -168,7 +125,7 @@ class Xml4Erddap(object):
             # cacheFromUrl (default="")
             self._cmd.append('default')
         else:
-            raise NameError('EDDType -{}- unknown by ERDDAP'.format(self._eddType))
+            raise NameError(f'EDDType -{self._eddType}- unknown by ERDDAP')
 
     def _show(self):
         print('EDDType:', self._eddType)
@@ -185,23 +142,16 @@ class Xml4Erddap(object):
             # number of arguments -without executable-
             return 21
         else:
-            raise NameError('EDDType -{}- unknown by ERDDAP'.format(self._eddType))
+            raise NameError(f'EDDType -{self._eddType}- unknown by ERDDAP')
 
     def generate(self):
         """ generate dataset.xml file using ERDDAP tools -GenerateDatasetsXml.sh-
         """
-        # This is a global variable
-        global datasetXmlPath
-
         if len(self._cmd) != self._checkArgs():
             raise ValueError('Invalid arguments number -{}-, expected -{}-'.format(len(self._cmd), self._checkArgs()))
 
-        # output dataset file
-        if not isinstance(datasetXmlPath, Path):
-            datasetXmlPath = Path(datasetXmlPath)
-
         # creates sub directory
-        datasetSubDir = datasetXmlPath / self._stem
+        datasetSubDir = setup.datasetXmlPath / self._stem
         try:
             datasetSubDir.mkdir(parents=True)
         except FileExistsError:
@@ -230,26 +180,28 @@ class Xml4Erddap(object):
         dstag = Path.joinpath(datasetSubDir, self._ds + tag)
         self._cmd.append('-i' + str(dstag))
 
-        e = Path.joinpath(erddapWebInfDir, exe)
+        exe = Path.joinpath(setup.erddapWebInfDir, exe)
         # Check file exists
-        if not e.is_file():
-            raise FileNotFoundError("Can not find ERDDAP tools {}".format(e))
+        if not exe.is_file():
+            raise FileNotFoundError(f"Can not find ERDDAP tools {exe}")
 
         # Check for execution access
-        if not os.access(e, os.X_OK):
+        if not os.access(exe, os.X_OK):
             # change permission mode
-            e.chmod(0o744)
+            warnings.warn(f'change exectuable -{exe}- permission mode')
+            exe.chmod(0o744)
             # raise PermissionError("")
 
         # run process 'GenerateDatasetsXml.sh' from directory 'erddapWebInfDir' with arguments 'self._cmd'
         # => creates file: ds
+        _logger.info(f'creates dataset: {self.ds}')
+        _logger.debug(f'from directory {setup.erddapWebInfDir}, run process {self._cmd}')
         process = subprocess.run(self._cmd,
-                                 cwd=erddapWebInfDir,
+                                 cwd=setup.erddapWebInfDir,
                                  stdout=subprocess.PIPE,
                                  timeout=60,
                                  universal_newlines=True)
         process.check_returncode()
-        print('creates dataset: {}'.format(self.ds))
 
         newDatasetId = case.camel('icos_'+self._stem, sep='_')
         self.renameDatasetId(newDatasetId)
@@ -263,7 +215,7 @@ class Xml4Erddap(object):
         content = self.ds.read_text()
         regex = '(^<dataset .* datasetID=")(.*)(" .*>$)'
         self.ds.write_text(re.sub(regex, r'\1' + newDatasetId + r'\3', content, flags=re.M))
-        print('renames datasetID to {}'.format(newDatasetId))
+        _logger.debug('renames datasetID to {}'.format(newDatasetId))
 
     def _checkTag(self, ds_, tagline_):
         """
@@ -274,6 +226,11 @@ class Xml4Erddap(object):
 
         XXX is the name of the dataset (without suffix)
         """
+        if not isinstance(ds_, Path):
+            raise TypeError(f'Invalid type value, ds_ -{ds_}- must be Pathlib object')
+        if not isinstance(tagline_, str):
+            raise TypeError(f'Invalid type value, tagline_ -{tagline_}- must be string')
+
         content = ds_.read_text()
 
         # 2020-11-04T15:34:08
@@ -296,29 +253,23 @@ def concatenate():
     >>> xmlout.__str__()
     '.../datasets.xml'
     """
-    # This is a global variable
-    global datasetXmlPath
-
-    if not isinstance(datasetXmlPath, Path):
-        datasetXmlPath = Path(datasetXmlPath)
-
-    dsxmlout = datasetXmlPath / 'datasets.xml'
-    print('concatenate in {}'.format(dsxmlout))
+    dsxmlout = setup.datasetXmlPath / 'datasets.xml'
+    _logger.debug(f'concatenate in {dsxmlout}')
     mod_path = Path(__file__).parent
     with dsxmlout.open("w") as fp:
         # add header
         header = mod_path / 'dataset' / 'header.xml'
         # TODO see how to use resources
         # header = resources.path('dataset', 'header.xml')
-        print('\t{}'.format(header))
+        _logger.debug('\t{}'.format(header))
         fp.write(header.read_text())
         # add single dataset
-        for ff in datasetXmlPath.glob('**/dataset.*.xml'):
-            print('\t{}'.format(ff))
+        for ff in setup.datasetXmlPath.glob('**/dataset.*.xml'):
+            _logger.debug('\t{}'.format(ff))
             fp.write(ff.read_text())
         # add footer
         footer = mod_path / 'dataset' / 'footer.xml'
-        print('\t{}'.format(footer))
+        _logger.debug('\t{}'.format(footer))
         fp.write(footer.read_text())
 
     return dsxmlout
@@ -333,14 +284,20 @@ def changeAttr(ds, gloatt, out=None):
     :param out: str
         output filename, optional
     """
-
     if not isinstance(ds, Path):
         ds = Path(ds)
 
+    if not isinstance(gloatt, dict):
+        raise TypeError(f'Invalid type value, gloatt -{gloatt}- must be dictionary')
+
+    if out is not None and not isinstance(out, str):
+        raise TypeError(f'Invalid type value, out -{out}- must be string')
+
     if not ds.is_file():
-        raise FileExistsError(' File {} does not exist.'.format(ds))
+        raise FileExistsError(f'File {ds} does not exist.')
     else:
-        print('tree : ', ds)
+        _logger.info('tree : ', ds)
+
     # keep CDATA as it is
     parser = etree.XMLParser(strip_cdata=False, encoding='ISO-8859-1')
 
@@ -352,21 +309,20 @@ def changeAttr(ds, gloatt, out=None):
         if node.text is None:
             node.text = ''
 
-    print('\n---------------')
     # for node in list(root):
     #    if node is not None:
     # TODO need to test with variable attributes to add at every variables whatever datasedID
     for node in root.findall('dataset'):
-        print('node :', node.tag, node.attrib)
+        _logger.debug(f'node: tag -{node.tag}- attribute -{node.attrib}-')
         if 'datasetID' in node.attrib:
 
             dsID = node.attrib.get('datasetID')
             if dsID in gloatt:
-                print('dsID:', dsID)
+                _logger.debug(f'dsID: {dsID}')
                 for attrNode in node.findall('addAttributes'):
-                    print('attrNode :', attrNode.tag, attrNode.attrib)
+                    _logger.debug(f'attrNode: tag -{attrNode.tag}- attribute -{attrNode.attrib}-')
                     for att in attrNode.iter('att'):
-                        print('att name:', att.get('name'), 'val:', att.text)
+                        _logger.debug(f"att name: {att.get('name')} val: {att.text}")
                         if att.get('name') in gloatt[dsID]:
                             # TODO figure out how to keep information not to be changed
                             attrNode.remove(att)
@@ -376,18 +332,20 @@ def changeAttr(ds, gloatt, out=None):
                         subnode.text = str(v)
 
         for varNode in node.iter('dataVariable'):
-            print('varNode :', varNode.tag, varNode.attrib)
+            _logger.debug(f'varNode : tag {varNode.tag} attribue {varNode.attrib}')
             srcname = None
             for attrNode in varNode.findall('sourceName'):
                 srcname = attrNode.text
-                print('srcname', srcname)
+                _logger.debug(f'srcname {srcname}')
+
             # for attrNode in varNode.findall('destinationName'):
             #     dstname = attrnode.text
+
             if srcname in gloatt:
                 for attrNode in varNode.findall('addAttributes'):
-                    print('attrNode :', attrNode.tag, attrNode.attrib)
+                    _logger.debug(f'attrNode : tag {attrNode.tag} attribute {attrNode.attrib}')
                     for att in attrNode.iter('att'):
-                        print('att name:', att.get('name'), 'val:', att.text)
+                        _logger.debug(f"att name: {att.get('name')} val: {att.text}")
                         if att.get('name') in gloatt[srcname]:
                             attrNode.remove(att)
                     for k, v in gloatt[srcname].items():
@@ -397,13 +355,11 @@ def changeAttr(ds, gloatt, out=None):
             etree.indent(node)
 
     # write xml output
-    print('input ', str(ds))
     if out is not None:
         dsout = out
     else:
         dsout = ds
 
-    print('output', str(dsout))
     tree.write(str(dsout), encoding='ISO-8859-1', xml_declaration=True)
 
 
@@ -412,11 +368,11 @@ def replaceXmlBy(dsxmlout):
     :param dsxmlout:
     """
     # remove erddap datasets.xml and create hard link to the new one
-    dsxml = erddapContentDir / 'datasets.xml'
+    dsxml = setup.erddapContentDir / 'datasets.xml'
     if dsxml.is_file():  # and not dsxml.is_symlink():
         dsxml.unlink()
 
-    print('create hard link to:', dsxmlout)
+    _logger.info(f'create hard link to: {dsxmlout}')
     dsxmlout.link_to(dsxml)
 
 
@@ -437,9 +393,8 @@ if __name__ == '__main__':
     # changeAttr(i, o, m)
 
     import doctest
-    setupcfg()
-    doctest.testmod(extraglobs={'datasetXmlPath': datasetXmlPath, 'erddapPath': erddapPath,
-                                'erddapWebInfDir': erddapWebInfDir, 'erddapContentDir': erddapContentDir},
+    doctest.testmod(extraglobs={'datasetXmlPath': setup.datasetXmlPath, 'erddapPath': setup.erddapPath,
+                                'erddapWebInfDir': setup.erddapWebInfDir, 'erddapContentDir': setup.erddapContentDir},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
     dirout = '/home/jpa029/Data/ICOS2ERDDAP/58GS20190711_SOCAT_enhanced'

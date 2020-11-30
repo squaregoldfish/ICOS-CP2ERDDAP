@@ -16,6 +16,7 @@
 
 # --- import -----------------------------------
 # import from standard lib
+import logging
 # import from other lib
 # > conda-forge
 # import from my project
@@ -25,31 +26,55 @@ from icp2edd.GeoRegion import GeoRegion
 from icp2edd.DataSubmission import DataSubmission
 import icp2edd.case as case
 
+# load logger
+_logger = logging.getLogger(__name__)
+
 
 # ----------------------------------------------
 class SuperICPObj(object):
     def __init__(self, station=False, geoRegion=False, dataSubmission=False):
         self.m = {}
 
-        uri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
-        print('\n init SuperICPObj')
-        _ = DataObj(uri=uri)
-        _.getMeta()
-        self.m['DataObj'] = _.meta
-        # dataobjs.show()
+        uri = ['https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z']
+        _logger.info('get DataObj metadata from ICOS CP')
+        try:
+            _ = DataObj(uri=uri)
+            _.getMeta()
+            self.m['DataObj'] = _.meta
+            # dataobjs.show()
+        except Exception:
+            _logger.exception('Something goes wrong when loading metadata from DataObj')
+            raise  # Throw exception again so calling code knows it happened
 
         if station:
-            _ = Station()
-            _.getMeta()
-            self.m['Station'] = _.meta
+            _logger.info('get Station metadata from ICOS CP')
+            try:
+                _ = Station()
+                _.getMeta()
+                self.m['Station'] = _.meta
+            except Exception:
+                _logger.exception('Something goes wrong when loading metadata from Station')
+                raise  # Throw exception again so calling code knows it happened
+
         if geoRegion:
-            _ = GeoRegion()
-            _.getMeta()
-            self.m['GeoRegion'] = _.meta
+            _logger.info('get GeoRegion metadata from ICOS CP')
+            try:
+                _ = GeoRegion()
+                _.getMeta()
+                self.m['GeoRegion'] = _.meta
+            except Exception:
+                _logger.exception('Something goes wrong when loading metadata from GeoRegion')
+                raise  # Throw exception again so calling code knows it happened
+
         if dataSubmission:
-            _ = DataSubmission()
-            _.getMeta()
-            self.m['DataSubmission'] = _.meta
+            _logger.info('get DataSubmission metadata from ICOS CP')
+            try:
+                _ = DataSubmission()
+                _.getMeta()
+                self.m['DataSubmission'] = _.meta
+            except Exception:
+                _logger.exception('Something goes wrong when loading metadata from DataSubmission')
+                raise  # Throw exception again so calling code knows it happened
 
     def getAttr(self):
         """
@@ -59,9 +84,10 @@ class SuperICPObj(object):
         superAtts = {}
         for k in self.m['DataObj'].keys():
             fname = self.m['DataObj'][k]['name'].value[:self.m['DataObj'][k]['name'].value.rfind(".")]
+            _logger.debug(f'get attribute from DataObj {fname}')
             newDatasetId = case.camel('icos_'+fname, sep='_')
+            _logger.debug(f'rename it to {newDatasetId}')
             # newDatasetId = 'icos58gs20190711SocatEnhanced'
-            print('--- {}'.format(newDatasetId))
             superAtts[newDatasetId] = self._getSubAttr('DataObj', k)
 
         return superAtts
@@ -70,20 +96,20 @@ class SuperICPObj(object):
         dict1 = {}
         if key in self.m:
             if uri in self.m[key]:
-                print('\nexplore dic[', key, '][', uri, '] \n')
+                _logger.debug(f'explore dic[{key}][{uri}]')
                 for k, v in self.m[key][uri].items():
                     if v.type != 'uri' or k == 'uri':
-                        print('attr name:', k, ' value:', v.value)
+                        _logger.debug(f'attr name: {k} value: {v.value}')
                         dict1[k] = v.value
                     else:
-                        print('dic[', k, '][', v.value, '] \n')
+                        _logger.debug(f'dic[{k}][{v.value}]')
                         dict2 = self._getSubAttr(k, v.value)
                         # Merge contents of dict2 in dict1
                         dict1.update(dict2)
             else:
-                print('can not found dic[', key, '][', uri, '] \n')
+                _logger.debug(f'can not found dic[{key}][{uri}]')
         else:
-            print('can not found dic[', key, '] \n')
+            _logger.debug(f'can not found dic[{key}]')
 
         return dict1
 
