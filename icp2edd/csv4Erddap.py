@@ -4,13 +4,17 @@
 
 # --- import -----------------------------------
 # import from standard lib
-# from pathlib import Path
+from pathlib import Path
 import re
+import logging
 # import from other lib
 # > conda forge
 import pandas as pd
 from dateutil.parser import parse
 # import from my project
+
+# load logger
+_logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------
@@ -30,7 +34,17 @@ def time_format(datetime_, pre_=3):
     >>> time_format(tt, 4)
     '1999-12-23T00:00:00.0000Z'
     """
-    dt = parse(datetime_)
+    if not isinstance(datetime_, str):
+        raise TypeError(f'Invalid type value, datetime {datetime_} must be string.')
+
+    if not isinstance(pre_, int):
+        raise TypeError(f'Invalid type value, precision {pre_} must be integer.')
+
+    try:
+        dt = parse(datetime_)
+    except Exception:
+        _logger.exception(f'Something goes wrong when parsing -{datetime_}-')
+        raise  #
 
     cc = 10 ** (6 - pre_)
     pre_ = str(pre_)
@@ -55,6 +69,9 @@ def modify(f):
 
     TODO check output file, see unittest and mock file
     """
+    if not isinstance(f, Path):
+        raise TypeError(f'Invalid type value, f -{f}- must be Path object')
+
     # Read data from file 'filename.csv'
     data = pd.read_csv(f)
 

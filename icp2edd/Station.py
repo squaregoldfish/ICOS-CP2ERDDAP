@@ -16,9 +16,13 @@
 
 # --- import -----------------------------------
 # import from standard lib
+import logging
 # import from other lib
 # import from my project
 from icp2edd.ICPObj import ICPObj
+
+# load logger
+_logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------

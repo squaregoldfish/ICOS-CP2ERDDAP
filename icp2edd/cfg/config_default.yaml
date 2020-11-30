@@ -9,9 +9,12 @@ paths:
         csv: '/home/jpa029/Data/ICOS2ERDDAP'
         # path where store xml file from ICOS CP for each dataset
         xml: '/home/jpa029/Data/ICOS2ERDDAP/dataset'
+    # log: path where store output log file
+    log: '/home/jpa029/Data/ICOS2ERDDAP/log'
 
 log:
+    # standard output parameter
     # True|False
-    verbose: True
-    # [0,1,2,3,4,5]
-    level: 'toto'
+    quiet: False
+    # [NOTSET, DEBUG, INFO, WARN, ERROR, CRITICAL]
+    level: 'INFO'

@@ -17,11 +17,11 @@ __all__ = (
     'version_info'
 )
 
-# semantic version (semver): "major.minor.micro/patch"
+# semantic version (Sem-Ver): "major.minor.micro/patch"
 #   - Breaking changes are indicated by increasing the major number (high risk)
 #   - New non-breaking features increment the minor number (medium risk)
 #   - All other non-breaking changes increment the patch number (lowest risk)
-_v = _VersionInfo('icp2edd').semantic_version()
+_v = _VersionInfo(__package__).semantic_version()
 __version__ = _v.brief_string()
 __version_long__ = _v.release_string()
 
@@ -30,3 +30,6 @@ __nextMinor__ = _v.increment(minor=True, major=False).brief_string()
 __nextMajor__ = _v.increment(minor=False, major=True).brief_string()
 
 version_info = _v.version_tuple()
+
+# where configuration files are stored
+__pkg_cfg__ = f'{__package__}.cfg'
