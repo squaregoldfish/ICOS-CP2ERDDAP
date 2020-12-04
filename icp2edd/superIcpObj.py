@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# SuperICPObj.py
+# superIcpObj.py
 
 """
-    This module set up a generic class for ICOS CP Object.
+    This module set up a generic class for super ICOS CP Object.
 
     Example usage:
 
-    from ICPObj import ICPObj
+    from superIcpObj import SuperICPObj
 
-    icpobj = ICPObj()   # initialise ICPObj
-    icpobj.get_meta()   # get metadata from ICOS CP
-    icpobj.show()       # print metadata
+    supericpobj = SuperICPObj()     # initialise SuperICPObj
+    supericpobj.get_meta()          # get metadata from ICOS CP
+    supericpobj.show()              # print metadata
 """
 
 # --- import -----------------------------------
@@ -20,12 +20,13 @@ import logging
 # import from other lib
 # > conda-forge
 # import from my project
-from icp2edd.DataObj import DataObj
-from icp2edd.Station import Station
-from icp2edd.GeoRegion import GeoRegion
-from icp2edd.DataSubmission import DataSubmission
+# import all class from submodules in otcmeta
+from icp2edd.otcmeta import *
+# import all class from submodules in cpmeta
+from icp2edd.cpmeta import *
 import icp2edd.case as case
 
+# --- module's variable ------------------------
 # load logger
 _logger = logging.getLogger(__name__)
 

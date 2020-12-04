@@ -13,6 +13,7 @@ import pandas as pd
 from dateutil.parser import parse
 # import from my project
 
+# --- module's variable ------------------------
 # load logger
 _logger = logging.getLogger(__name__)
 

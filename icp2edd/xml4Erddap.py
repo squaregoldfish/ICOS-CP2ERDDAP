@@ -18,6 +18,7 @@ import lxml.etree as etree
 import icp2edd.case as case
 import icp2edd.setup as setup
 
+# --- module's variable ------------------------
 # load logger
 _logger = logging.getLogger(__name__)
 
@@ -188,7 +189,7 @@ class Xml4Erddap(object):
         # Check for execution access
         if not os.access(exe, os.X_OK):
             # change permission mode
-            warnings.warn(f'change exectuable -{exe}- permission mode')
+            warnings.warn(f'change executable -{exe}- permission mode')
             exe.chmod(0o744)
             # raise PermissionError("")
 
@@ -311,7 +312,7 @@ def changeAttr(ds, gloatt, out=None):
 
     # for node in list(root):
     #    if node is not None:
-    # TODO need to test with variable attributes to add at every variables whatever datasedID
+    # TODO need to test with variable attributes to add at every variables whatever datasetID
     for node in root.findall('dataset'):
         _logger.debug(f'node: tag -{node.tag}- attribute -{node.attrib}-')
         if 'datasetID' in node.attrib:
@@ -332,7 +333,7 @@ def changeAttr(ds, gloatt, out=None):
                         subnode.text = str(v)
 
         for varNode in node.iter('dataVariable'):
-            _logger.debug(f'varNode : tag {varNode.tag} attribue {varNode.attrib}')
+            _logger.debug(f'varNode : tag {varNode.tag} attribute {varNode.attrib}')
             srcname = None
             for attrNode in varNode.findall('sourceName'):
                 srcname = attrNode.text

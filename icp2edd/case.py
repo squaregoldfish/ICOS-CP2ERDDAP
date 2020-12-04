@@ -9,6 +9,7 @@ import logging
 # > conda forge
 # import from my project
 
+# --- module's variable ------------------------
 # load logger
 _logger = logging.getLogger(__name__)
 

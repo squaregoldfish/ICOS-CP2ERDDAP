@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# DataObj.py
+# dataObject.py
 
 """
-    The DataObj module is used to explore ICOS CP dataobjs' metadata.
+    The dataObject module is used to explore ICOS CP DataObjects' metadata.
 
     Example usage:
 
-    From DataObj import DataObj
+    From dataObject import DataObject
 
-    dataobjs = DataObj()    # initialise ICOS CP DataObj object
-    dataobjs.get_meta()     # get dataobjs' metadata from ICOS CP
-    dataobjs.show()         # print dataobjs' metadata
-    dataobjs.download()     # download every files associated with dataobjs selected
+    dataobjects = DataObject()      # initialise ICOS CP DataObject object
+    dataobjects.get_meta()          # get dataobjects' metadata from ICOS CP
+    dataobjects.show()              # print dataobjects' metadata
+    dataobjects.download()          # download every files associated with dataobjects selected
 """
 
 # --- import -----------------------------------
@@ -24,67 +24,84 @@ import requests
 from requests.exceptions import HTTPError
 # import from my project
 import icp2edd.setup as setup
-from icp2edd.ICPObj import ICPObj
+from icp2edd.cpmeta.staticObject import StaticObject
 
+# --- module's variable ------------------------
 # load logger
 _logger = logging.getLogger(__name__)
 
+# object attributes' dictionary with RDF 'property' as key and RDF 'object' as value
+#   RDF triples: 'subject' + 'property/predicate' + 'object/value'
+# {'property/predicate': 'object/value'}
+# Note: 'object/value' will be the output attribute name
+_attr = {
+    'cpmeta:hasObjectSpec': 'DataObjectSpec',
+    'cpmeta:wasAcquiredBy': 'DataAcquisition',
+    'cpmeta:wasProducedBy': 'DataProduction',
+    'cpmeta:hasFormatSpecificMetadata': 'formatSpecificMetadata',
+    'cpmeta:hasKeyword': 'keyword',
+    'cpmeta:hasVariableName': 'variableName',
+    'cpmeta:hasActualVariable': 'VariableInfo',
+    'cpmeta:hasTemporalResolution': 'temporalResolution',
+    'cpmeta:hasSpatialCoverage': 'SpatialCoverage'
+}
+
 
 # ----------------------------------------------
-class DataObj(ICPObj):
+class DataObject(StaticObject):
     """
     >>> t.getMeta()
     >>> t.show()
     <BLANKLINE>
-    type: <class '__main__.DataObj'>
+    type: <class '__main__.DataObject'>
     <BLANKLINE>
-    Class name: DataObj
+    Class name: xxx
     <BLANKLINE>
+    \tDataObjectSpec      : type: uri        value: ...
+    \tDataAcquisition     : type: uri        value: ...
+    \tDataProduction      : type: uri        value: ...
+    \tSpatialCoverage     : type: uri        value: ...
     \tsizeInBytes         : type: literal    value: ...
     \tsha256sum           : type: literal    value: ...
     \tcitation            : type: literal    value: ...
     \tname                : type: literal    value: ...
     \tDataSubmission      : type: uri        value: ...
-    \tDataObjectSpec      : type: uri        value: ...
-    \tDatAcquisition      : type: uri        value: ...
-    \tDataProduction      : type: uri        value: ...
-    \tspatialCoverage     : type: uri        value: ...
     \turi                 : type: uri        value: ...
 
-    >>> tt = DataObj(lastupdate='2020-01-01T00:00:00.000Z',
-    ...              endupdate='2020-11-01T00:00:00.000Z',
-    ...              product='icosOtcL1Product_v2',
-    ...              lastversion=True)
+    >>> tt = DataObject(lastupdate='2020-01-01T00:00:00.000Z',
+    ...                 endupdate='2020-11-01T00:00:00.000Z',
+    ...                 product='icosOtcL1Product_v2',
+    ...                 lastversion=True)
     >>> tt.getMeta()
     >>> tt.show()
     <BLANKLINE>
-    type: <class '__main__.DataObj'>
+    type: <class '__main__.DataObject'>
     <BLANKLINE>
-    Class name: DataObj
+    Class name: xxx
     <BLANKLINE>
     ...
+    \tDataObjectSpec      : type: uri        value: ...
+    \tDataAcquisition     : type: uri        value: ...
+    \tDataProduction      : type: uri        value: ...
+    \tSpatialCoverage     : type: uri        value: ...
     \tsizeInBytes         : type: literal    value: ...
     \tsha256sum           : type: literal    value: ...
     \tcitation            : type: literal    value: ...
     \tname                : type: literal    value: ...
     \tDataSubmission      : type: uri        value: ...
-    \tDataObjectSpec      : type: uri        value: ...
-    \tDatAcquisition      : type: uri        value: ...
-    \tDataProduction      : type: uri        value: ...
-    \tspatialCoverage     : type: uri        value: ...
     \turi                 : type: uri        value: ...
     ...
     """
 
     def __init__(self, limit=None, lastupdate=None, endupdate=None, product=None, lastversion=None, uri=None):
-        """
-        This functions initialise instance of DataObj(ICPObj).
-        Set up a sparql query to get all metadata of DataObj from ICOS CP.
+        """ initialise instance of DataObject(StaticObject).
+
+        It will be used to set up a sparql query, and get all metadata of DataObject from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select DataObj:
+        and/or select DataObject:
         - submitted since 'lastupdate'
         - submitted until 'endupdate'
         - of data type 'product'
@@ -92,7 +109,7 @@ class DataObj(ICPObj):
         - with ICOS CP 'uri'
 
         Example:
-            DataObj(lastupdate='2020-01-01T00:00:00.000Z',
+            DataObject(lastupdate='2020-01-01T00:00:00.000Z',
                     endupdate='2020-01-05T00:00:00.000Z',
                     product='icosOtcL1Product_v2',
                     lastversion=False )
@@ -100,74 +117,30 @@ class DataObj(ICPObj):
         :param limit: number of returned results
         :param lastupdate: submitted since last update ( '2020-01-01T00:00:00.000Z' )
         :param endupdate: submitted until end update ( '2020-01-01T00:00:00.000Z' )
-        :param product: select this product type ('icosOtcL1Product_v2')
+        :param product: select this product type ('icosOtcL1Product_v2'), it could be a list
         :param lastversion: select only last release [True,False]
         :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
         """
-        _logger.debug('DataObj arguments use:\n\tlimit: {}\n\t, lastupdate: {}\n\t '
-                      'endupdate: {}\n\t product: {}\n\t lastversion: {}\n\t uri: {}'.
-                      format(limit, lastupdate, endupdate, product, lastversion, uri))
         super().__init__()
-        # overwrite class name
-        self._name = 'DataObj'
-        # overwrite conventional attributes renaming dictionary
-        self._convAttr = {
-            'citationString': 'citation'
-            }
-        # overwrite query string
-        self._queryString = """
-            select  ?xxx ?sizeInBytes ?sha256sum ?citationString ?name ?doi ?nextVersionOf
-                    ?DataSubmission ?DataObjectSpec ?DatAcquisition ?DataProduction
-                    ?formatSpecificMetadata ?keyword ?variableName
-                    ?actualVariable ?temporalResolution ?spatialCoverage ?label ?comment ?seeAlso
-            where {
-                %s # _filterObj(uri_=uri)
-                %s # _filterProduct(product_=product)
-                ?xxx cpmeta:hasObjectSpec ?spec . # restriction property for DataObject and/or SimpleDataObject
-                ?xxx cpmeta:wasSubmittedBy [
-                    prov:endedAtTime ?submTime ;
-                    prov:wasAssociatedWith ?submitter
-                    ] .
-                %s # _filterSubmTime(datestr_=lastupdate, op_='>=')
-                %s # _filterSubmTime(datestr_=endupdate, op_='<=')
-                %s # _filterLastVersion(lastversion_=lastversion)
+        # set up class/instance variables
+        self._uri = uri
+        self._limit = limit
+        self._lastupdate = lastupdate
+        self._endupdate = endupdate
+        self._product = product
+        self._lastversion = lastversion
 
-                OPTIONAL { ?xxx cpmeta:hasSizeInBytes ?sizeInBytes .}           # as subClassOf DataObject
-                OPTIONAL { ?xxx cpmeta:hasSha256sum ?sha256sum .}               # as subClassOf DataObject
-                OPTIONAL { ?xxx cpmeta:hasCitationString ?citationString .}     # as subClassOf DataObject
-                OPTIONAL { ?xxx cpmeta:hasName ?name .}
-                OPTIONAL { ?xxx cpmeta:hasDoi ?doi .}
-                OPTIONAL { ?xxx cpmeta:isNextVersionOf ?nextVersionOf .}
+        # object attributes' dictionary
+        if isinstance(_attr, dict):
+            self._attr = {**_attr, **self._attr}
 
-                OPTIONAL { ?xxx cpmeta:wasSubmittedBy ?DataSubmission .}        # as subClassOf DataObject
-                OPTIONAL { ?xxx cpmeta:hasObjectSpec ?DataObjectSpec .}         # domain
-
-                OPTIONAL { ?xxx cpmeta:wasAcquiredBy ?DatAcquisition .}         # domain
-                OPTIONAL { ?xxx cpmeta:wasProducedBy ?DataProduction .}         # domain
-
-                OPTIONAL { ?xxx cpmeta:hasFormatSpecificMetadata ?formatSpecificMetadata .}
-                OPTIONAL { ?xxx cpmeta:hasKeyword ?keyword . }
-                OPTIONAL { ?xxx cpmeta:hasVariableName ?variableName .}
-                OPTIONAL { ?xxx cpmeta:hasActualVariable ?actualVariable .}
-                OPTIONAL { ?xxx cpmeta:hasTemporalResolution ?temporalResolution .}
-                OPTIONAL { ?xxx cpmeta:hasSpatialCoverage ?spatialCoverage .}
-
-                OPTIONAL { ?xxx rdfs:label ?label .}
-                OPTIONAL { ?xxx rdfs:comment ?comment .}
-                OPTIONAL { ?xxx rdfs:seeAlso ?seeAlso .}
-            }
-            %s  # _checkLimit(limit)
-        """ % (self._filterObj(uri_=uri),
-               self._filterProduct(product_=product),
-               self._filterSubmTime(datestr_=lastupdate, op_='>='),
-               self._filterSubmTime(datestr_=endupdate, op_='<='),
-               self._filterLastVersion(lastversion_=lastversion),
-               self._checkLimit(limit_=limit))
-        #
+        # object type URI
+        self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObject'
 
     def download(self):
-        """
-        download every file associated with the dataobjs selected on ICOS CP,
+        """ download file associated to dataobject
+
+        download every file associated with the dataobjects selected on ICOS CP,
         and store them on local directory named by the dataset 'name'
 
         :return: dictionary with csv file as key, and dirout as value
@@ -241,7 +214,8 @@ if __name__ == '__main__':
     import doctest
 
     uri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
-    doctest.testmod(extraglobs={'t': DataObj(uri=uri), 'datasetCsvPath': setup.datasetCsvPath},
+    setup.main()
+    doctest.testmod(extraglobs={'t': DataObject(uri=uri), 'datasetCsvPath': setup.datasetCsvPath},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

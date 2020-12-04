@@ -7,7 +7,7 @@ $ python3 setup.py sdist bdist_wheel
 
 This command should output a lot of text and once completed should generate two files in the
  **dist** directory.
-> The tar.gz file is a Source Archive whereas the .whl file is a Built Distribution.  
+> The tar.gz file is a Source Archive whereas the .whl file is a Built Distribution.
 Newer pip versions preferentially install built distributions, but will fall back to source archives
 if needed. You should always upload a source archive and provide built archives for the platforms your
  project is compatible with.
@@ -15,9 +15,12 @@ if needed. You should always upload a source archive and provide built archives 
 ## To install package
 $ python3 -m pip install path/to/package/dist/icp2edd.SOME_RELEASE.tar.gz
 
+## To install package in development mode
+pip install -e path/to/package
+
 ## Version
 
-### Semantic Version (Sem-Ver):  
+### Semantic Version (Sem-Ver):
  Given a version number MAJOR.MINOR.PATCH, increment the:
  - MAJOR version when you make incompatible API changes,
  - MINOR version when you add functionality in a backwards-compatible manner, and
@@ -25,11 +28,11 @@ $ python3 -m pip install path/to/package/dist/icp2edd.SOME_RELEASE.tar.gz
 
 ### **pbr** will automatically configure your version for you by parsing semantically-versioned Git tags, and commit.
 
-- If the currently checked out revision is tagged, that tag is used as the version.  
+- If the currently checked out revision is tagged, that tag is used as the version.
 - If the currently checked out revision is not tagged, then **pbr** take the last tagged version number
 and increment it to get a minimum target version.
     - **pbr** then walk Git history back to the last release.
-    - Within each commit **pbr** look for a **Sem-Ver: pseudo header** and, if found, parse it looking for keywords.  
+    - Within each commit **pbr** look for a **Sem-Ver: pseudo header** and, if found, parse it looking for keywords.
     > Unknown symbols are not an error (so that folk can’t wedge pbr or break their tree),
 but **pbr** will emit an info-level warning message.
 

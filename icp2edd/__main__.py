@@ -4,18 +4,17 @@
 
 # ----------------------------------------------
 # import from standard lib
-from pathlib import Path
 import logging
 # import from other lib
 # import from my project
 import icp2edd.setup as setup
 import icp2edd.Xml4Erddap as x4edd
 import icp2edd.csv4Erddap as c4edd
-from icp2edd.SuperICPObj import SuperICPObj
-from icp2edd.Station import Station
-from icp2edd.GeoRegion import GeoRegion
-from icp2edd.DataSubmission import DataSubmission
-from icp2edd.DataObj import DataObj
+from icp2edd.superIcpObj import SuperICPObj
+# import all class from submodules in otcmeta
+from icp2edd.otcmeta import *
+# import all class from submodules in cpmeta
+from icp2edd.cpmeta import *
 
 
 # ----------------------------------------------
@@ -32,7 +31,7 @@ def main():
     _logger.info('get DataObj metadata from ICOS CP')
     try:
         uri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
-        dataobjs = DataObj(uri=uri)
+        dataobjs = DataObject(uri=uri)
     except Exception:
         _logger.exception('Something goes wrong when setting up DataObj')
         raise  # Throw exception again so calling code knows it happened
@@ -54,7 +53,7 @@ def main():
     try:
         dd = dataobjs.download()
     except Exception:
-        _logger.exception('Something goes wrong when downloading DataObj datas')
+        _logger.exception('Something goes wrong when downloading DataObj data')
         raise  # Throw exception again so calling code knows it happened
 
     for csv, rep in dd.items():
@@ -72,7 +71,7 @@ def main():
             dirout = fileout.parents[0]
             xml = x4edd.Xml4Erddap(dirout)
         except Exception:
-            _logger.exception('Something goes wrong when initialiasing Xml2ERDDAP object')
+            _logger.exception('Something goes wrong when initialising Xml2ERDDAP object')
             raise  # Throw exception again so calling code knows it happened
 
         # run GenerateDatasetXml
@@ -124,7 +123,7 @@ def main():
     uri = ['https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z']
     _logger.info(f'get DataObj metadata from ICOS CP')
     try:
-        dataobjs = DataObj(uri=uri)
+        dataobjs = DataObject(uri=uri)
         dataobjs.getMeta()
         # dataobjs.show()
     except Exception:
