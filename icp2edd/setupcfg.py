@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# setupLogging.py
+# setupcfg.py
 
 # ----------------------------------------------
 # import from standard lib
@@ -132,10 +132,10 @@ def _find_package_path(name):
 
 def _setup_cfg():
     """set up from configuration file(s)
-    
-    read parameters from 
+
+    read parameters from
     ~/.config/icp2edd/config.yaml
-    otherwise from 
+    otherwise from
     /path/to/package/cfg/config_default.yaml
     """
     # set up configuration file
@@ -160,7 +160,7 @@ def _setup_cfg():
 
 def _parse():
     """set up parameter from command line arguments
-    
+
     """
     # define parser
     parser = argparse.ArgumentParser(
@@ -198,7 +198,7 @@ def _parse():
 
 def _setup_logger(config_):
     """set up logger
-    
+
     set up logging parameters from command line arguments
     otherwise from configuration file(s)
     otherwise from logging configuration file: /path/to/package/cfg/logging.yaml

@@ -7,7 +7,7 @@
 import logging
 # import from other lib
 # import from my project
-import icp2edd.setup as setup
+import icp2edd.setupcfg as setupcfg
 import icp2edd.Xml4Erddap as x4edd
 import icp2edd.csv4Erddap as c4edd
 from icp2edd.superIcpObj import SuperICPObj
@@ -22,7 +22,7 @@ def main():
 
     # TODO test args
     # set up logger, paths, ...
-    setup.main()
+    setupcfg.main()
     _logger = logging.getLogger(__name__)
 
     # TODO first part get new dataObj on ICOS CP, and create associated ERDDAP dataset.xml

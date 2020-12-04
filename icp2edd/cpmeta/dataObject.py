@@ -23,7 +23,7 @@ import logging
 import requests
 from requests.exceptions import HTTPError
 # import from my project
-import icp2edd.setup as setup
+import icp2edd.setupcfg as setupcfg
 from icp2edd.cpmeta.staticObject import StaticObject
 
 # --- module's variable ------------------------
@@ -159,7 +159,7 @@ class DataObject(StaticObject):
             filename = Path(val['name'].value)
             stemname = filename.stem
 
-            dirout = setup.datasetCsvPath / stemname
+            dirout = setupcfg.datasetCsvPath / stemname
             try:
                 dirout.mkdir(parents=True)
             except FileExistsError:
@@ -214,8 +214,8 @@ if __name__ == '__main__':
     import doctest
 
     uri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
-    setup.main()
-    doctest.testmod(extraglobs={'t': DataObject(uri=uri), 'datasetCsvPath': setup.datasetCsvPath},
+    setupcfg.main()
+    doctest.testmod(extraglobs={'t': DataObject(uri=uri), 'datasetCsvPath': setupcfg.datasetCsvPath},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

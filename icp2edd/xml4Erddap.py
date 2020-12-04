@@ -16,7 +16,7 @@ import warnings
 import lxml.etree as etree
 # import from my project
 import icp2edd.case as case
-import icp2edd.setup as setup
+import icp2edd.setupcfg as setupcfg
 
 # --- module's variable ------------------------
 # load logger
@@ -152,7 +152,7 @@ class Xml4Erddap(object):
             raise ValueError('Invalid arguments number -{}-, expected -{}-'.format(len(self._cmd), self._checkArgs()))
 
         # creates sub directory
-        datasetSubDir = setup.datasetXmlPath / self._stem
+        datasetSubDir = setupcfg.datasetXmlPath / self._stem
         try:
             datasetSubDir.mkdir(parents=True)
         except FileExistsError:
@@ -181,7 +181,7 @@ class Xml4Erddap(object):
         dstag = Path.joinpath(datasetSubDir, self._ds + tag)
         self._cmd.append('-i' + str(dstag))
 
-        exe = Path.joinpath(setup.erddapWebInfDir, exe)
+        exe = Path.joinpath(setupcfg.erddapWebInfDir, exe)
         # Check file exists
         if not exe.is_file():
             raise FileNotFoundError(f"Can not find ERDDAP tools {exe}")
@@ -196,9 +196,9 @@ class Xml4Erddap(object):
         # run process 'GenerateDatasetsXml.sh' from directory 'erddapWebInfDir' with arguments 'self._cmd'
         # => creates file: ds
         _logger.info(f'creates dataset: {self.ds}')
-        _logger.debug(f'from directory {setup.erddapWebInfDir}, run process {self._cmd}')
+        _logger.debug(f'from directory {setupcfg.erddapWebInfDir}, run process {self._cmd}')
         process = subprocess.run(self._cmd,
-                                 cwd=setup.erddapWebInfDir,
+                                 cwd=setupcfg.erddapWebInfDir,
                                  stdout=subprocess.PIPE,
                                  timeout=60,
                                  universal_newlines=True)
@@ -254,7 +254,7 @@ def concatenate():
     >>> xmlout.__str__()
     '.../datasets.xml'
     """
-    dsxmlout = setup.datasetXmlPath / 'datasets.xml'
+    dsxmlout = setupcfg.datasetXmlPath / 'datasets.xml'
     _logger.debug(f'concatenate in {dsxmlout}')
     mod_path = Path(__file__).parent
     with dsxmlout.open("w") as fp:
@@ -265,7 +265,7 @@ def concatenate():
         _logger.debug('\t{}'.format(header))
         fp.write(header.read_text())
         # add single dataset
-        for ff in setup.datasetXmlPath.glob('**/dataset.*.xml'):
+        for ff in setupcfg.datasetXmlPath.glob('**/dataset.*.xml'):
             _logger.debug('\t{}'.format(ff))
             fp.write(ff.read_text())
         # add footer
@@ -369,7 +369,7 @@ def replaceXmlBy(dsxmlout):
     :param dsxmlout:
     """
     # remove erddap datasets.xml and create hard link to the new one
-    dsxml = setup.erddapContentDir / 'datasets.xml'
+    dsxml = setupcfg.erddapContentDir / 'datasets.xml'
     if dsxml.is_file():  # and not dsxml.is_symlink():
         dsxml.unlink()
 
@@ -394,8 +394,10 @@ if __name__ == '__main__':
     # changeAttr(i, o, m)
 
     import doctest
-    doctest.testmod(extraglobs={'datasetXmlPath': setup.datasetXmlPath, 'erddapPath': setup.erddapPath,
-                                'erddapWebInfDir': setup.erddapWebInfDir, 'erddapContentDir': setup.erddapContentDir},
+    doctest.testmod(extraglobs={'datasetXmlPath': setupcfg.datasetXmlPath,
+                                'erddapPath': setupcfg.erddapPath,
+                                'erddapWebInfDir': setupcfg.erddapWebInfDir,
+                                'erddapContentDir': setupcfg.erddapContentDir},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
     dirout = '/home/jpa029/Data/ICOS2ERDDAP/58GS20190711_SOCAT_enhanced'
