@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Station.py
+# station.py
 
 """
-    The Station module is used to explore ICOS CP stations' metadata.
+    The station module is used to explore ICOS CP Stations' metadata.
 
     Example usage:
 
-    From Station import Station
+    From station import Station
 
     stations = Station()    # initialise ICOS CP Station object
     stations.get_meta()     # get stations' metadata from ICOS CP
@@ -19,10 +19,22 @@
 import logging
 # import from other lib
 # import from my project
-from icp2edd.ICPObj import ICPObj
+from icp2edd.icpObj import ICPObj
 
+# --- module's variable ------------------------
 # load logger
 _logger = logging.getLogger(__name__)
+
+# object attributes' dictionary with RDF 'property' as key and RDF 'object' as value
+#   RDF triples: 'subject' + 'property/predicate' + 'object/value'
+# {'property/predicate': 'object/value'}
+# Note: 'object/value' will be the output attribute name
+_attr = {
+    'otcmeta:countryCode': 'countryCode',
+    'otcmeta:hasName': 'name',
+    'otcmeta:hasStationId': 'stationId',
+    'otcmeta:hasGeoRegion': 'GeoRegion'
+}
 
 
 # ----------------------------------------------
@@ -33,13 +45,13 @@ class Station(ICPObj):
     <BLANKLINE>
     type: <class '__main__.Station'>
     <BLANKLINE>
-    Class name: Station
+    Class name: xxx
     ...
     <BLANKLINE>
-    \tGeoRegion           : type: uri        value: ...
-    \tstationId           : type: literal    value: ...
-    \tname                : type: literal    value: ...
     \tcountryCode         : type: literal    value: ...
+    \tname                : type: literal    value: ...
+    \tstationId           : type: literal    value: ...
+    \tGeoRegion           : type: uri        value: ...
     \tlabel               : type: literal    value: ...
     \tcomment             : type: literal    value: ...
     \tseeAlso             : type: literal    value: ...
@@ -49,9 +61,9 @@ class Station(ICPObj):
     """
 
     def __init__(self, limit=None, uri=None):
-        """
-        This functions initialise instance of Station(ICPObj).
-        Set up a sparql query to get all metadata of Station from ICOS CP.
+        """ initialise instance of Station(ICPObj).
+
+        It will be used to set up a sparql query, and get all metadata of Station from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
@@ -66,30 +78,16 @@ class Station(ICPObj):
         :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
         """
         super().__init__()
-        # overwrite class name
-        self._name = 'Station'
-        # overwrite conventional attributes renaming dictionary
-        self._convAttr = {}
-        # overwrite query string
-        self._queryString = """
-            select ?xxx ?GeoRegion ?stationId ?name ?countryCode ?label ?comment ?seeAlso
-            where {
-                %s # _filterObj(uri_=uri)
-                ?Station rdf:type/rdfs:subClassOf*  <http://meta.icos-cp.eu/ontologies/otcmeta/Station> .
+        # set up class/instance variables
+        self._uri = uri
+        self._limit = limit
 
-                OPTIONAL { ?xxx otcmeta:hasGeoRegion ?GeoRegion .}
-                OPTIONAL { ?xxx otcmeta:hasStationId ?stationId .}
-                OPTIONAL { ?xxx otcmeta:hasName ?name .}
-                OPTIONAL { ?xxx otcmeta:countryCode ?countryCode .}
+        # object attributes' dictionary
+        if isinstance(_attr, dict):
+            self._attr = {**_attr, **self._attr}
 
-                OPTIONAL { ?xxx rdfs:label ?label .}
-                OPTIONAL { ?xxx rdfs:comment ?comment .}
-                OPTIONAL { ?xxx rdfs:seeAlso ?seeAlso .}
-            }
-            %s  # _checkLimit(limit_=limit)
-        """ % (self._filterObj(uri_=uri),
-               self._checkLimit(limit_=limit))
-        #
+        # object type URI
+        self._object = 'http://meta.icos-cp.eu/ontologies/otcmeta/Station'
 
 
 if __name__ == '__main__':

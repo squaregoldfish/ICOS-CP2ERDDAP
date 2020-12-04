@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# setupLogging.py
+# setupcfg.py
 
 # ----------------------------------------------
 # import from standard lib
@@ -132,16 +132,17 @@ def _find_package_path(name):
 
 def _setup_cfg():
     """set up from configuration file(s)
-    
-    read parameters from 
+
+    read parameters from
     ~/.config/icp2edd/config.yaml
-    otherwise from 
+    otherwise from
     /path/to/package/cfg/config_default.yaml
     """
     # set up configuration file
     try:
         # Read configuration file
-        config = confuse.LazyConfig('icp2edd', modname=icp2edd.__pkg_cfg__)  # Get a value from your YAML file
+        config = confuse.LazyConfig('icp2edd',
+                                    modname=icp2edd.__pkg_cfg__)  # Get a value from your YAML file
 
         # TODO check use of templates,
         #  cf examples in https://github.com/beetbox/confuse/tree/c244db70c6c2e92b001ce02951cf60e1c8793f75
@@ -159,7 +160,7 @@ def _setup_cfg():
 
 def _parse():
     """set up parameter from command line arguments
-    
+
     """
     # define parser
     parser = argparse.ArgumentParser(
@@ -197,7 +198,7 @@ def _parse():
 
 def _setup_logger(config_):
     """set up logger
-    
+
     set up logging parameters from command line arguments
     otherwise from configuration file(s)
     otherwise from logging configuration file: /path/to/package/cfg/logging.yaml
@@ -257,7 +258,6 @@ def _setup_logger(config_):
 
             logging.config.dictConfig(cfg_log)
 
-            # coloredlogs.install()
     except Exception:
         logging.exception('Error loading configuration file. Using default configs')
         raise  # Throw exception again so calling code knows it happened
@@ -274,7 +274,11 @@ def _default_logger():
 
     this default logger should only be used in case of any exception raised during setting up
     """
-    logging.basicConfig(level=logging.INFO, format="{asctime} | {levelname:8} | {name} | {message}")
+    logging.basicConfig(
+        level=logging.INFO,
+        style='{',
+        format="{asctime} | {levelname:8} | {name} | {message}"
+    )
 
 
 def main():

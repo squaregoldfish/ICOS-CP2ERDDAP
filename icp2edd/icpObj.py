@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# ICPObj.py
+# icpObj.py
 
 """
     This module set up a generic class for ICOS CP Object.
 
     Example usage:
 
-    from ICPObj import ICPObj
+    from icpObj import ICPObj
 
     icpobj = ICPObj()   # initialise ICPObj
     icpobj.get_meta()   # get metadata from ICOS CP
@@ -16,6 +16,7 @@
 
 # --- import -----------------------------------
 # import from standard lib
+from pathlib import Path
 from urllib.parse import urlparse
 import logging
 # import from other lib
@@ -24,8 +25,19 @@ from SPARQLWrapper import SPARQLWrapper2
 from dateutil.parser import parse
 # import from my project
 
+# --- module's variable ------------------------
 # load logger
 _logger = logging.getLogger(__name__)
+
+# object attributes' dictionary with RDF 'property' as key and RDF 'object' as value
+#   RDF triples: 'subject' + 'property/predicate' + 'object/value'
+# {'property/predicate': 'object/value'}
+# Note: 'object/value' will be the output attribute name
+_attr = {
+    'rdfs:label': 'label',
+    'rdfs:comment': 'comment',
+    'rdfs:seeAlso': 'seeAlso'
+}
 
 
 # ----------------------------------------------
@@ -37,21 +49,25 @@ class ICPObj(object):
     type: <class '__main__.ICPObj'>
     <BLANKLINE>
     Class name: xxx
+    ...
     <BLANKLINE>
-    \tsizeInBytes         : type: literal    value:...
-    \tsha256sum           : type: literal    value:...
-    \tname                : type: literal    value:...
-    \tDataSubmission      : type: uri        value:...
-    \tDatAcquisition      : type: uri        value:...
-    \tDataProduction      : type: uri        value:...
-    \turi                 : type: uri        value:...
+    \turi                 : type: uri        value: ...
     <BLANKLINE>
     ...
+
+    \tlabel               : type: literal    value: ...
+    \tcomment             : type: literal    value: ...
+    \tseeAlso             : type: literal    value: ...
+    \turi                 : type: uri        value: ...
+    <BLANKLINE>
+    ...
+    >>> t.getObjectType('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
+    'DataObject'
     """
     def __init__(self, limit=None, lastupdate=None, endupdate=None, product=None, lastversion=None, uri=None):
-        """
-        This functions initialise generic ICOS CP object (ICPObj).
-        Set up a sparql query to get all metdata of ICPObj from ICOS CP.
+        """ initialise generic ICOS CP object (ICPObj).
+
+        It will be used to set up a sparql query, and get all metadata of ICPObj from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
@@ -76,10 +92,25 @@ class ICPObj(object):
         :param lastversion: select only last release [True,False]
         :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
         """
-        # default name for test only
+        # set up class/instance variables
         self._name = 'xxx'
-        # default conventional attributes renaming dictionary
-        self._convAttr = {'citationString': 'citation', 'tata': 'toto'}
+        self._uri = uri
+        self._limit = limit
+        self._lastupdate = lastupdate
+        self._endupdate = endupdate
+        self._product = product
+        self._lastversion = lastversion
+
+        # object attributes' dictionary
+        if not hasattr(self, '_attr'):
+            # set up if not defined
+            self._attr = {}
+        if isinstance(_attr, dict):
+            self._attr = {**_attr, **self._attr}
+
+        # object type URI
+        self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObject'
+
         # list of prefix used in SPARQL query
         self._prefix = """
             prefix cpmeta: <http://meta.icos-cp.eu/ontologies/cpmeta/>
@@ -88,73 +119,114 @@ class ICPObj(object):
             prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             prefix xsd: <http://www.w3.org/2001/XMLSchema#>
             """
-        # default query for test only
-        self._queryString = """
-            select  ?xxx ?sizeInBytes ?sha256sum ?citationString ?name ?doi ?nextVersionOf
-                    ?DataSubmission ?DatAcquisition ?DataProduction ?formatSpecificMetadata ?keyword ?variableName
-                    ?actualVariable ?temporalResolution ?spatialCoverage ?label ?comment ?seeAlso
-            where {
-                %s # _filterObj(uri=uri)
-                %s # _filterProduct(product=product)
-                ?xxx cpmeta:hasObjectSpec ?spec . # restriction property for DataObject and/or SimpleDataObject
-                ?xxx cpmeta:wasSubmittedBy [
-                    prov:endedAtTime ?submTime ;
-                    prov:wasAssociatedWith ?submitter
-                    ] .
-                %s # _filterSubmTime(datestr=lastupdate, op='>=')
-                %s # _filterSubmTime(datestr=endupdate, op='<=')
-                %s # _filterLastVersion(lastversion=lastversion)
 
-                OPTIONAL { ?xxx cpmeta:hasSizeInBytes ?sizeInBytes .}          # as subClassOf DataObject
-                OPTIONAL { ?xxx cpmeta:hasSha256sum ?sha256sum .}               # as subClassOf DataObject
-                OPTIONAL { ?xxx cpmeta:hasCitationString ?citationString .}     # as subClassOf DataObject
-                OPTIONAL { ?xxx cpmeta:hasName ?name .}
-                OPTIONAL { ?xxx cpmeta:hasDoi ?doi .}
-                OPTIONAL { ?xxx cpmeta:isNextVersionOf ?nextVersionOf .}
-
-                OPTIONAL { ?xxx cpmeta:wasSubmittedBy ?DataSubmission .}           # as subClassOf DataObject
-                OPTIONAL { ?xxx cpmeta:hasObjectSpec ?DataObjectSpec .}       # domain
-
-                OPTIONAL { ?xxx cpmeta:wasAcquiredBy ?DatAcquisition .}       # domain
-                OPTIONAL { ?xxx cpmeta:wasProducedBy ?DataProduction .}       # domain
-
-                OPTIONAL { ?xxx cpmeta:hasFormatSpecificMetadata ?formatSpecificMetadata .}
-                OPTIONAL { ?xxx cpmeta:hasKeyword ?keyword . }
-                OPTIONAL { ?xxx cpmeta:hasVariableName ?variableName .}
-                OPTIONAL { ?xxx cpmeta:hasActualVariable ?actualVariable .}
-                OPTIONAL { ?xxx cpmeta:hasTemporalResolution ?temporalResolution .}
-                OPTIONAL { ?xxx cpmeta:hasSpatialCoverage ?spatialCoverage .}
-
-                OPTIONAL { ?xxx rdfs:label ?label .}
-                OPTIONAL { ?xxx rdfs:comment ?comment .}
-                OPTIONAL { ?xxx rdfs:seeAlso ?seeAlso .}
-            }
-            %s  # _checklimit(limit)
-        """ % (self._filterObj(uri_=uri),
-               self._filterProduct(product_=product),
-               self._filterSubmTime(datestr_=lastupdate, op_='>='),
-               self._filterSubmTime(datestr_=endupdate, op_='<='),
-               self._filterLastVersion(lastversion_=lastversion),
-               self._checkLimit(limit_=limit))
-        #
         self.meta = {}
 
-    def _query(self):
+    def _queryString(self):
+        """create SPARQL query string
+
+        optionally add some filter to the SPARQL query depending on properties available in the object:
+        - filter on URI, in any case
+        - filter on Product, only if object type is 'DataObject' or 'SimpleDataObject'
+        - filter on submission time, if property 'wasSubmittedBy' is available
+        - filter on last version, if property 'isNextVersionOf' is available
+        - filter on number of output, in any case
+        """
+        # TODO check every attribute value are unique
+
+        select = f"select ?xxx"
+        option = ''
+        for k, v in self._attr.items():
+            select = select + ' ?' + v
+            option = option + "\n\tOPTIONAL { ?xxx %s ?%s .}" % (k, v)
+
+        # start where block
+        query = select + '\nwhere {'
+        # filter: uri
+        query = query + f'\n\t{self._filterObj(self._uri)} # _filterObj(uri)'
+
+        # object type name
+        objtype = Path(self._object).name
+        if objtype in ('DataObject', 'SimpleDataObject'):
+            # filter: product
+            query = query + \
+                     f'\n\t{self._filterProduct(self._product)} # _filterProduct(product)'
+            # add main object
+            query = query + '\n\t ?xxx cpmeta:hasObjectSpec ?spec .'
+        else:
+            # add main object
+            query = query + '\n\t ?xxx rdf:type/rdfs:subClassOf* <%s> .' % self._object
+
+        # filter: submission time
+        if 'cpmeta:wasSubmittedBy' in self._attr.keys():
+            query = query + '\n\t?xxx cpmeta:wasSubmittedBy [' \
+                            '\n\t\tprov:endedAtTime ?submTime ;' \
+                            '\n\t\tprov:wasAssociatedWith ?submitter' \
+                            '\n\t\t] .'\
+                            f"\n\t{self._filterSubmTime(self._lastupdate, op_='>=')} " \
+                            f"# _filterSubmTime(lastupdate, op_='>=')"\
+                            f"\n\t{self._filterSubmTime(self._endupdate, op_='<=')} " \
+                            f"# _filterSubmTime(endupdate, op_='<=')"
+
+        # filter last version
+        if 'cpmeta:isNextVersionOf' in self._attr.keys():
+            query = query + f'\n\t{self._filterLastVersion(self._lastversion)} # _filterLastVersion(lastversion)'
+
+        # add optional request (all attributes)
+        query = query + '\n' + option
+        # close where block
+        query = query + '\n}'
+        # filter: limit
+        query = query + f'\n{self._filterLimit(self._limit)}  # _filterLimit(limit)'
+
+        return query
+
+    def _query(self, queryString_):
         """
         This functions run a sparql query on ICOS CP.
         Here we select metadata from every stations store in the ICOS CP.
 
         :return: SPARQLWrapper Bindings object (each binding is a dictionary)
         """
+        if not isinstance(queryString_, str):
+            raise TypeError(f'Invalid type value. queryString: \n"""{queryString_}"""\nmust be string, '
+                            f'here {type(queryString_)}')
+
+        _logger.debug(f"queryString_: {queryString_}")
         sparql = SPARQLWrapper2("https://meta.icos-cp.eu/sparql")
 
-        query = self._prefix + self._queryString
+        query = self._prefix + queryString_
         sparql.setQuery(query)
         try:
             return sparql.query()
         except Exception:  # as err:
             _logger.exception("ERROR with SPARQL query")
             raise  #
+
+    def getObjectType(self, uri_):
+
+        if self._is_url(uri_):
+            queryString = """
+            select ?objtype
+            where{
+             <%s> rdf:type ?objtype
+            }
+            """ % uri_
+        else:
+            raise TypeError(f'Invalid object format: {uri_}')
+
+        res = self._query(queryString)
+        # check only one result
+        if len(res.bindings) > 1:
+            raise ValueError(f'Invalid number of result -{len(res.bindings)}-')
+
+        for result in res.bindings:
+            uri = result['objtype'].value
+            # check is uri
+            if self._is_url(uri):
+                return Path(uri).name
+            else:
+                raise TypeError(f'Invalid object format: {uri}')
 
     def getMeta(self):
         """
@@ -164,13 +236,15 @@ class ICPObj(object):
         meta = { ?uri : ?result, ... }
             ?result = { ?attr : {type: ? , value: ?}, ... }
         """
-        # init empty dict
-        res = self._query()
+        queryString = self._queryString()
+        #
+        res = self._query(queryString)
         for result in res.bindings:
             # result = { ? :{type: ? , value: ?}, ... }
             result['uri'] = result.pop("xxx")
             uri = result['uri'].value
-            self.meta[uri] = self._renameKeyDic(result)
+            # self.meta[uri] = self._renameKeyDic(result)
+            self.meta[uri] = result
 
     def show(self):
         """
@@ -186,33 +260,33 @@ class ICPObj(object):
             for kk, vv in v.items():
                 print('\t{:20}: type: {:10} value: {}'.format(kk, vv.type, vv.value))
 
-    def _renameKeyDic(self, _):
-        """
-        rename dictionary keys:
-        :return: renamed dictionary
-        """
-        for oldKey, newKey in self._convAttr.items():
-            _ = dict((newKey, v) if k == oldKey else (k, v) for k, v in _.items())
-        return _
+    # def _renameKeyDic(self, _):
+    #    """
+    #    rename dictionary keys:
+    #    :return: renamed dictionary
+    #    """
+    #    for oldKey, newKey in self._convAttr.items():
+    #        _ = dict((newKey, v) if k == oldKey else (k, v) for k, v in _.items())
+    #    return _
 
-    def _checkLimit(self, limit_=0):
+    def _filterLimit(self, limit_=0):
         """
         create a string to inject into sparql queries to limit the
         amount of returned results
 
         :return: string
 
-        >>> t._checkLimit()
+        >>> t._filterLimit()
         ''
-        >>> t._checkLimit(None)
+        >>> t._filterLimit(None)
         ''
-        >>> t._checkLimit(3)
+        >>> t._filterLimit(3)
         'limit 3'
-        >>> t._checkLimit('a')
+        >>> t._filterLimit('a')
         Traceback (most recent call last):
         ...
-            raise ValueError('limit is not an integer')
-        ValueError: limit is not an integer
+            raise ValueError('limit -{}- is not an integer'.format(limit_))
+        ValueError: limit -a- is not an integer
         """
         if limit_:
             try:
@@ -245,7 +319,7 @@ class ICPObj(object):
         >>> t._filterSubmTime(23/12/99, op_='<')
         Traceback (most recent call last):
             ...
-        TypeError: ('Invalid date format ', 0.019360269360269362)
+        TypeError: Invalid date format: 0.019360269360269362
         >>> t._filterSubmTime('toto', op_='<')
         Traceback (most recent call last):
             ...
@@ -256,8 +330,8 @@ class ICPObj(object):
         >>> t._filterSubmTime('23/12/99', op_='=')
         Traceback (most recent call last):
             ...
-            raise ValueError("Invalid operator: {}; valid operator are {}".format(op, valid_operator))
-        ValueError: Invalid operator: =; valid operator are ['<=', '>=', '<', '>']
+            raise ValueError("Invalid operator: {} ; valid operator are {}".format(op_, valid_operator))
+        ValueError: Invalid operator: = ; valid operator are ['<=', '>=', '<', '>']
         """
         # check operator
         valid_operator = ['<=', '>=', '<', '>']
@@ -292,15 +366,15 @@ class ICPObj(object):
         >>> t._filterProduct(22)
         Traceback (most recent call last):
             ...
-            raise TypeError('Invalid product format', product)
-        TypeError: ('Invalid product format', 22)
-        >>> t._filterProduct(['product','product2'])
-        'VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/product http://meta.icos-cp.eu/resources/cpmeta/%sproduct2>}'
+            raise TypeError('Invalid product format: {}'.format(product_))
+        TypeError: Invalid product format: 22
+        >>> t._filterProduct(['pdt','pdt2'])
+        'VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/pdt> <http://meta.icos-cp.eu/resources/cpmeta/pdt2>}'
         >>> t._filterProduct(['product',2])
         Traceback (most recent call last):
         ...
-            raise TypeError('Invalid product format', product_)
-        TypeError: ('Invalid product format', ['product', 2])
+            raise TypeError('Invalid product format: {}'.format(product_))
+        TypeError: Invalid product format: ['product', 2]
         >>> t._filterProduct(['product'])
         'VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/product>}'
         """
@@ -308,7 +382,7 @@ class ICPObj(object):
             if isinstance(product_, str):
                 return "VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/%s>}" % product_
             elif isinstance(product_, list) and all(isinstance(n, str)for n in product_):
-                _ = " http://meta.icos-cp.eu/resources/cpmeta/%s".join(product_)
+                _ = "> <http://meta.icos-cp.eu/resources/cpmeta/".join(product_)
                 return "VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/%s>}" % _
             else:
                 raise TypeError('Invalid product format: {}'.format(product_))
@@ -333,8 +407,8 @@ class ICPObj(object):
         >>> t._filterLastVersion('toto')
         Traceback (most recent call last):
             ...
-            raise TypeError('Invalid ', lastversion)
-        TypeError: ('Invalid ', 'toto')
+            raise TypeError('Invalid lastVersion type: {}'.format(lastversion_))
+        TypeError: Invalid lastVersion type: toto
         """
         if lastversion_:
             if isinstance(lastversion_, bool):
@@ -370,20 +444,20 @@ class ICPObj(object):
         >>> t._filterObj('toto')
         Traceback (most recent call last):
             ...
-            raise TypeError('Invalid object format', uri)
-        TypeError: ('Invalid object format', 'toto')
+            raise TypeError('Invalid object format: {}'.format(uri_))
+        TypeError: Invalid object format: toto
         >>> t._filterObj(33)
         Traceback (most recent call last):
         ...
-            raise TypeError('Invalid object format', uri_)
-        TypeError: ('Invalid object format', 33)
+            raise TypeError('Invalid object format: {}'.format(uri_))
+        TypeError: Invalid object format: 33
         >>> t._filterObj('https://www.jetbrains.com/help/pycharm')
         'VALUES ?xxx {<https://www.jetbrains.com/help/pycharm>}'
         >>> t._filterObj(['toto',33])
         Traceback (most recent call last):
         ...
-            raise TypeError('Invalid object format', uri_)
-        TypeError: ('Invalid object format', ['toto', 33])
+            raise TypeError('Invalid object format: {}'.format(uri_))
+        TypeError: Invalid object format: ['toto', 33]
         >>> t._filterObj(['https://www.jetbrains.com/help/pycharm','https://docs.python.org/3/tutorial/errors.html'])
         'VALUES ?xxx {<https://www.jetbrains.com/help/pycharm https://docs.python.org/3/tutorial/errors.html>}'
         """
