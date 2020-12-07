@@ -39,7 +39,7 @@ class SuperICPObj(object):
         uri = ['https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z']
         _logger.info('get DataObj metadata from ICOS CP')
         try:
-            _ = DataObj(uri=uri)
+            _ = DataObject(uri=uri)
             _.getMeta()
             self.m['DataObj'] = _.meta
             # dataobjs.show()
