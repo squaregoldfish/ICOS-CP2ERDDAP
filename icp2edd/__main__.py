@@ -8,7 +8,7 @@ import logging
 # import from other lib
 # import from my project
 import icp2edd.setupcfg as setupcfg
-import icp2edd.Xml4Erddap as x4edd
+import icp2edd.xml4Erddap as x4edd
 import icp2edd.csv4Erddap as c4edd
 from icp2edd.superIcpObj import SuperICPObj
 # import all class from submodules in otcmeta
