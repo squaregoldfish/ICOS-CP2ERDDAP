@@ -9,9 +9,9 @@
 
     From valueType import ValueType
 
-    valuetypes = ValueType()        # initialise ICOS CP ValueType object
-    valuetypes.get_meta()           # get valuetypes' metadata from ICOS CP
-    valuetypes.show()               # print valuetypes' metadata
+    valueTypes = ValueType()         # initialise ICOS CP ValueType object
+    valueTypes.get_meta()            # get valueTypes' metadata from ICOS CP
+    valueTypes.show()                # print valueTypes' metadata
 """
 
 # --- import -----------------------------------
@@ -30,8 +30,8 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasQuantityKind': 'QuantityKind',
-    'cpmeta:hasUnit': 'unit'
+        'cpmeta:hasQuantityKind': 'QuantityKind',
+        'cpmeta:hasUnit': 'unit'
 }
 
 
@@ -39,7 +39,8 @@ _attr = {
 class ValueType(DataObjectSpecifyingThing):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):

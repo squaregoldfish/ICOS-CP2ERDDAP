@@ -9,9 +9,9 @@
 
     From dataObjectSpec import DataObjectSpec
 
-    dataobjectspecs = DataObjectSpec()      # initialise ICOS CP DataObjectSpec object
-    dataobjectspecs.get_meta()              # get dataobjectspecs' metadata from ICOS CP
-    dataobjectspecs.show()                  # print dataobjectspecs' metadata
+    dataObjectSpecs = DataObjectSpec()    # initialise ICOS CP DataObjectSpec object
+    dataObjectSpecs.get_meta()            # get dataObjectSpecs' metadata from ICOS CP
+    dataObjectSpecs.show()                # print dataObjectSpecs' metadata
 """
 
 # --- import -----------------------------------
@@ -30,14 +30,14 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasFormat': 'ObjectFormat',
-    'cpmeta:hasAssociatedProject': 'Project',
-    'cpmeta:hasDataTheme': 'DataTheme',
-    'cpmeta:hasEncoding': 'ObjectEncoding',
-    'cpmeta:hasDataLevel': 'dataLevel',
-    'cpmeta:containsDataset': 'DatasetSpec',
-    'cpmeta:hasDocumentationObject': 'DocumentObject',
-    'cpmeta:hasKeywords': 'keywords'
+        'cpmeta:hasDataLevel': 'dataLevel',
+        'cpmeta:hasEncoding': 'ObjectEncoding',
+        'cpmeta:hasFormat': 'ObjectFormat',
+        'cpmeta:containsDataset': 'DatasetSpec',
+        'cpmeta:hasDataTheme': 'DataTheme',
+        'cpmeta:hasAssociatedProject': 'Project',
+        'cpmeta:hasDocumentationObject': 'DocumentObject',
+        'cpmeta:hasKeywords': 'keyword'
 }
 
 
@@ -45,7 +45,7 @@ _attr = {
 class DataObjectSpec(DataObjectSpecifyingThing):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
     """
 
     def __init__(self, limit=None, uri=None):

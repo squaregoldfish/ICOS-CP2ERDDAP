@@ -19,6 +19,7 @@
 from pathlib import Path
 from urllib.parse import urlparse
 import logging
+from pprint import pformat
 # import from other lib
 # > conda-forge
 from SPARQLWrapper import SPARQLWrapper2
@@ -72,7 +73,7 @@ class ICPObj(object):
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select DataObj:
+        and/or select DataObject:
         - submitted since 'lastupdate'
         - submitted until 'endupdate'
         - of data type 'product'
@@ -108,9 +109,6 @@ class ICPObj(object):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
-        # object type URI
-        self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObject'
-
         # list of prefix used in SPARQL query
         self._prefix = """
             prefix cpmeta: <http://meta.icos-cp.eu/ontologies/cpmeta/>
@@ -118,8 +116,20 @@ class ICPObj(object):
             prefix prov: <http://www.w3.org/ns/prov#>
             prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+            prefix geosparql: <http://www.opengis.net/ont/geosparql#>
             """
 
+        # object type URI
+        # self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObject'
+        self._object = None
+        if self._uri is not None:
+            self._object = self._getObject()
+
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # dictionary to store metadata
         self.meta = {}
 
     def _queryString(self):
@@ -203,30 +213,48 @@ class ICPObj(object):
             _logger.exception("ERROR with SPARQL query")
             raise  #
 
-    def getObjectType(self, uri_):
+    def _getObject(self):
 
-        if self._is_url(uri_):
+        if self._is_url(self._uri):
             queryString = """
             select ?objtype
             where{
              <%s> rdf:type ?objtype
             }
-            """ % uri_
+            """ % self._uri
         else:
-            raise TypeError(f'Invalid object format: {uri_}')
+            raise TypeError(f'Invalid object format: {self._uri}')
 
         res = self._query(queryString)
         # check only one result
         if len(res.bindings) > 1:
-            raise ValueError(f'Invalid number of result -{len(res.bindings)}-')
+            _logger.warning(f'Invalid number of result -{len(res.bindings)}-'
+                            f' for uri:{self._uri}')
+            res.bindings = list(v for v in res.bindings if 'meta.icos-cp.eu' in v['objtype'].value)
+
+        # TODO check only one object selected
 
         for result in res.bindings:
             uri = result['objtype'].value
             # check is uri
             if self._is_url(uri):
-                return Path(uri).name
+                return uri
             else:
                 raise TypeError(f'Invalid object format: {uri}')
+
+    def _getObjectType(self):
+
+        uri = self._object
+        # check is uri
+        if self._is_url(uri):
+            otype = Path(uri).name
+            # if otype in globals().keys():
+            #     print(f'object: {self._object}\n objtype: {otype}')
+            return otype
+            # else:
+            #     raise ValueError(f'Unknown object: {otype}')
+        else:
+            raise TypeError(f'Invalid object format: {uri}')
 
     def getMeta(self):
         """
@@ -246,19 +274,25 @@ class ICPObj(object):
             # self.meta[uri] = self._renameKeyDic(result)
             self.meta[uri] = result
 
-    def show(self):
+    def show(self, print_=False):
         """
         print metadata read (name, type and value)
 
         ICPObj.meta = { ?uri = ?result }
          ?result = { ?attr : {type: ? , value: ? }, ... }
         """
-        print("\ntype: {}".format(type(self)))
-        print("\nClass name: {}".format(self._name))
-        for k, v in self.meta.items():
-            print('')
-            for kk, vv in v.items():
-                print('\t{:20}: type: {:10} value: {}'.format(kk, vv.type, vv.value))
+        if not isinstance(print_, bool):
+            _logger.error(f"Invalid type argument -{print_}-")
+            raise TypeError("Invalid type argument")
+
+        _logger.info("\nClass name: {}".format(self._name))
+        _logger.info("\ttype: {}".format(type(self)))
+        _logger.info('\t' + pformat(self.meta))
+
+        if print_:
+            print("\nClass name: {}".format(self._name))
+            print("\ttype: {}".format(type(self)))
+            print('\t'+pformat(self.meta))
 
     # def _renameKeyDic(self, _):
     #    """

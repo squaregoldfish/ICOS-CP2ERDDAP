@@ -30,8 +30,9 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasEcosystemType': 'EcosystemType',
-    'cpmeta:hasSamplingPoint': 'Position'
+        'cpmeta:hasSamplingPoint': 'Position',
+        'cpmeta:hasEcosystemType': 'EcosystemType',
+        'geosparql:hasGeometry': 'SpatialCoverage'
 }
 
 
@@ -39,14 +40,14 @@ _attr = {
 class Site(ICPObj):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
 
     """
 
     def __init__(self, limit=None, uri=None):
         """ initialise instance of Site(ICPObj).
 
-         It will be used to set up a sparql query, and get all metadata of Site from ICOS CP.
+        It will be used to set up a sparql query, and get all metadata of Site from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results

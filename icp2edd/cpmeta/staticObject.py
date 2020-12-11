@@ -9,9 +9,9 @@
 
     From staticObject import StaticObject
 
-    staticobjects = StaticObject()  # initialise ICOS CP StaticObject object
-    staticobjects.get_meta()        # get staticobjects' metadata from ICOS CP
-    staticobjects.show()            # print staticobjects' metadata
+    staticObjects = StaticObject()      # initialise ICOS CP StaticObject object
+    staticObjects.get_meta()            # get staticObjects' metadata from ICOS CP
+    staticObjects.show()                # print staticObjects' metadata
 """
 
 # --- import -----------------------------------
@@ -30,13 +30,13 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasSizeInBytes': 'sizeInBytes',
-    'cpmeta:hasSha256sum': 'sha256sum',
-    'cpmeta:hasCitationString': 'citation',
-    'cpmeta:hasName': 'name',
-    'cpmeta:hasDoi': 'doi',
-    'cpmeta:isNextVersionOf': 'StaticObject',
-    'cpmeta:wasSubmittedBy': 'DataSubmission'
+        'cpmeta:hasSha256sum': 'hexBinary',
+        'cpmeta:hasSizeInBytes': 'sizeInBites',
+        'cpmeta:wasSubmittedBy': 'DataSubmission',
+        'cpmeta:hasCitationString': 'string',
+        'cpmeta:isNextVersionOf': 'StaticObject',
+        'cpmeta:hasDoi': 'doi',
+        'cpmeta:hasName': 'name'
 }
 
 
@@ -44,7 +44,7 @@ _attr = {
 class StaticObject(ICPObj):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
 
     """
 

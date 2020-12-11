@@ -9,9 +9,9 @@
 
     From dataSubmission import DataSubmission
 
-    datasubmissions = DataSubmission()      # initialise ICOS CP DataSubmission object
-    datasubmissions.get_meta()              # get datasubmissions' metadata from ICOS CP
-    datasubmissions.show()                  # print datasubmissions' metadata
+    dataSubmissions = DataSubmission()    # initialise ICOS CP DataSubmission object
+    dataSubmissions.get_meta()            # get dataSubmissions' metadata from ICOS CP
+    dataSubmissions.show()                # print dataSubmissions' metadata
 """
 
 # --- import -----------------------------------
@@ -30,9 +30,10 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-      'prov:wasAssociatedWith': 'Thing',
-      'prov:startedAtTime': 'startedAtTime',
-      'prov:endedAtTime': 'endedAtTime'
+        'prov:wasAssociatedWith': 'Thing',
+        'prov:startedAtTime': 'startedAtTime',
+        'prov:endedAtTime': 'endedAtTime',
+        'cpmeta:wasPerformedAt': 'Feature'
 }
 
 
@@ -40,14 +41,14 @@ _attr = {
 class DataSubmission(ICPObj):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
 
     """
 
     def __init__(self, limit=None, uri=None):
         """ initialise instance of DataSubmission(ICPObj).
 
-        It will be used to set up a sparql query, and get all metadata of  DataSubmission from ICOS CP.
+        It will be used to set up a sparql query, and get all metadata of DataSubmission from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results

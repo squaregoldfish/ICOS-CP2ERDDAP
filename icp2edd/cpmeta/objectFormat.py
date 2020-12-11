@@ -9,9 +9,9 @@
 
     From objectFormat import ObjectFormat
 
-    objectformats = ObjectFormat()          # initialise ICOS CP ObjectFormat object
-    objectformats.get_meta()                # get objectformats' metadata from ICOS CP
-    objectformats.show()                    # print objectformats' metadata
+    objectFormats = ObjectFormat()      # initialise ICOS CP ObjectFormat object
+    objectFormats.get_meta()            # get objectFormats' metadata from ICOS CP
+    objectFormats.show()                # print objectFormats' metadata
 """
 
 # --- import -----------------------------------
@@ -30,7 +30,7 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasGoodFlagValue': 'goodFlagValue'
+        'cpmeta:hasGoodFlagValue': 'goodFlagValue'
 }
 
 
@@ -38,7 +38,7 @@ _attr = {
 class ObjectFormat(ICPObj):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
 
     """
 

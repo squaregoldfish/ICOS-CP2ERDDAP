@@ -9,9 +9,9 @@
 
     From datasetVariable import DatasetVariable
 
-    datasetvariables = DatasetVariable()    # initialise ICOS CP DatasetVariable object
-    datasetvariables.get_meta()             # get datasetvariables' metadata from ICOS CP
-    datasetvariables.show()                 # print datasetvariables' metadata
+    datasetVariables = DatasetVariable()   # initialise ICOS CP DatasetVariable object
+    datasetVariables.get_meta()            # get datasetVariables' metadata from ICOS CP
+    datasetVariables.show()                # print datasetVariables' metadata
 """
 
 # --- import -----------------------------------
@@ -30,10 +30,10 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasValueType': 'ValueType',
-    'cpmeta:hasVariableTitle': 'variableTitle',
-    'cpmeta:isOptionalVariable': 'isOptionalVariable',
-    'cpmeta:isRegexVariable': 'isRegexVariable'
+        'cpmeta:hasValueType': 'ValueType',
+        'cpmeta:hasVariableTitle': 'variableTitle',
+        'cpmeta:isOptionalVariable': 'optionVariable',
+        'cpmeta:isRegexVariable': 'regexVariable'
 }
 
 
@@ -41,7 +41,8 @@ _attr = {
 class DatasetVariable(DataObjectSpecifyingThing):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):

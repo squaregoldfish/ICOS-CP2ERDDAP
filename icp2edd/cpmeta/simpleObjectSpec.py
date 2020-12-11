@@ -3,15 +3,15 @@
 # simpleObjectSpec.py
 
 """
-    The SimpleObjectSpec module is used to explore ICOS CP simpleobjectspecs' metadata.
+    The simpleObjectSpec module is used to explore ICOS CP SimpleObjectSpecs' metadata.
 
     Example usage:
 
-    From SimpleObjectSpec import SimpleObjectSpec
+    From simpleObjectSpec import SimpleObjectSpec
 
-    simpleobjectspecs = SimpleObjectSpec()    # initialise ICOS CP SimpleObjectSpec object
-    simpleobjectspecs.get_meta()              # get simpleobjectspecs' metadata from ICOS CP
-    simpleobjectspecs.show()                  # print simpleobjectspecs' metadata
+    simpleObjectSpecs = SimpleObjectSpec()  # initialise ICOS CP SimpleObjectSpec object
+    simpleObjectSpecs.get_meta()            # get simpleObjectSpecs' metadata from ICOS CP
+    simpleObjectSpecs.show()                # print simpleObjectSpecs' metadata
 """
 
 # --- import -----------------------------------
@@ -37,13 +37,14 @@ _attr = {
 class SimpleObjectSpec(DataObjectSpec):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):
-        """
-        This functions initialise instance of SimpleObjectSpec(ICPObj).
-        Set up a sparql query to get all metadata of SimpleObjectSpec from ICOS CP.
+        """ initialise instance of SimpleObjectSpec(DataObjectSpec).
+
+        It will be used to set up a sparql query, and get all metadata of SimpleObjectSpec from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results

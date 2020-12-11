@@ -297,7 +297,7 @@ def changeAttr(ds, gloatt, out=None):
     if not ds.is_file():
         raise FileExistsError(f'File {ds} does not exist.')
     else:
-        _logger.info('tree : ', ds)
+        _logger.info(f'tree: {ds}')
 
     # keep CDATA as it is
     parser = etree.XMLParser(strip_cdata=False, encoding='ISO-8859-1')

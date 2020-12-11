@@ -9,9 +9,9 @@
 
     From latLonBox import LatLonBox
 
-    latlonboxs = LatLonBox()            # initialise ICOS CP LatLonBox object
-    latlonboxs.get_meta()               # get latlonboxs' metadata from ICOS CP
-    latlonboxs.show()                   # print latlonboxs' metadata
+    latLonBoxs = LatLonBox()         # initialise ICOS CP LatLonBox object
+    latLonBoxs.get_meta()            # get latLonBoxs' metadata from ICOS CP
+    latLonBoxs.show()                # print latLonBoxs' metadata
 """
 
 # --- import -----------------------------------
@@ -19,7 +19,7 @@
 import logging
 # import from other lib
 # import from my project
-from icp2edd.icpObj import ICPObj
+from icp2edd.cpmeta.spatialCoverage import SpatialCoverage
 
 # --- module's variable ------------------------
 # load logger
@@ -30,23 +30,23 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasEasternBound': 'easternBound',
-    'cpmeta:hasNothernBound': 'northernBound',
-    'cpmeta:hasSouthernBound': 'southernBound',
-    'cpmeta:hasWesternBound': 'westernBound'
+        'cpmeta:hasWesternBound': 'westernBound',
+        'cpmeta:hasSouthernBound': 'southernBound',
+        'cpmeta:hasNothernBound': 'northernBound',
+        'cpmeta:hasEasternBound': 'easternBound'
 }
-# TODO contact LUND about typo in hasNothern property
+
 
 # ----------------------------------------------
-class LatLonBox(ICPObj):
+class LatLonBox(SpatialCoverage):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
 
     """
 
     def __init__(self, limit=None, uri=None):
-        """ initialise instance of LatLonBox(ICPObj).
+        """ initialise instance of LatLonBox(SpatialCoverage).
 
         It will be used to set up a sparql query, and get all metadata of LatLonBox from ICOS CP.
 

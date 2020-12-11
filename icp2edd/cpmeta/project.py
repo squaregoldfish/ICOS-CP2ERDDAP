@@ -9,9 +9,9 @@
 
     From project import Project
 
-    projects = Project()            # initialise ICOS CP Project object
-    projects.get_meta()             # get projects' metadata from ICOS CP
-    projects.show()                 # print projects' metadata
+    projects = Project()           # initialise ICOS CP Project object
+    projects.get_meta()            # get projects' metadata from ICOS CP
+    projects.show()                # print projects' metadata
 """
 
 # --- import -----------------------------------
@@ -30,10 +30,8 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasPolicy': 'policy',
-    'cpmeta:hasSkipStoragePolicy': 'skipStoragePolicy',
-    'cpmeta:hasSkipPidMintingPolicy': 'skipPidMintingPolicy',
-    'cpmeta:hasHideFromSearchPolicy': 'hideFromSearchPolicy'
+        'cpmeta:hasPolicy': 'policy',
+        'cpmeta:hasKeywords': 'keyword'
 }
 
 
@@ -41,7 +39,8 @@ _attr = {
 class Project(DataObjectSpecifyingThing):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):

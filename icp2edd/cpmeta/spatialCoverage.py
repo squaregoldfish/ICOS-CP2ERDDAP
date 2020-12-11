@@ -9,9 +9,9 @@
 
     From spatialCoverage import SpatialCoverage
 
-    spatialcoverages = SpatialCoverage()        # initialise ICOS CP SpatialCoverage object
-    spatialcoverages.get_meta()                 # get spatialcoverages' metadata from ICOS CP
-    spatialcoverages.show()                     # print spatialcoverages' metadata
+    spatialCoverages = SpatialCoverage()   # initialise ICOS CP SpatialCoverage object
+    spatialCoverages.get_meta()            # get spatialCoverages' metadata from ICOS CP
+    spatialCoverages.show()                # print spatialCoverages' metadata
 """
 
 # --- import -----------------------------------
@@ -30,7 +30,7 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:asGeoJSON': 'geoJSON'
+        'cpmeta:asGeoJSON': 'geoJSON'
 }
 
 
@@ -38,7 +38,7 @@ _attr = {
 class SpatialCoverage(ICPObj):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
 
     """
 

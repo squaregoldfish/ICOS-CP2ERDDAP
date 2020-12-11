@@ -9,9 +9,9 @@
 
     From dataTheme import DataTheme
 
-    datathemes = DataTheme()        # initialise ICOS CP DataTheme object
-    datathemes.get_meta()           # get datathemes' metadata from ICOS CP
-    datathemes.show()               # print datathemes' metadata
+    dataThemes = DataTheme()         # initialise ICOS CP DataTheme object
+    dataThemes.get_meta()            # get dataThemes' metadata from ICOS CP
+    dataThemes.show()                # print dataThemes' metadata
 """
 
 # --- import -----------------------------------
@@ -30,8 +30,8 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasIcon': 'icon',
-    'cpmeta:hasMarkerIcon': 'markerIcon'
+        'cpmeta:hasIcon': 'icon',
+        'cpmeta:hasMarkerIcon': 'markerIcon'
 }
 
 
@@ -39,11 +39,12 @@ _attr = {
 class DataTheme(DataObjectSpecifyingThing):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):
-        """ initialise instance of DataTheme(DataObjectSpecifyingThing)
+        """ initialise instance of DataTheme(DataObjectSpecifyingThing).
 
         It will be used to set up a sparql query, and get all metadata of DataTheme from ICOS CP.
 

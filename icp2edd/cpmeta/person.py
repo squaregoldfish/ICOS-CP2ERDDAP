@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# dataProduction.py
+# person.py
 
 """
-    The dataProduction module is used to explore ICOS CP DataProductions' metadata.
+    The person module is used to explore ICOS CP Persons' metadata.
 
     Example usage:
 
-    From dataProduction import DataProduction
+    From person import Person
 
-    dataProductions = DataProduction()    # initialise ICOS CP DataProduction object
-    dataProductions.get_meta()            # get dataProductions' metadata from ICOS CP
-    dataProductions.show()                # print dataProductions' metadata
+    persons = Person()            # initialise ICOS CP Person object
+    persons.get_meta()            # get persons' metadata from ICOS CP
+    persons.show()                # print persons' metadata
 """
 
 # --- import -----------------------------------
@@ -30,15 +30,17 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'prov:wasAssociatedWith': 'Thing_associatedWith',
-        'prov:startedAtTime': 'startedAtTime',
-        'prov:endedAtTime': 'endedAtTime',
-        'cpmeta:wasPerformedAt': 'Feature'
+        'cpmeta:hasFirstName': 'firstName',
+        'cpmeta:hasLastName': 'lastName',
+        'cpmeta:hasOrcidId': 'orcidId',
+        'cpmeta:hasMembership': 'Membership',
+        'cpmeta:hasEmail': 'email',
+        'cpmeta:hasTcId': 'tcid'
 }
 
 
 # ----------------------------------------------
-class DataProduction(ICPObj):
+class Person(ICPObj):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -46,18 +48,18 @@ class DataProduction(ICPObj):
     """
 
     def __init__(self, limit=None, uri=None):
-        """ initialise instance of DataProduction(ICPObj).
+        """ initialise instance of Person(ICPObj).
 
-        It will be used to set up a sparql query, and get all metadata of DataProduction from ICOS CP.
+        It will be used to set up a sparql query, and get all metadata of Person from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select DataProduction:
+        and/or select Person:
         - with ICOS CP 'uri'
 
         Example:
-            DataProduction(limit=5)
+            Person(limit=5)
 
         :param limit: number of returned results
         :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
@@ -72,13 +74,13 @@ class DataProduction(ICPObj):
             self._attr = {**_attr, **self._attr}
 
         # object type URI
-        self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataProduction'
+        self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Person'
 
 
 if __name__ == '__main__':
     import doctest
 
-    doctest.testmod(extraglobs={'t': DataProduction(limit=10)},
+    doctest.testmod(extraglobs={'t': Person(limit=10)},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
 

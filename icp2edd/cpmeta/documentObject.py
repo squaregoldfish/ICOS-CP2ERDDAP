@@ -9,9 +9,9 @@
 
     From documentObject import DocumentObject
 
-    documentobjects = DocumentObject()  # initialise ICOS CP DocumentObject object
-    documentobjects.get_meta()          # get documentobjects' metadata from ICOS CP
-    documentobjects.show()              # print documentobjects' metadata
+    documentObjects = DocumentObject()    # initialise ICOS CP DocumentObject object
+    documentObjects.get_meta()            # get documentObjects' metadata from ICOS CP
+    documentObjects.show()                # print documentObjects' metadata
 """
 
 # --- import -----------------------------------
@@ -37,7 +37,7 @@ _attr = {
 class DocumentObject(StaticObject):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
 
     """
 

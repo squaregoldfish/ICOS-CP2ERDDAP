@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# simpledataobject.py
+# simpleDataObject.py
 
 """
     The simpleDataObject module is used to explore ICOS CP SimpleDataObjects' metadata.
@@ -9,9 +9,9 @@
 
     From simpleDataObject import SimpleDataObject
 
-    simpledataobjects = SimpleDataObject()       # initialise ICOS CP SimpleDataObject object
-    simpledataobjects.get_meta()                 # get simpledataobjects' metadata from ICOS CP
-    simpledataobjects.show()                     # print simpledataobjects' metadata
+    simpleDataObjects = SimpleDataObject()  # initialise ICOS CP SimpleDataObject object
+    simpleDataObjects.get_meta()            # get simpleDataObjects' metadata from ICOS CP
+    simpleDataObjects.show()                # print simpleDataObjects' metadata
 """
 
 # --- import -----------------------------------
@@ -30,9 +30,6 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:wasAcquiredBy': 'DataAcquisition',
-    'cpmeta:hasNumberOfRows': 'numberOfRows',
-    'cpmeta:hasActualColumnNames': 'actualColumnNames'
 }
 
 
@@ -40,7 +37,7 @@ _attr = {
 class SimpleDataObject(ICPObj):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
 
     """
 
