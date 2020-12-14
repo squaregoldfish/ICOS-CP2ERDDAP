@@ -34,7 +34,7 @@ _attr = {
         'cpmeta:hasSizeInBytes': 'sizeInBites',
         'cpmeta:wasSubmittedBy': 'DataSubmission',
         'cpmeta:hasCitationString': 'string',
-        'cpmeta:isNextVersionOf': 'StaticObject',
+        'cpmeta:isNextVersionOf': 'NextVersionOf',
         'cpmeta:hasDoi': 'doi',
         'cpmeta:hasName': 'name'
 }

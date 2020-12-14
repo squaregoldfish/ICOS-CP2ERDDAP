@@ -112,7 +112,7 @@ class DataObject(StaticObject):
         download file  https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z  on
             .../58GS20190711_SOCAT_enhanced/58GS20190711_SOCAT_enhanced.csv
         """
-
+        # TODO check everything needed exist
         d = {}
         for _, val in self.meta.items():
 

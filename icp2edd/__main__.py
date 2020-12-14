@@ -46,14 +46,14 @@ def main():
         _logger.exception('Something goes wrong when loading DataObj metadata')
         raise  # Throw exception again so calling code knows it happened
 
-    # dataobjs.show()
-
+    _logger.info('download DataObject from ICOS-CP:')
     try:
         dd = dataobjs.download()
     except Exception:
         _logger.exception('Something goes wrong when downloading DataObject data')
         raise  # Throw exception again so calling code knows it happened
 
+    # loop on each dataset downloaded
     for csv, rep in dd.items():
 
         _logger.info('change in csv file :\n\t\t- change Date/Time format\n\t\t- remove units for variable name')
@@ -91,24 +91,12 @@ def main():
     # get all metadata from dataObject use by ERDDAP
 
     _logger.info('loop on every new dataset load on ICOS CP (here just one)')
-    uri = ['https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z']
-    _logger.info(f'get DataObject metadata from ICOS CP')
-    try:
-        dataobjs = DataObject(uri=uri)
-        dataobjs.getMeta()
-        # dataobjs.show()
-    except Exception:
-        _logger.exception('Something goes wrong when loading metadata from DataSubmission')
-        raise  # Throw exception again so calling code knows it happened
-
     try:
         _logger.info(f'initialise SuperICPObj object')
-        extra = SuperICPObj()
-        gloatt = extra.getAttr()
-        extra.show()
-        # gloatt['Date/Time'] = {'standard_name': 'tutu', 'titi': 'tata'}
+        superObj = SuperICPObj()
+        gloatt = superObj.getAttr()
+        superObj.show(gloatt)
 
-        # extra.show(gloatt)
     except Exception:
         _logger.exception('Something goes wrong when initialising SuperICPObj')
         raise  # Throw exception again so calling code knows it happened
