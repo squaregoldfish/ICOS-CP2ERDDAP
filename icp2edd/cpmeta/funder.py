@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# dataProduction.py
+# funder.py
 
 """
-    The dataProduction module is used to explore ICOS CP DataProductions' metadata.
+    The funder module is used to explore ICOS CP Funders' metadata.
 
     Example usage:
 
-    From dataProduction import DataProduction
+    From funder import Funder
 
-    dataProductions = DataProduction()    # initialise ICOS CP DataProduction object
-    dataProductions.get_meta()            # get dataProductions' metadata from ICOS CP
-    dataProductions.show()                # print dataProductions' metadata
+    funders = Funder()            # initialise ICOS CP Funder object
+    funders.get_meta()            # get funders' metadata from ICOS CP
+    funders.show()                # print funders' metadata
 """
 
 # --- import -----------------------------------
@@ -30,15 +30,13 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'prov:wasAssociatedWith': 'Thing_associatedWith',
-        'prov:startedAtTime': 'startedAtTime',
-        'prov:endedAtTime': 'endedAtTime',
-        'cpmeta:wasPerformedAt': 'Feature'
+        'cpmeta:funderIdentifier': 'funderId',
+        'cpmeta:funderIdentifierType': 'funderIdType'
 }
 
 
 # ----------------------------------------------
-class DataProduction(ICPObj):
+class Funder(ICPObj):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -46,18 +44,18 @@ class DataProduction(ICPObj):
     """
 
     def __init__(self, limit=None, uri=None):
-        """ initialise instance of DataProduction(ICPObj).
+        """ initialise instance of Funder(ICPObj).
 
-        It will be used to set up a sparql query, and get all metadata of DataProduction from ICOS CP.
+        It will be used to set up a sparql query, and get all metadata of Funder from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select DataProduction:
+        and/or select Funder:
         - with ICOS CP 'uri'
 
         Example:
-            DataProduction(limit=5)
+            Funder(limit=5)
 
         :param limit: number of returned results
         :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
@@ -72,13 +70,13 @@ class DataProduction(ICPObj):
             self._attr = {**_attr, **self._attr}
 
         # object type URI
-        self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataProduction'
+        self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Funder'
 
 
 if __name__ == '__main__':
     import doctest
 
-    doctest.testmod(extraglobs={'t': DataProduction(limit=10)},
+    doctest.testmod(extraglobs={'t': Funder(limit=10)},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
 

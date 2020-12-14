@@ -9,9 +9,9 @@
 
     From quantityKind import QuantityKind
 
-    quantitykinds = QuantityKind()        # initialise ICOS CP QuantityKind object
-    quantitykinds.get_meta()           # get quantitykinds' metadata from ICOS CP
-    quantitykinds.show()               # print quantitykinds' metadata
+    quantityKinds = QuantityKind()      # initialise ICOS CP QuantityKind object
+    quantityKinds.get_meta()            # get quantityKinds' metadata from ICOS CP
+    quantityKinds.show()                # print quantityKinds' metadata
 """
 
 # --- import -----------------------------------
@@ -37,7 +37,8 @@ _attr = {
 class QuantityKind(DataObjectSpecifyingThing):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):

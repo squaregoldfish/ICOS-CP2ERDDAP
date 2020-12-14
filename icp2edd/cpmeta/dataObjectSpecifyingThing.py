@@ -9,9 +9,9 @@
 
     From dataObjectSpecifyingThing import DataObjectSpecifyingThing
 
-    dataobjectspecifyingthings = DataObjectSpecifyingThing()    # initialise ICOS CP DataObjectSpecifyingThing object
-    dataobjectspecifyingthings.get_meta()                       # get dataobjectspecifyingthings' metadata from ICOS CP
-    dataobjectspecifyingthings.show()                           # print dataobjectspecifyingthings' metadata
+    dataObjectSpecifyingThings = DataObjectSpecifyingThing()  # initialise ICOS CP DataObjectSpecifyingThing object
+    dataObjectSpecifyingThings.get_meta()                     # get dataObjectSpecifyingThings' metadata from ICOS CP
+    dataObjectSpecifyingThings.show()                         # print dataObjectSpecifyingThings' metadata
 """
 
 # --- import -----------------------------------
@@ -37,7 +37,7 @@ _attr = {
 class DataObjectSpecifyingThing(ICPObj):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
 
     """
 

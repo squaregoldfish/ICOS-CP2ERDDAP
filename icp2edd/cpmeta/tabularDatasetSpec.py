@@ -9,9 +9,9 @@
 
     From tabularDatasetSpec import TabularDatasetSpec
 
-    tabulardatasetspecs = TabularDatasetSpec()  # initialise ICOS CP TabularDatasetSpec object
-    tabulardatasetspecs.get_meta()              # get tabulardatasetspecs' metadata from ICOS CP
-    tabulardatasetspecs.show()                  # print tabulardatasetspecs' metadata
+    tabularDatasetSpecs = TabularDatasetSpec()  # initialise ICOS CP TabularDatasetSpec object
+    tabularDatasetSpecs.get_meta()              # get tabularDatasetSpecs' metadata from ICOS CP
+    tabularDatasetSpecs.show()                  # print tabularDatasetSpecs' metadata
 """
 
 # --- import -----------------------------------
@@ -19,7 +19,7 @@
 import logging
 # import from other lib
 # import from my project
-from icp2edd.cpmeta.dataObjectSpec import DataObjectSpec
+from icp2edd.cpmeta.datasetSpec import DatasetSpec
 
 # --- module's variable ------------------------
 # load logger
@@ -30,19 +30,20 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasColumn': 'DatasetColumn'
+        'cpmeta:hasColumn': 'DatasetColumn'
 }
 
 
 # ----------------------------------------------
-class TabularDatasetSpec(DataObjectSpec):
+class TabularDatasetSpec(DatasetSpec):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):
-        """ initialise instance of TabularDatasetSpec(DataObjectSpec).
+        """ initialise instance of TabularDatasetSpec(DatasetSpec).
 
         It will be used to set up a sparql query, and get all metadata of TabularDatasetSpec from ICOS CP.
 

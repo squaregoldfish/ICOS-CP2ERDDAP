@@ -9,9 +9,9 @@
 
     From dataAcquisition import DataAcquisition
 
-    dataacquisitions = DataAcquisition()        # initialise ICOS CP DataAcquisition object
-    dataacquisitions.get_meta()                 # get dataacquisitions' metadata from ICOS CP
-    dataacquisitions.show()                     # print dataacquisitions' metadata
+    dataAcquisitions = DataAcquisition()   # initialise ICOS CP DataAcquisition object
+    dataAcquisitions.get_meta()            # get dataAcquisitions' metadata from ICOS CP
+    dataAcquisitions.show()                # print dataAcquisitions' metadata
 """
 
 # --- import -----------------------------------
@@ -30,9 +30,13 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-      'prov:wasAssociatedWith': 'Thing',
-      'prov:startedAtTime': 'startedAtTime',
-      'prov:endedAtTime': 'endedAtTime'
+        'prov:wasAssociatedWith': 'Thing_AssociatedWith',
+        'prov:startedAtTime': 'startedAtTime',
+        'prov:endedAtTime': 'endedAtTime',
+        'cpmeta:wasPerformedAt': 'Feature',
+        'cpmeta:hasSamplingHeight' 'samplingHeight'
+        'cpmeta:hasSamplingPoint': 'Position',
+        'cpmeta:wasPerformedWith': 'Thing_PerformedWith'
 }
 
 
@@ -40,7 +44,7 @@ _attr = {
 class DataAcquisition(ICPObj):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
 
     """
 

@@ -9,9 +9,9 @@
 
     From valueFormat import ValueFormat
 
-    valueformats = ValueFormat()        # initialise ICOS CP ValueFormat object
-    valueformats.get_meta()             # get valueformats' metadata from ICOS CP
-    valueformats.show()                 # print valueformats' metadata
+    valueFormats = ValueFormat()       # initialise ICOS CP ValueFormat object
+    valueFormats.get_meta()            # get valueFormats' metadata from ICOS CP
+    valueFormats.show()                # print valueFormats' metadata
 """
 
 # --- import -----------------------------------
@@ -19,7 +19,7 @@
 import logging
 # import from other lib
 # import from my project
-from icp2edd.cpmeta.dataObjectSpecifyingThing import DataObjectSpecifyingThing
+from icp2edd.icpObj import ICPObj
 
 # --- module's variable ------------------------
 # load logger
@@ -30,20 +30,19 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasVariable': 'Variable',
-    'cpmeta:hasTemporalResolution': 'temporalResolution'
 }
 
 
 # ----------------------------------------------
-class ValueFormat(DataObjectSpecifyingThing):
+class ValueFormat(ICPObj):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):
-        """ initialise instance of ValueFormat(DataObjectSpecifyingThing).
+        """ initialise instance of ValueFormat(ICPObj).
 
         It will be used to set up a sparql query, and get all metadata of ValueFormat from ICOS CP.
 

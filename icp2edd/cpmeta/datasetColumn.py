@@ -9,9 +9,9 @@
 
     From datasetColumn import DatasetColumn
 
-    datasetcolumns = DatasetColumn()        # initialise ICOS CP DatasetColumn object
-    datasetcolumns.get_meta()               # get datasetcolumns' metadata from ICOS CP
-    datasetcolumns.show()                   # print datasetcolumns' metadata
+    datasetColumns = DatasetColumn()     # initialise ICOS CP DatasetColumn object
+    datasetColumns.get_meta()            # get datasetColumns' metadata from ICOS CP
+    datasetColumns.show()                # print datasetColumns' metadata
 """
 
 # --- import -----------------------------------
@@ -30,10 +30,11 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasValueFormat': 'ValueFormat',
-    'cpmeta:hasValueType': 'ValueType',
-    'cpmeta:hasColumnTitle': 'columnTitle',
-    'cpmeta:isQualityFlagFor': 'DatasetColumn'
+        'cpmeta:hasColumnTitle': 'columnTitle',
+        'cpmeta:hasValueFormat': 'ValueFormat',
+        'cpmeta:isOptionalColumn': 'optionalColumn',
+        'cpmeta:isRegexColumn': 'regexColumn',
+        'cpmeta:isQualityFlagFor': 'DatasetColumn'
 }
 
 
@@ -41,7 +42,8 @@ _attr = {
 class DatasetColumn(DataObjectSpecifyingThing):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):

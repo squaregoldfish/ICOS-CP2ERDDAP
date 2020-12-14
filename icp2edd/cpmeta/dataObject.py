@@ -9,10 +9,10 @@
 
     From dataObject import DataObject
 
-    dataobjects = DataObject()      # initialise ICOS CP DataObject object
-    dataobjects.get_meta()          # get dataobjects' metadata from ICOS CP
-    dataobjects.show()              # print dataobjects' metadata
-    dataobjects.download()          # download every files associated with dataobjects selected
+    dataObjects = DataObject()        # initialise ICOS CP DataObject object
+    dataObjects.get_meta()            # get dataObjects' metadata from ICOS CP
+    dataObjects.show()                # print dataObjects' metadata
+    dataobjects.download()            # download every files associated with dataobjects selected
 """
 
 # --- import -----------------------------------
@@ -35,15 +35,15 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasObjectSpec': 'DataObjectSpec',
-    'cpmeta:wasAcquiredBy': 'DataAcquisition',
-    'cpmeta:wasProducedBy': 'DataProduction',
-    'cpmeta:hasFormatSpecificMetadata': 'formatSpecificMetadata',
-    'cpmeta:hasKeyword': 'keyword',
-    'cpmeta:hasVariableName': 'variableName',
-    'cpmeta:hasActualVariable': 'VariableInfo',
-    'cpmeta:hasTemporalResolution': 'temporalResolution',
-    'cpmeta:hasSpatialCoverage': 'SpatialCoverage'
+        'cpmeta:hasObjectSpec': 'DataObjectSpec',
+        'cpmeta:wasAcquiredBy': 'DataAcquisition',
+        'cpmeta:wasProducedBy': 'DataProduction',
+        'cpmeta:hasFormatSpecificMetadata': 'formatSpecificMetadata',
+        'cpmeta:hasKeyword': 'keyword',
+        'cpmeta:hasVariableName': 'variable',
+        'cpmeta:hasActualVariable': 'VariableInfo',
+        'cpmeta:hasTemporalResolution': 'temporalResolution',
+        'cpmeta:hasSpatialCoverage': 'SpatialCoverage'
 }
 
 
@@ -51,46 +51,8 @@ _attr = {
 class DataObject(StaticObject):
     """
     >>> t.getMeta()
-    >>> t.show()
-    <BLANKLINE>
-    type: <class '__main__.DataObject'>
-    <BLANKLINE>
-    Class name: xxx
-    <BLANKLINE>
-    \tDataObjectSpec      : type: uri        value: ...
-    \tDataAcquisition     : type: uri        value: ...
-    \tDataProduction      : type: uri        value: ...
-    \tSpatialCoverage     : type: uri        value: ...
-    \tsizeInBytes         : type: literal    value: ...
-    \tsha256sum           : type: literal    value: ...
-    \tcitation            : type: literal    value: ...
-    \tname                : type: literal    value: ...
-    \tDataSubmission      : type: uri        value: ...
-    \turi                 : type: uri        value: ...
+    >>> t.show(True)
 
-    >>> tt = DataObject(lastupdate='2020-01-01T00:00:00.000Z',
-    ...                 endupdate='2020-11-01T00:00:00.000Z',
-    ...                 product='icosOtcL1Product_v2',
-    ...                 lastversion=True)
-    >>> tt.getMeta()
-    >>> tt.show()
-    <BLANKLINE>
-    type: <class '__main__.DataObject'>
-    <BLANKLINE>
-    Class name: xxx
-    <BLANKLINE>
-    ...
-    \tDataObjectSpec      : type: uri        value: ...
-    \tDataAcquisition     : type: uri        value: ...
-    \tDataProduction      : type: uri        value: ...
-    \tSpatialCoverage     : type: uri        value: ...
-    \tsizeInBytes         : type: literal    value: ...
-    \tsha256sum           : type: literal    value: ...
-    \tcitation            : type: literal    value: ...
-    \tname                : type: literal    value: ...
-    \tDataSubmission      : type: uri        value: ...
-    \turi                 : type: uri        value: ...
-    ...
     """
 
     def __init__(self, limit=None, lastupdate=None, endupdate=None, product=None, lastversion=None, uri=None):
@@ -110,9 +72,9 @@ class DataObject(StaticObject):
 
         Example:
             DataObject(lastupdate='2020-01-01T00:00:00.000Z',
-                    endupdate='2020-01-05T00:00:00.000Z',
-                    product='icosOtcL1Product_v2',
-                    lastversion=False )
+                       endupdate='2020-01-05T00:00:00.000Z',
+                       product='icosOtcL1Product_v2',
+                       lastversion=False )
 
         :param limit: number of returned results
         :param lastupdate: submitted since last update ( '2020-01-01T00:00:00.000Z' )
@@ -150,7 +112,7 @@ class DataObject(StaticObject):
         download file  https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z  on
             .../58GS20190711_SOCAT_enhanced/58GS20190711_SOCAT_enhanced.csv
         """
-
+        # TODO check everything needed exist
         d = {}
         for _, val in self.meta.items():
 
@@ -217,5 +179,6 @@ if __name__ == '__main__':
     setupcfg.main()
     doctest.testmod(extraglobs={'t': DataObject(uri=uri), 'datasetCsvPath': setupcfg.datasetCsvPath},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
+
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

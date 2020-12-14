@@ -9,9 +9,9 @@
 
     From spatialDataObject import SpatialDataObject
 
-    spatialdataobjects = SpatialDataObject()        # initialise ICOS CP SpatialDataObject object
-    spatialdataobjects.get_meta()                   # get spatialdataobjects' metadata from ICOS CP
-    spatialdataobjects.show()                       # print spatialdataobjects' metadata
+    spatialDataObjects = SpatialDataObject()    # initialise ICOS CP SpatialDataObject object
+    spatialDataObjects.get_meta()               # get spatialDataObjects' metadata from ICOS CP
+    spatialDataObjects.show()                   # print spatialDataObjects' metadata
 """
 
 # --- import -----------------------------------
@@ -30,10 +30,10 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasSpatialCoverage': 'SpatialCoverage',
-    'cpmeta:wasProducedBy': 'DataProduction',
-    'cpmeta:hasEndTime': 'endTime',
-    'cpmeta:hasStartTime': 'startTime'
+        'cpmeta:hasSpatialCoverage': 'LatLonBox',
+        'cpmeta:wasProducedBy': 'Thing',
+        'cpmeta:hasEndTime': 'endTime',
+        'cpmeta:hasStartTime': 'startTime'
 }
 
 
@@ -41,7 +41,8 @@ _attr = {
 class SpatialDataObject(ICPObj):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):

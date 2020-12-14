@@ -9,9 +9,9 @@
 
     From stringVocabulary import StringVocabulary
 
-    stringvocabularys = StringVocabulary()      # initialise ICOS CP StringVocabulary object
-    stringvocabularys.get_meta()                # get stringvocabularys' metadata from ICOS CP
-    stringvocabularys.show()                    # print stringvocabularys' metadata
+    stringVocabularys = StringVocabulary()  # initialise ICOS CP StringVocabulary object
+    stringVocabularys.get_meta()            # get stringVocabularys' metadata from ICOS CP
+    stringVocabularys.show()                # print stringVocabularys' metadata
 """
 
 # --- import -----------------------------------
@@ -30,7 +30,7 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:containsString': 'string'
+        'cpmeta:containsString': 'string'
 }
 
 
@@ -38,7 +38,8 @@ _attr = {
 class StringVocabulary(ValueFormat):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):

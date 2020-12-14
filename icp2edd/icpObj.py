@@ -19,6 +19,8 @@
 from pathlib import Path
 from urllib.parse import urlparse
 import logging
+from pprint import pformat
+import traceback
 # import from other lib
 # > conda-forge
 from SPARQLWrapper import SPARQLWrapper2
@@ -43,6 +45,7 @@ _attr = {
 # ----------------------------------------------
 class ICPObj(object):
     """
+    >>> t._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObject'
     >>> t.getMeta()
     >>> t.show()
     <BLANKLINE>
@@ -61,7 +64,8 @@ class ICPObj(object):
     \turi                 : type: uri        value: ...
     <BLANKLINE>
     ...
-    >>> t.getObjectType('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
+    >>> t._uri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
+    >>> t._getObjectType()
     'DataObject'
     """
     def __init__(self, limit=None, lastupdate=None, endupdate=None, product=None, lastversion=None, uri=None):
@@ -72,7 +76,7 @@ class ICPObj(object):
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select DataObj:
+        and/or select DataObject:
         - submitted since 'lastupdate'
         - submitted until 'endupdate'
         - of data type 'product'
@@ -108,19 +112,33 @@ class ICPObj(object):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
-        # object type URI
-        self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObject'
-
         # list of prefix used in SPARQL query
         self._prefix = """
-            prefix cpmeta: <http://meta.icos-cp.eu/ontologies/cpmeta/>
-            prefix otcmeta: <http://meta.icos-cp.eu/ontologies/otcmeta/>
             prefix prov: <http://www.w3.org/ns/prov#>
+            prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+            prefix cpmeta: <http://meta.icos-cp.eu/ontologies/cpmeta/>
+            prefix otcmeta: <http://meta.icos-cp.eu/ontologies/otcmeta/>
+            prefix geosparql: <http://www.opengis.net/ont/geosparql#>
             """
 
+        # object type URI
+        # self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObject'
+        self._object = None
+        if self._uri is not None:
+            self._object = self._getObject()
+
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # dictionary to store metadata
         self.meta = {}
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
     def _queryString(self):
         """create SPARQL query string
@@ -146,7 +164,10 @@ class ICPObj(object):
         query = query + f'\n\t{self._filterObj(self._uri)} # _filterObj(uri)'
 
         # object type name
-        objtype = Path(self._object).name
+        objtype = None
+        if self._object is not None:
+            objtype = Path(self._object).name
+
         if objtype in ('DataObject', 'SimpleDataObject'):
             # filter: product
             query = query + \
@@ -203,30 +224,47 @@ class ICPObj(object):
             _logger.exception("ERROR with SPARQL query")
             raise  #
 
-    def getObjectType(self, uri_):
+    def _getObject(self):
 
-        if self._is_url(uri_):
+        if self._is_url(self._uri):
             queryString = """
             select ?objtype
             where{
              <%s> rdf:type ?objtype
             }
-            """ % uri_
+            """ % self._uri
         else:
-            raise TypeError(f'Invalid object format: {uri_}')
+            raise TypeError(f'Invalid object format: {self._uri}')
 
         res = self._query(queryString)
+        # keep only icos-cp object
+        res.bindings = list(v for v in res.bindings if 'meta.icos-cp.eu' in v['objtype'].value)
         # check only one result
         if len(res.bindings) > 1:
-            raise ValueError(f'Invalid number of result -{len(res.bindings)}-')
+            _logger.error(f'Invalid number of result -{len(res.bindings)}-'
+                          f' for uri:{self._uri}')
 
         for result in res.bindings:
             uri = result['objtype'].value
             # check is uri
             if self._is_url(uri):
-                return Path(uri).name
+                return uri
             else:
                 raise TypeError(f'Invalid object format: {uri}')
+
+    def _getObjectType(self):
+
+        uri = self._object
+        # check is uri
+        if self._is_url(uri):
+            otype = Path(uri).name
+            # if otype in globals().keys():
+            #     print(f'object: {self._object}\n objtype: {otype}')
+            return otype
+            # else:
+            #     raise ValueError(f'Unknown object: {otype}')
+        else:
+            raise TypeError(f'Invalid object format: {uri}')
 
     def getMeta(self):
         """
@@ -246,19 +284,26 @@ class ICPObj(object):
             # self.meta[uri] = self._renameKeyDic(result)
             self.meta[uri] = result
 
-    def show(self):
+    def show(self, print_=False):
         """
         print metadata read (name, type and value)
 
         ICPObj.meta = { ?uri = ?result }
          ?result = { ?attr : {type: ? , value: ? }, ... }
         """
-        print("\ntype: {}".format(type(self)))
-        print("\nClass name: {}".format(self._name))
-        for k, v in self.meta.items():
-            print('')
-            for kk, vv in v.items():
-                print('\t{:20}: type: {:10} value: {}'.format(kk, vv.type, vv.value))
+        if not isinstance(print_, bool):
+            _logger.error(f"Invalid type argument -{print_}-")
+            raise TypeError("Invalid type argument")
+
+        _logger.info("\nClass name: {}".format(self._name))
+        _logger.info("\ttype: {}".format(type(self)))
+        _logger.info('\t' + pformat(self.meta))
+
+        if print_:
+            print("\nClass name: {}".format(self._name))
+            print("\nInstance name: {}".format(self._instance_name))
+            print("\ttype: {}".format(type(self)))
+            print('\t'+pformat(self.meta))
 
     # def _renameKeyDic(self, _):
     #    """
@@ -382,14 +427,16 @@ class ICPObj(object):
             if isinstance(product_, str):
                 return "VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/%s>}" % product_
             elif isinstance(product_, list) and all(isinstance(n, str)for n in product_):
-                _ = "> <http://meta.icos-cp.eu/resources/cpmeta/".join(product_)
-                return "VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/%s>}" % _
+                # _ = "> <http://meta.icos-cp.eu/resources/cpmeta/".join(product_)
+                # return "VALUES ?spec {<http://meta.icos-cp.eu/resources/cpmeta/%s>}" % _
+                return "VALUES ?spec {%s}" % " ".join('<http://meta.icos-cp.eu/resources/cpmeta/{}>'.format(w)
+                                                      for w in product_)
             else:
                 raise TypeError('Invalid product format: {}'.format(product_))
         else:
             return ''
 
-    def _filterLastVersion(self, lastversion_=True):
+    def _filterLastVersion(self, lastversion_=None):
         """
         create a string to inject into sparql queries to select object
         from the last release only
@@ -399,7 +446,7 @@ class ICPObj(object):
         :return: string
 
         >>> t._filterLastVersion()
-        'FILTER NOT EXISTS {[] cpmeta:isNextVersionOf ?xxx}'
+        ''
         >>> t._filterLastVersion(False)
         ''
         >>> t._filterLastVersion(True)
@@ -459,15 +506,46 @@ class ICPObj(object):
             raise TypeError('Invalid object format: {}'.format(uri_))
         TypeError: Invalid object format: ['toto', 33]
         >>> t._filterObj(['https://www.jetbrains.com/help/pycharm','https://docs.python.org/3/tutorial/errors.html'])
-        'VALUES ?xxx {<https://www.jetbrains.com/help/pycharm https://docs.python.org/3/tutorial/errors.html>}'
+        'VALUES ?xxx {<https://www.jetbrains.com/help/pycharm> <https://docs.python.org/3/tutorial/errors.html>}'
         """
         if uri_:
             if self._is_url(uri_):
                 return "VALUES ?xxx {<%s>}" % uri_
             elif isinstance(uri_, list) and all(self._is_url(n) for n in uri_):
-                return "VALUES ?xxx {<%s>}" % " ".join(uri_)
+                return "VALUES ?xxx {%s}" % " ".join('<{}>'.format(w) for w in uri_)
             else:
                 raise TypeError('Invalid object format: {}'.format(uri_))
+        else:
+            return ''
+
+    def listUri(self, filename_):
+        """ given filename, return uri on ICOS CP
+
+        """
+        if filename_:
+            if isinstance(filename_, str):
+                filenames = '"{}"'.format(filename_)
+            elif isinstance(filename_, list) and all(isinstance(n, str)for n in filename_):
+                filenames = ' '.join('"{}"'.format(w) for w in filename_)
+            else:
+                raise TypeError('Invalid product format: {}'.format(filename_))
+
+            if self._is_url(self._object):
+                queryString = """
+                select ?xxx
+                where{
+                 VALUES ?name {%s}
+                 ?xxx rdf:type <%s> ;
+                     cpmeta:hasName ?name .
+                 FILTER NOT EXISTS {[] cpmeta:isNextVersionOf ?xxx}
+                }
+                """ % (filenames, self._object)
+            else:
+                raise TypeError(f'Invalid object format: {self._object}')
+
+            res = self._query(queryString)
+            return [r['xxx'].value for r in res.bindings]
+
         else:
             return ''
 

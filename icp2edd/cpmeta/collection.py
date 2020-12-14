@@ -19,7 +19,7 @@
 import logging
 # import from other lib
 # import from my project
-from icp2edd.icpObj import ICPObj
+from icp2edd.cpmeta.organization import Organization
 
 # --- module's variable ------------------------
 # load logger
@@ -30,21 +30,21 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:isNextVersionOf': 'Collection',
-    'cpmeta:hasDoi': 'doi'
+        'cpmeta:isNextVersionOf': 'Collection',
+        'cpmeta:hasDoi': 'doi'
 }
 
 
 # ----------------------------------------------
-class Collection(ICPObj):
+class Collection(Organization):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
 
     """
 
     def __init__(self, limit=None, lastversion=None, uri=None):
-        """ initialise instance of Collection(ICPObj).
+        """ initialise instance of Collection(Organization).
 
         It will be used to set up a sparql query, and get all metadata of Collection from ICOS CP.
 

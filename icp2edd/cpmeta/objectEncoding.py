@@ -9,9 +9,9 @@
 
     From objectEncoding import ObjectEncoding
 
-    objectencodings = ObjectEncoding()      # initialise ICOS CP ObjectEncoding object
-    objectencodings.get_meta()              # get objectencodings' metadata from ICOS CP
-    objectencodings.show()                  # print objectencodings' metadata
+    objectEncodings = ObjectEncoding()    # initialise ICOS CP ObjectEncoding object
+    objectEncodings.get_meta()            # get objectEncodings' metadata from ICOS CP
+    objectEncodings.show()                # print objectEncodings' metadata
 """
 
 # --- import -----------------------------------
@@ -37,7 +37,7 @@ _attr = {
 class ObjectEncoding(ICPObj):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
 
     """
 

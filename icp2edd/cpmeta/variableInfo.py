@@ -9,9 +9,9 @@
 
     From variableInfo import VariableInfo
 
-    variableinfos = VariableInfo()          # initialise ICOS CP VariableInfo object
-    variableinfos.get_meta()                # get variableinfos' metadata from ICOS CP
-    variableinfos.show()                    # print variableinfos' metadata
+    variableInfos = VariableInfo()      # initialise ICOS CP VariableInfo object
+    variableInfos.get_meta()            # get variableInfos' metadata from ICOS CP
+    variableInfos.show()                # print variableInfos' metadata
 """
 
 # --- import -----------------------------------
@@ -30,8 +30,8 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasMaxValue': 'maxValue',
-    'cpmeta:hasMinValue': 'minValue'
+        'cpmeta:hasMaxValue': 'maxValue',
+        'cpmeta:hasMinValue': 'minValue'
 }
 
 
@@ -39,7 +39,8 @@ _attr = {
 class VariableInfo(DataObjectSpecifyingThing):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):

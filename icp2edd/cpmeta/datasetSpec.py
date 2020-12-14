@@ -9,9 +9,9 @@
 
     From datasetSpec import DatasetSpec
 
-    datasetspecs = DatasetSpec()        # initialise ICOS CP DatasetSpec object
-    datasetspecs.get_meta()             # get datasetspecs' metadata from ICOS CP
-    datasetspecs.show()                 # print datasetspecs' metadata
+    datasetSpecs = DatasetSpec()       # initialise ICOS CP DatasetSpec object
+    datasetSpecs.get_meta()            # get datasetSpecs' metadata from ICOS CP
+    datasetSpecs.show()                # print datasetSpecs' metadata
 """
 
 # --- import -----------------------------------
@@ -30,8 +30,8 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasVariable': 'DatasetVariable',
-    'cpmeta:hasTemporalResolution': 'temporalResolution'
+        'cpmeta:hasVariable': 'DatasetVariable',
+        'cpmeta:hasTemporalResolution': 'temporalResolution'
 }
 
 
@@ -39,7 +39,8 @@ _attr = {
 class DatasetSpec(DataObjectSpecifyingThing):
     """
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
+
     """
 
     def __init__(self, limit=None, uri=None):
