@@ -41,7 +41,7 @@ _attr = {
     'rdfs:seeAlso': 'seeAlso'
 }
 
-
+# TODO check and replace if x vs if x is None...
 # ----------------------------------------------
 class ICPObj(object):
     """
@@ -213,7 +213,7 @@ class ICPObj(object):
             raise TypeError(f'Invalid type value. queryString: \n"""{queryString_}"""\nmust be string, '
                             f'here {type(queryString_)}')
 
-        _logger.debug(f"queryString_: {queryString_}")
+        _logger.debug(f"queryString_:\n {queryString_}")
         sparql = SPARQLWrapper2("https://meta.icos-cp.eu/sparql")
 
         query = self._prefix + queryString_
@@ -295,7 +295,7 @@ class ICPObj(object):
             _logger.error(f"Invalid type argument -{print_}-")
             raise TypeError("Invalid type argument")
 
-        _logger.info("\nClass name: {}".format(self._name))
+        _logger.info("Class name: {}".format(self._name))
         _logger.info("\ttype: {}".format(type(self)))
         _logger.info('\t' + pformat(self.meta))
 
@@ -441,6 +441,8 @@ class ICPObj(object):
         create a string to inject into sparql queries to select object
         from the last release only
 
+        Note: None act as False value
+
         :param lastversion_: boolean [True,False]
 
         :return: string
@@ -457,6 +459,7 @@ class ICPObj(object):
             raise TypeError('Invalid lastVersion type: {}'.format(lastversion_))
         TypeError: Invalid lastVersion type: toto
         """
+
         if lastversion_:
             if isinstance(lastversion_, bool):
                 return "FILTER NOT EXISTS {[] cpmeta:isNextVersionOf ?xxx}"

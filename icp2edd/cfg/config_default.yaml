@@ -12,9 +12,21 @@ paths:
     # log: path where store output log file
     log: '/home/jpa029/Data/ICOS2ERDDAP/log'
 
+subm:
+    # from: dataset submitted from
+    from: '2020-01-01T00:00:00.000Z'
+    # until: dataset submitted until [default: today]
+    until: '05-08-2020'
+    # product: data 'type' selected
+    product: 'icosOtcL2Product'
+    # version: get only last version [default False]
+    version: True
+    # list of authorised product
+    authorised_product: ['icosOtcL1Product_v2', 'icosOtcL2Product']
+
 log:
     # standard output parameter
     # True|False
     quiet: False
-    # [NOTSET, DEBUG, INFO, WARN, ERROR, CRITICAL]
+    # [DEBUG, INFO, WARN, ERROR, CRITICAL]
     level: 'INFO'

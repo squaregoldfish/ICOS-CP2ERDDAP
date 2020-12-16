@@ -28,16 +28,19 @@ def main():
 
     _logger.info('get DataObject metadata from ICOS CP')
     try:
-        uri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
-        dataobjs = DataObject(uri=uri)
+        # uri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
+        # dataobjs = DataObject(uri=uri)
+        # dataobjs = DataObject(lastupdate='2020-01-01T00:00:00.000Z',
+        #                       endupdate='2020-08-05T00:00:00.000Z',
+        #                       product='icosOtcL1Product_v2',
+        #                       lastVersion=True)
+        dataobjs = DataObject(lastupdate=setupcfg.submFrom,
+                              endupdate=setupcfg.submUntil,
+                              product=setupcfg.product,
+                              lastversion=setupcfg.lastversion)
     except Exception:
         _logger.exception('Something goes wrong when setting up DataObject')
         raise  # Throw exception again so calling code knows it happened
-
-    # dataobjs=DataObject(lastupdate='2020-01-01T00:00:00.000Z',
-    #                  endupdate='2020-08-05T00:00:00.000Z',
-    #                  product='icosOtcL1Product_v2',
-    #                  lastVersion=True)
 
     _logger.info('read DataObject from ICOS-CP:')
     try:
@@ -109,6 +112,9 @@ def main():
     except Exception:
         _logger.exception('Something goes wrong when changing/adding attributes into ERDDAP datasets.xml')
         raise  # Throw exception again so calling code knows it happened
+
+    # store ending submitted date of current update
+    setupcfg.add_last_subm()
 
 
 # Press the green button in the gutter to run the script.
