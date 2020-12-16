@@ -44,7 +44,7 @@ log:
     level: 'INFO'
 ```
 
-> **NOTE:** arguments parameter overwrite configuration value.
+> **NOTE:** arguments overwrite value in configuration file.
 
 ## To run tests
 see [here](tests/README.md)
