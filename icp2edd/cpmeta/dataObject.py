@@ -55,7 +55,7 @@ class DataObject(StaticObject):
 
     """
 
-    def __init__(self, limit=None, lastupdate=None, endupdate=None, product=None, lastversion=None, uri=None):
+    def __init__(self, limit=None, submfrom=None, submuntil=None, product=None, lastversion=None, uri=None):
         """ initialise instance of DataObject(StaticObject).
 
         It will be used to set up a sparql query, and get all metadata of DataObject from ICOS CP.
@@ -64,21 +64,21 @@ class DataObject(StaticObject):
         - limit the amount of returned results
 
         and/or select DataObject:
-        - submitted since 'lastupdate'
-        - submitted until 'endupdate'
+        - submitted from 'submfrom'
+        - submitted until 'submuntil'
         - of data type 'product'
         - only from the 'lastversion'
         - with ICOS CP 'uri'
 
         Example:
-            DataObject(lastupdate='2020-01-01T00:00:00.000Z',
-                       endupdate='2020-01-05T00:00:00.000Z',
+            DataObject(submfrom='2020-01-01T00:00:00.000Z',
+                       submuntil='2020-01-05T00:00:00.000Z',
                        product='icosOtcL1Product_v2',
                        lastversion=False )
 
         :param limit: number of returned results
-        :param lastupdate: submitted since last update ( '2020-01-01T00:00:00.000Z' )
-        :param endupdate: submitted until end update ( '2020-01-01T00:00:00.000Z' )
+        :param submfrom: submitted from date ( '2020-01-01T00:00:00.000Z' )
+        :param submuntil: submitted until date ( '2020-01-01T00:00:00.000Z' )
         :param product: select this product type ('icosOtcL1Product_v2'), it could be a list
         :param lastversion: select only last release [True,False]
         :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
@@ -87,8 +87,8 @@ class DataObject(StaticObject):
         # set up class/instance variables
         self._uri = uri
         self._limit = limit
-        self._lastupdate = lastupdate
-        self._endupdate = endupdate
+        self._from = submfrom
+        self._until = submuntil
         self._product = product
         self._lastversion = lastversion
 

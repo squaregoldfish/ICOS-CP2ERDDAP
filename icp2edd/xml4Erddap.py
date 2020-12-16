@@ -256,12 +256,9 @@ def concatenate():
     """
     dsxmlout = setupcfg.datasetXmlPath / 'datasets.xml'
     _logger.debug(f'concatenate in {dsxmlout}')
-    mod_path = Path(__file__).parent
     with dsxmlout.open("w") as fp:
         # add header
-        header = mod_path / 'dataset' / 'header.xml'
-        # TODO see how to use resources
-        # header = resources.path('dataset', 'header.xml')
+        header = setupcfg.icp2eddPath / 'dataset' / 'header.xml'
         _logger.debug('\t{}'.format(header))
         fp.write(header.read_text())
         # add single dataset
@@ -269,7 +266,7 @@ def concatenate():
             _logger.debug('\t{}'.format(ff))
             fp.write(ff.read_text())
         # add footer
-        footer = mod_path / 'dataset' / 'footer.xml'
+        footer = setupcfg.icp2eddPath / 'dataset' / 'footer.xml'
         _logger.debug('\t{}'.format(footer))
         fp.write(footer.read_text())
 
@@ -394,6 +391,7 @@ if __name__ == '__main__':
     # changeAttr(i, o, m)
 
     import doctest
+    setupcfg.main()
     doctest.testmod(extraglobs={'datasetXmlPath': setupcfg.datasetXmlPath,
                                 'erddapPath': setupcfg.erddapPath,
                                 'erddapWebInfDir': setupcfg.erddapWebInfDir,
