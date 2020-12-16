@@ -30,12 +30,8 @@ def main():
     try:
         # uri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
         # dataobjs = DataObject(uri=uri)
-        # dataobjs = DataObject(lastupdate='2020-01-01T00:00:00.000Z',
-        #                       endupdate='2020-08-05T00:00:00.000Z',
-        #                       product='icosOtcL1Product_v2',
-        #                       lastVersion=True)
-        dataobjs = DataObject(lastupdate=setupcfg.submFrom,
-                              endupdate=setupcfg.submUntil,
+        dataobjs = DataObject(submfrom=setupcfg.submFrom,
+                              submuntil=setupcfg.submUntil,
                               product=setupcfg.product,
                               lastversion=setupcfg.lastversion)
     except Exception:

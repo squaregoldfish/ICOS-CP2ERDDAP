@@ -41,7 +41,7 @@ class DocumentObject(StaticObject):
 
     """
 
-    def __init__(self, limit=None, lastupdate=None, endupdate=None, lastversion=None, uri=None):
+    def __init__(self, limit=None, submfrom=None, submuntil=None, lastversion=None, uri=None):
         """ initialise instance of DocumentObject(StaticObject).
 
         It will be used to set up a sparql query, and get all metadata of DocumentObject from ICOS CP.
@@ -50,8 +50,8 @@ class DocumentObject(StaticObject):
         - limit the amount of returned results
 
         and/or select DocumentObject:
-        - submitted since 'lastupdate'
-        - submitted until 'endupdate'
+        - submitted from 'submfrom'
+        - submitted until 'submuntil'
         - only from the 'lastversion'
         - with ICOS CP 'uri'
 
@@ -59,8 +59,8 @@ class DocumentObject(StaticObject):
             DocumentObject(limit=5)
 
         :param limit: number of returned results
-        :param lastupdate: submitted since last update ( '2020-01-01T00:00:00.000Z' )
-        :param endupdate: submitted until end update ( '2020-01-01T00:00:00.000Z' )
+        :param submfrom: submitted from date ( '2020-01-01T00:00:00.000Z' )
+        :param submuntil: submitted until date ( '2020-01-01T00:00:00.000Z' )
         :param lastversion: select only last release [True,False]
         :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
         """
@@ -68,8 +68,8 @@ class DocumentObject(StaticObject):
         # set up class/instance variables
         self._uri = uri
         self._limit = limit
-        self._lastupdate = lastupdate
-        self._endupdate = endupdate
+        self._from = submfrom
+        self._until = submuntil
         self._lastversion = lastversion
 
         # object attributes' dictionary
