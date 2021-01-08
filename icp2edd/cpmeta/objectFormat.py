@@ -30,7 +30,7 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasGoodFlagValue': 'goodFlagValue'
+    'cpmeta:hasGoodFlagValue': 'object_format_good_flag_value'
 }
 
 

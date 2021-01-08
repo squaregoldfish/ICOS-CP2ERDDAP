@@ -30,10 +30,10 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'prov:wasAssociatedWith': 'Thing_associatedWith',
-        'prov:startedAtTime': 'startedAtTime',
-        'prov:endedAtTime': 'endedAtTime',
-        'cpmeta:wasPerformedAt': 'Feature'
+    'prov:wasAssociatedWith': 'Data_production_associated_with',
+    'prov:startedAtTime': 'data_production_started_at_time',
+    'prov:endedAtTime': 'data_production_ended_at_time',
+    'cpmeta:wasPerformedAt': 'Data_production_feature'
 }
 
 

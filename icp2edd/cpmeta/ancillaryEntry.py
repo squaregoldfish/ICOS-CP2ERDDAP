@@ -30,8 +30,8 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasAncillaryDataValue': 'ancillaryDataValue',
-        'cpmeta:hasAncillaryObjectValue': 'AncillaryValue'
+    'cpmeta:hasAncillaryDataValue': 'ancillary_data_value',
+    'cpmeta:hasAncillaryObjectValue': 'Ancillary_object_value'
 }
 
 

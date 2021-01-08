@@ -19,7 +19,7 @@
 import logging
 # import from other lib
 # import from my project
-from icp2edd.cpmeta.spatialCoverage import SpatialCoverage
+from icp2edd.icpObj import ICPObj
 
 # --- module's variable ------------------------
 # load logger
@@ -30,15 +30,15 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasWesternBound': 'westernBound',
-        'cpmeta:hasSouthernBound': 'southernBound',
-        'cpmeta:hasNothernBound': 'northernBound',
-        'cpmeta:hasEasternBound': 'easternBound'
+    'cpmeta:hasWesternBound': 'latlon_box_western_bound',
+    'cpmeta:hasSouthernBound': 'latlon_box_southern_bound',
+    'cpmeta:hasNothernBound': 'latlon_box_northern_bound',
+    'cpmeta:hasEasternBound': 'latlon_box_eastern_bound'
 }
 
 
 # ----------------------------------------------
-class LatLonBox(SpatialCoverage):
+class LatLonBox(ICPObj):
     """
     >>> t.getMeta()
     >>> t.show(True)

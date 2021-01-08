@@ -30,14 +30,14 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasDataLevel': 'dataLevel',
-        'cpmeta:hasEncoding': 'ObjectEncoding',
-        'cpmeta:hasFormat': 'ObjectFormat',
-        'cpmeta:containsDataset': 'DatasetSpec',
-        'cpmeta:hasDataTheme': 'DataTheme',
-        'cpmeta:hasAssociatedProject': 'Project',
-        'cpmeta:hasDocumentationObject': 'DocumentObject',
-        'cpmeta:hasKeywords': 'keyword'
+    'cpmeta:hasDataLevel': 'icos_data_level',  # Data level according to ICOS classification ?
+    'cpmeta:hasEncoding': 'Data_object_spec_object_encoding',
+    'cpmeta:hasFormat': 'Data_object_spec_object_format',
+    'cpmeta:containsDataset': 'Data_object_spec_dataset_spec',
+    'cpmeta:hasDataTheme': 'Data_object_spec_data_theme',
+    'cpmeta:hasAssociatedProject': 'Data_object_spec_associated_project',
+    'cpmeta:hasDocumentationObject': 'Data_object_spec_documentation_object',
+    'cpmeta:hasKeywords': 'data_object_spec_keywords'
 }
 
 

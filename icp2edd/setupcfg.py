@@ -23,7 +23,7 @@ import icp2edd
 # --- module's variable ------------------------
 # public
 global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath, datasetCsvPath, logPath, icp2eddPath, \
-    submFrom, submUntil, product, lastversion
+    submFrom, submUntil, product, lastversion, log_filename
 # private
 global _update_log
 
@@ -90,7 +90,7 @@ def _get_last_subm():
             file.seek(-2, os.SEEK_END)
             while file.read(1) != b'\n':
                 file.seek(-2, os.SEEK_CUR)
-            return file.readline().decode().split('until')[1].rstrip('\n')
+            return file.readline().decode().split('until')[1].rstrip('\n').lstrip()
     else:
         logging.debug(f"Can not find file -{_update_log}- where look for last update")
         raise FileNotFoundError
@@ -295,6 +295,8 @@ def _setup_logger(config_):
     > CRITICAL:
     > A serious error, indicating that the program itself may be unable to continue running.
     """
+    global log_filename
+
     cfg_path = Path(_find_package_path(icp2edd.__pkg_cfg__))
     if not cfg_path.is_dir():
         logging.exception('Can not find configuration path')
@@ -305,19 +307,48 @@ def _setup_logger(config_):
         with open(_logcfg, 'rt') as file:
             cfg_log = yaml.safe_load(file.read())
 
-            # overwrite default with config or parser value
-            if config_['log']['level'] is not None:
-                cfg_log['handlers']['console']['level'] = str(config_['log']['level'])
+            try:
+                # overwrite default with config or parser value
+                _log_level = config_['log']['level'].get(str)
+                if _log_level is not None:
+                    cfg_log['handlers']['console']['level'] = _log_level.upper()
+            except confuse.exceptions.NotFoundError:
+                pass
+            except Exception:
+                logging.exception(f'Invalid log level; '
+                                  f'Check arguments/configuration file(s)')
+                raise  # Throw exception again so calling code knows it happened
 
-            # if quiet activated, no output on console
-            if config_['log']['quiet'] is not None:
-                if config_['log']['quiet']:
-                    # disable log on console
-                    cfg_log['handlers'].pop('console')
-                    cfg_log['root']['handlers'].remove('console')
+            try:
+                # if verbose activated, print output on console
+                _log_verbose = config_['log']['verbose'].get(bool)
+                if _log_verbose is not None:
+                    if not _log_verbose:
+                        # disable log on console
+                        cfg_log['handlers'].pop('console')
+                        cfg_log['root']['handlers'].remove('console')
+            except confuse.exceptions.NotFoundError:
+                pass
+            except Exception:
+                logging.exception(f'Invalid log verbose; '
+                                  f'Check arguments/configuration file(s)')
+                raise  # Throw exception again so calling code knows it happened
 
-            if config_['paths']['log'] is not None:
-                log_path = Path(str(config_['paths']['log']))
+            try:
+                # rename log file with config or parser value
+                _log_filename = config_['log']['filename'].get(str)
+                if _log_filename is not None:
+                    cfg_log['handlers']['file']['filename'] = _log_filename
+            except confuse.exceptions.NotFoundError:
+                pass
+            except Exception:
+                logging.exception(f'Invalid log filename; '
+                                  f'Check arguments/configuration file(s)')
+                raise  # Throw exception again so calling code knows it happened
+
+            _paths_log = config_['paths']['log'].get()
+            if _paths_log is not None:
+                log_path = Path(str(_paths_log))
             else:
                 # read path to output log file
                 log_path = Path(cfg_log['handlers']['file']['filename']).parent
@@ -334,6 +365,9 @@ def _setup_logger(config_):
             # redirect warnings issued by the warnings module to the logging system.
             logging.captureWarnings(True)
 
+            # keep log filename and path name
+            log_filename = Path(cfg_log['handlers']['file']['filename']).resolve()
+
     except Exception:
         logging.exception('Error loading configuration file. Using default configs')
         raise  # Throw exception again so calling code knows it happened
@@ -345,9 +379,10 @@ def _setup_logger(config_):
     logging.info(f'-------------------')
 
 
-def _parse():
+def _parse(logfile_):
     """set up parameter from command line arguments
 
+    :param logfile_: log filename, useless except to change the default log filename when using checkOntology
     """
     # define parser
     parser = argparse.ArgumentParser(
@@ -358,16 +393,22 @@ def _parse():
     # positional arguments
     # parser.add_argument("name", type=str, help="file name")
     # optional arguments
-    parser.add_argument("-q", "--quiet",
-                        action="store_false",
-                        help="do not print status messages to stdout",
-                        dest='log.quiet'
+    parser.add_argument("-v", "--verbose",
+                        action="store_const",
+                        const=True,
+                        help="print status messages to stdout",
+                        dest='log.verbose'
                         )
     parser.add_argument("--log_level",
                         type=str,
                         choices=['debug', 'info', 'warning', 'error', 'critical'],
-                        help="logger level",
+                        help="stdout logger level",
                         dest='log.level'
+                        )
+    parser.add_argument("--log_filename",
+                        type=str,
+                        help="logger filename",
+                        dest='log.filename'
                         )
     parser.add_argument("--log_path",
                         type=str,
@@ -393,6 +434,9 @@ def _parse():
     # parse arguments
     args = parser.parse_args()
 
+    if vars(args)['log.filename'] is None:
+        vars(args)['log.filename'] = logfile_
+
     # TODO check and reformat args
     return args
 
@@ -408,17 +452,16 @@ def _setup_cfg():
     # set up configuration file
     try:
         # Read configuration file
-        config = confuse.LazyConfig('icp2edd',
-                                    modname=icp2edd.__pkg_cfg__)  # Get a value from your YAML file
+        config_ = confuse.LazyConfig('icp2edd', modname=icp2edd.__pkg_cfg__)  # Get a value from your YAML file
 
         # TODO check use of templates,
         #  cf examples in https://github.com/beetbox/confuse/tree/c244db70c6c2e92b001ce02951cf60e1c8793f75
 
         # set up default configuration file path
-        pkg_path = Path(config._package_path)
-        config.default_config_path = pkg_path / confuse.DEFAULT_FILENAME
+        pkg_path = Path(config_._package_path)
+        config_.default_config_path = pkg_path / confuse.DEFAULT_FILENAME
 
-        return config
+        return config_
 
     except Exception:
         logging.exception("Something goes wrong when loading config file.")
@@ -457,11 +500,13 @@ def _default_logger():
     logging.captureWarnings(True)
 
 
-def main():
+def main(logfile_=None):
     """set up icp2edd
 
     set up config file(s)
     set up logger
+
+    :param logfile_: log filename, useless except to change the default log filename when using checkOntology
     """
 
     # init default
@@ -472,11 +517,12 @@ def main():
 
     # read configuration file(s)
     config = _setup_cfg()
+
     # read command line arguments
-    args = _parse()
+    args = _parse(logfile_)
 
     # overwrite configuration file parameter with parser arguments
-    config.set_args(args)
+    config.set_args(args, dots=True)
 
     # read logging configuration file
     _setup_logger(config)
@@ -489,7 +535,6 @@ def main():
 
     # check subm parameter from configuration file(s)
     _chk_subm(config)
-
 
 if __name__ == '__main__':
     main()

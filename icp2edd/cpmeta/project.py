@@ -30,8 +30,11 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasPolicy': 'policy',
-        'cpmeta:hasKeywords': 'keyword'
+    'cpmeta:hasPolicy': 'project_policy',
+    'cpmeta:hasKeywords': 'project_keyword',
+    'cpmeta:hasHideFromSearchPolicy': 'project_hide_from_search_policy',
+    'cpmeta:hasSkipPidMintingPolicy': 'project_skip_pid_minting_policy',
+    'cpmeta:hasSkipStoragePolicy': 'project_skip_storage_policy'
 }
 
 

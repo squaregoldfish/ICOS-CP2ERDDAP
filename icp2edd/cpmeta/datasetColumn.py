@@ -30,11 +30,11 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasColumnTitle': 'columnTitle',
-        'cpmeta:hasValueFormat': 'ValueFormat',
-        'cpmeta:isOptionalColumn': 'optionalColumn',
-        'cpmeta:isRegexColumn': 'regexColumn',
-        'cpmeta:isQualityFlagFor': 'DatasetColumn'
+    'cpmeta:hasColumnTitle': 'dataset_column_column_title',
+    'cpmeta:hasValueFormat': 'dataset_column_valueFormat',
+    'cpmeta:isOptionalColumn': 'dataset_column_is_optional_column',
+    'cpmeta:isRegexColumn': 'dataset_column_is_regex_column',
+    'cpmeta:isQualityFlagFor': 'Dataset_column'
 }
 
 

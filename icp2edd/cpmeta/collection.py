@@ -19,7 +19,7 @@
 import logging
 # import from other lib
 # import from my project
-from icp2edd.cpmeta.organization import Organization
+from icp2edd.icpObj import ICPObj
 
 # --- module's variable ------------------------
 # load logger
@@ -30,13 +30,21 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:isNextVersionOf': 'Collection',
-        'cpmeta:hasDoi': 'doi'
+    'cpmeta:wasAcquiredBy': 'Collection_acquirer',
+    'cpmeta:wasProducedBy': 'Collection_producer',
+    'cpmeta:wasSubmittedBy': 'Collection_submitter',
+    'prov:hadPrimarySource': 'collection_primary_source',
+    'prov:wasGeneratedBy': 'collection_generator',
+    'prov:wasRevisionOf': 'collection_previous_revision',
+    # Warning: if change, do not forget to change in:
+    #   superIcpObj.py:_getSubAttr(): elif k in 'NextVersionOf':
+    'cpmeta:isNextVersionOf': 'NextVersionOf',
+    'cpmeta:hasDoi': 'collection_doi'
 }
 
 
 # ----------------------------------------------
-class Collection(Organization):
+class Collection(ICPObj):
     """
     >>> t.getMeta()
     >>> t.show(True)

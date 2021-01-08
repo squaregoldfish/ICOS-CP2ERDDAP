@@ -30,10 +30,8 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasSpatialCoverage': 'LatLonBox',
-        'cpmeta:wasProducedBy': 'Thing',
-        'cpmeta:hasEndTime': 'endTime',
-        'cpmeta:hasStartTime': 'startTime'
+    'cpmeta:hasEndTime': 'spatial_data_object_end_time',    # ?
+    'cpmeta:hasStartTime': 'spatial_data_object_start_time'  # ?
 }
 
 

@@ -30,9 +30,10 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasSamplingPoint': 'Position',
-        'cpmeta:hasEcosystemType': 'EcosystemType',
-        'geosparql:hasGeometry': 'SpatialCoverage'
+    'cpmeta:hasSamplingPoint': 'Site_position',
+    'cpmeta:hasEcosystemType': 'Site_ecosystem_type',
+    'geosparql:hasGeometry': 'Site_geometry',
+    'cpmeta:hasSpatialCoverage': 'Site_spatial_coverage'
 }
 
 

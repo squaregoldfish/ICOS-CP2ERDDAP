@@ -19,7 +19,7 @@
 import logging
 # import from other lib
 # import from my project
-from icp2edd.cpmeta.funder import Funder
+from icp2edd.icpObj import ICPObj
 
 # --- module's variable ------------------------
 # load logger
@@ -30,15 +30,15 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasFunder': 'Funder',
-        'cpmeta:awardNumber': 'awardNumber',
-        'cpmeta:awardURI': 'awardURI',
-        'cpmeta:awardTitle': 'awardTitle'
+    'cpmeta:hasFunder': 'Funding_funder',
+    'cpmeta:awardNumber': 'funding_award_number',
+    'cpmeta:awardURI': 'funding_award_uri',
+    'cpmeta:awardTitle': 'funding_award_title'
 }
 
 
 # ----------------------------------------------
-class Funding(Funder):
+class Funding(ICPObj):
     """
     >>> t.getMeta()
     >>> t.show(True)

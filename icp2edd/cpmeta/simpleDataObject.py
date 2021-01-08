@@ -30,6 +30,8 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
+    'cpmeta:hasActualColumnNames': 'simple_obj_actual_column_name',
+    'cpmeta:hasNumberOfRows': 'simple_obj_number_of_rows'
 }
 
 

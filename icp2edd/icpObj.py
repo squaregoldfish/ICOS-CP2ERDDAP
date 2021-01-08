@@ -38,7 +38,19 @@ _logger = logging.getLogger(__name__)
 _attr = {
     'rdfs:label': 'label',
     'rdfs:comment': 'comment',
-    'rdfs:seeAlso': 'seeAlso'
+    'rdfs:seeAlso': 'see_also'
+}
+
+# namespace
+_ns = {
+    'owl': 'http://www.w3.org/2002/07/owl#',
+    'prov': 'http://www.w3.org/ns/prov#',
+    'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
+    'xsd': 'http://www.w3.org/2001/XMLSchema#',
+    'cpmeta': 'http://meta.icos-cp.eu/ontologies/cpmeta/',
+    'otcmeta': 'http://meta.icos-cp.eu/ontologies/otcmeta/',
+    'geosparql': 'http://www.opengis.net/ont/geosparql#'
 }
 
 
@@ -113,16 +125,10 @@ class ICPObj(object):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        self._ns = {**_ns}
+
         # list of prefix used in SPARQL query
-        self._prefix = """
-            prefix prov: <http://www.w3.org/ns/prov#>
-            prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            prefix xsd: <http://www.w3.org/2001/XMLSchema#>
-            prefix cpmeta: <http://meta.icos-cp.eu/ontologies/cpmeta/>
-            prefix otcmeta: <http://meta.icos-cp.eu/ontologies/otcmeta/>
-            prefix geosparql: <http://www.opengis.net/ont/geosparql#>
-            """
+        self._prefix = ''.join(f"prefix {k}: <{v}>\n" for k, v in self._ns.items())
 
         # object type URI
         # self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObject'

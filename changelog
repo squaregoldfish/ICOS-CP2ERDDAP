@@ -1,7 +1,21 @@
 CHANGES
 =======
 
-## [Unreleased]
+## [Unreleased] - 2021-01-08
+
+### Added
+* add checkOntology
+
+### Changed
+* update properties associated to each class, thanks to checkOntology
+* parse log filename from command line argument
+* update README on how to run checkOntology
+* add try block to check setup log arguments
+* set up namespace dictionary
+
+### Fixed
+* fix reading argument from inline command
+
 
 ## [0.4.0] - 2020-12-04
 

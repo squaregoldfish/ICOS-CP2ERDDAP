@@ -30,11 +30,14 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasDepiction': 'anyURI',
-        'cpmeta:locatedAt': 'Feature',
-        'cpmeta:hasEmail': 'email',
-        'cpmeta:hasName': 'name',
-        'cpmeta:hasTcId': 'tcid'
+    'cpmeta:hasDepiction': 'organization_depiction',
+    'cpmeta:locatedAt': 'Organization_located_at',
+    'cpmeta:hasEmail': 'organization_email',
+    'cpmeta:hasName': 'organization_name',
+    'cpmeta:hasTcId': 'organization_tcid',
+    'cpmeta:hasAtcId': 'organization_atcid',
+    'cpmeta:hasEtcId': 'organization_etcid',
+    'cpmeta:hasOtcId': 'organization_otcid'
 }
 
 

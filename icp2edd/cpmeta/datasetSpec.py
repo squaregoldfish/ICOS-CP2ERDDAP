@@ -30,8 +30,9 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasVariable': 'DatasetVariable',
-        'cpmeta:hasTemporalResolution': 'temporalResolution'
+    'cpmeta:hasVariable': 'Dataset_spec_variable',
+    'cpmeta:hasTemporalResolution': 'dataset_spec_temporal_resolution',  # time_coverage_resolution ? + cf dataObject
+    'cpmeta:hasColumn': 'Dataset_spec_column'
 }
 
 

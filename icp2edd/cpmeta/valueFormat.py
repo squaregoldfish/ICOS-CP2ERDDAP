@@ -19,7 +19,7 @@
 import logging
 # import from other lib
 # import from my project
-from icp2edd.icpObj import ICPObj
+from icp2edd.cpmeta.dataObjectSpecifyingThing import DataObjectSpecifyingThing
 
 # --- module's variable ------------------------
 # load logger
@@ -34,7 +34,7 @@ _attr = {
 
 
 # ----------------------------------------------
-class ValueFormat(ICPObj):
+class ValueFormat(DataObjectSpecifyingThing):
     """
     >>> t.getMeta()
     >>> t.show(True)

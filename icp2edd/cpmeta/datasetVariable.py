@@ -30,10 +30,13 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasValueType': 'ValueType',
-        'cpmeta:hasVariableTitle': 'variableTitle',
-        'cpmeta:isOptionalVariable': 'optionVariable',
-        'cpmeta:isRegexVariable': 'regexVariable'
+    'cpmeta:hasValueType': 'Dataset_variable_value_type',
+    'cpmeta:hasVariableTitle': 'dataset_variable_variable_title',  # variable_name ? see http://meta.icos-cp.eu/resources/cpmeta/co2flux_land_flow_rate
+    'cpmeta:isOptionalVariable': 'dataset_variable_is_optional_variable',
+    'cpmeta:isRegexVariable': 'dataset_variable_is_regex_variable',
+    'cpmeta:hasColumnTitle': 'dataset_variable_column_title',
+    'cpmeta:isOptionalColumn': 'dataset_variable_is_optional_column',
+    'cpmeta:isRegexColumn': 'dataset_variable_is_regex_column'
 }
 
 

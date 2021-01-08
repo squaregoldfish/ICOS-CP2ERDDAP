@@ -30,12 +30,12 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:atOrganization': 'Organization',
-        'cpmeta:hasRole': 'Role',
-        'cpmeta:hasAttributionWeight': 'attributionWeight',
-        'cpmeta:hasExtraRoleInfo': 'extraRoleInfo',
-        'cpmeta:hasEndTime': 'endTime',
-        'cpmeta:hasStartTime': 'startTime'
+    'cpmeta:atOrganization': 'Membership_organization',
+    'cpmeta:hasRole': 'Membership_role',
+    'cpmeta:hasAttributionWeight': 'membership_attribution_weight',
+    'cpmeta:hasExtraRoleInfo': 'membership_extra_role_info',
+    'cpmeta:hasEndTime': 'membership_end_time',
+    'cpmeta:hasStartTime': 'membership_start_time'
 }
 
 

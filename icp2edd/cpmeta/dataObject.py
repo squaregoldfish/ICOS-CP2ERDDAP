@@ -35,16 +35,20 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasObjectSpec': 'DataObjectSpec',
-        'cpmeta:wasAcquiredBy': 'DataAcquisition',
-        'cpmeta:wasProducedBy': 'DataProduction',
-        'cpmeta:hasFormatSpecificMetadata': 'formatSpecificMetadata',
-        'cpmeta:hasKeyword': 'keyword',
-        'cpmeta:hasVariableName': 'variable',
-        'cpmeta:hasActualVariable': 'VariableInfo',
-        'cpmeta:hasTemporalResolution': 'temporalResolution',
-        'cpmeta:hasSpatialCoverage': 'SpatialCoverage'
+    'cpmeta:hasObjectSpec': 'Data_object_spec',
+    'cpmeta:wasAcquiredBy': 'Data_object_acquisition',
+    'cpmeta:wasProducedBy': 'Data_object_production',
+    'cpmeta:hasFormatSpecificMetadata': 'data_object_format_specific_metadata',
+    'cpmeta:hasKeyword': 'data_object_keyword',
+    'cpmeta:hasKeywords': 'data_object_keywords',
+    'cpmeta:hasVariableName': 'data_object_variable',
+    'cpmeta:hasActualVariable': 'data_object_variable_info',
+    'cpmeta:hasTemporalResolution': 'data_object_temporal_resolution',  # time_coverage_resolution ?
+    'cpmeta:hasSpatialCoverage': 'Data_object_spatial_coverage'
 }
+# see DESCRIBE <https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z> :
+# http://purl.org/dc/terms/hasPart
+# http://www.w3.org/ns/prov#hadPrimarySource
 
 
 # ----------------------------------------------
@@ -118,7 +122,8 @@ class DataObject(StaticObject):
 
             uri = val['uri'].value  # Warning do not convert to Path (https:// => https./)
             pid = uri.split("/")[-1]
-            filename = Path(val['name'].value)
+            # Warning: linked to staticObject.py 'cpmeta:hasName': 'static_object_name'
+            filename = Path(val['static_object_name'].value)
             stemname = filename.stem
 
             dirout = setupcfg.datasetCsvPath / stemname

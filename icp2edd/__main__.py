@@ -17,13 +17,15 @@ from icp2edd.cpmeta import *
 
 # ----------------------------------------------
 def main():
+    """
+    """
+    print(f"Running {__file__} \n...")
 
-    # TODO test args
     # set up logger, paths, ...
     setupcfg.main()
     _logger = logging.getLogger(__name__)
 
-    # TODO first part get new dataObject on ICOS CP, and create associated ERDDAP dataset.xml
+    # First part get new dataObject on ICOS CP, and create associated ERDDAP dataset.xml
     _logger.info('-1- get new dataObject on ICOS CP, and create associated ERDDAP dataset.xml\n')
 
     _logger.info('get DataObject metadata from ICOS CP')
@@ -82,7 +84,7 @@ def main():
     # concatenate header.xml dataset.XXX.xml footer.xml into local datasets.xml
     dsxmlout = x4edd.concatenate()
 
-    # TODO second part get ICOS CP metadata up to date, and update ERDDAP datasets.xml
+    # Second part get ICOS CP metadata up to date, and update ERDDAP datasets.xml
     _logger.info('-2- get ICOS CP metadata up to date, and update ERDDAP datasets.xml\n')
     _logger.info('change/add metadata on datasets.xml file, considering metadata from ICOS CP')
 
@@ -112,6 +114,7 @@ def main():
     # store ending submitted date of current update
     setupcfg.add_last_subm()
 
+    print(f"See output log for more details: {setupcfg.log_filename} ")
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':

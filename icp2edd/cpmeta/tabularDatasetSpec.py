@@ -30,7 +30,7 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasColumn': 'DatasetColumn'
+    'cpmeta:hasColumn': 'Tabular_dataset_spec_dataset_column'
 }
 
 

@@ -30,8 +30,8 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasQuantityKind': 'QuantityKind',
-        'cpmeta:hasUnit': 'unit'
+    'cpmeta:hasQuantityKind': 'Value_type_quantity_kind',
+    'cpmeta:hasUnit': 'value_type_units'
 }
 
 

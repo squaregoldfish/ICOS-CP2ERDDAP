@@ -30,13 +30,23 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasSha256sum': 'hexBinary',
-        'cpmeta:hasSizeInBytes': 'sizeInBites',
-        'cpmeta:wasSubmittedBy': 'DataSubmission',
-        'cpmeta:hasCitationString': 'string',
-        'cpmeta:isNextVersionOf': 'NextVersionOf',
-        'cpmeta:hasDoi': 'doi',
-        'cpmeta:hasName': 'name'
+    'prov:hadPrimarySource': 'static_object_primary_source',
+    'prov:wasGeneratedBy': 'static_object_generator',
+    'prov:wasRevisionOf': 'static_object_previous_revision',
+    'cpmeta:hasSha256sum': 'static_object_sha256_sum',  # hex or base64 see https://meta.icos-cp.eu/objects/-K3X6eqvjXbtWAjiMKGqI6kN
+    'cpmeta:hasSizeInBytes': 'static_object_size_in_bites',
+    'cpmeta:wasSubmittedBy': 'Static_object_data_submission',
+    'cpmeta:hasCitationString': 'static_object_citation',
+    # Warning: if change, do not forget to change in:
+    #   superIcpObj.py:_getSubAttr(): elif k in 'NextVersionOf':
+    'cpmeta:isNextVersionOf': 'NextVersionOf',
+    'cpmeta:hasDoi': 'static_object_doi',
+    # Warning: if change, do not forget to change in:
+    #   dataObject.py: filename = Path(val['static_object_name'].value)
+    #   superIcpObj.py: fname = self.m['DataObject'][k]['static_object_name'].value[:self.m['DataObject'][k]['static_object_name'].value.rfind(".")]
+    'cpmeta:hasName': 'static_object_name',
+    'cpmeta:wasAcquiredBy': 'Static_object_acquirer',
+    'cpmeta:wasProducedBy': 'Static_object_producer'
 }
 
 

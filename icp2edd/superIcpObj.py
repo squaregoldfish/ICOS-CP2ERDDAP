@@ -38,7 +38,7 @@ class SuperICPObj(object):
     def __init__(self):
         self.m = {}
 
-        # TODO list uri of all datasets already loaded
+        # list uri of all datasets already loaded
         uri = self._listDatasetLoaded()
         try:
             _logger.info('get DataObject metadata from ICOS CP')
@@ -61,8 +61,9 @@ class SuperICPObj(object):
             atts = {name: value, ...}
         """
         superAtts = {}
-        for k in self.m['DataObject'].keys():
-            fname = self.m['DataObject'][k]['name'].value[:self.m['DataObject'][k]['name'].value.rfind(".")]
+        for k in list(self.m['DataObject'].keys()):
+            # Warning: linked to staticObject.py 'cpmeta:hasName': 'static_object_name'
+            fname = self.m['DataObject'][k]['static_object_name'].value[:self.m['DataObject'][k]['static_object_name'].value.rfind(".")]
             _logger.debug(f'get attribute from DataObject {fname}')
             newDatasetId = case.camel('icos_'+fname, sep='_')
             _logger.debug(f'rename it to {newDatasetId}')
@@ -121,7 +122,9 @@ class SuperICPObj(object):
                         _logger.debug(f'attr name: {k} value: {v.value}')
                         dict1[k] = v.value
                     elif k in 'NextVersionOf':
-                        _logger.debug(f'key NextVersionOf found. do not iterate to avoid recursive '
+                        # Warning: linked to 'cpmeta:isNextVersionOf' in StaticObject, and Collection
+                        # TODO be sure every attribute is name NextVersionOf
+                        _logger.debug(f'key {k} found. do not iterate to avoid recursive '
                                       f'search inside previous versions')
                         _logger.debug(f'attr name: {k} value: {v.value}')
                         dict1[k] = v.value

@@ -19,7 +19,7 @@
 import logging
 # import from other lib
 # import from my project
-from icp2edd.cpmeta.organization import Organization
+from icp2edd.icpObj import ICPObj
 
 # --- module's variable ------------------------
 # load logger
@@ -30,17 +30,20 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasInstrumentOwner': 'Owner_Organization',
-        'cpmeta:hasVendor': 'Vendor_Organization',
-        'cpmeta:hasModel': 'model',
-        'cpmeta:hasSerialNumber': 'serialNumber',
-        'cpmeta:hasName': 'name',
-        'cpmeta:hasTcId': 'tcid'
+    'cpmeta:hasInstrumentOwner': 'Instrument_Owner',
+    'cpmeta:hasVendor': 'Instrument_vendor',
+    'cpmeta:hasModel': 'instrument_model',
+    'cpmeta:hasSerialNumber': 'instrument_serial_number',
+    'cpmeta:hasName': 'instrument_name',
+    'cpmeta:hasTcId': 'instrument_tcid',
+    'cpmeta:hasAtcId': 'instrument_atcid',
+    'cpmeta:hasEtcId': 'instrument_etcid',
+    'cpmeta:hasOtcId': 'instrument_otcid'
 }
 
 
 # ----------------------------------------------
-class Instrument(Organization):
+class Instrument(ICPObj):
     """
     >>> t.getMeta()
     >>> t.show(True)

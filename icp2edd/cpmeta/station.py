@@ -19,7 +19,7 @@
 import logging
 # import from other lib
 # import from my project
-from icp2edd.icpObj import ICPObj
+from icp2edd.cpmeta.organization import Organization
 
 # --- module's variable ------------------------
 # load logger
@@ -30,29 +30,33 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:country': 'country',
-        'cpmeta:belongsToTheNetworkOf': 'ThematicCenter',
-        'cpmeta:hasStationId': 'stationId',
-        'cpmeta:countryCode': 'countryCode',
-        'cpmeta:hasAncillaryEntry': 'AncillaryEntry',
-        'cpmeta:hasStationClass': 'stationClass',
-        'cpmeta:operatesOn': 'Site',
-        'cpmeta:hasResponsibleOrganization': 'Organization',
-        'cpmeta:hasStationSpecificParam': 'stationSpecParam',
-        'cpmeta:hasClimateZone': 'ClimateZone',
-        'cpmeta:hasMeanAnnualTemp': 'meanAnnualTemp',
-        'cpmeta:hasOperationalPeriod': 'operationalPeriod',
-        'cpmeta:hasElevation': 'elevation',
-        'cpmeta:hasLatitude': 'latitude',
-        'cpmeta:hasLongitude': 'longitude',
-        'cpmeta:hasFunding': 'Funding',
-        'cpmeta:hasSpatialCoverage': 'SpatialCoverage',
-        'cpmeta:hasDocumentationObject': 'DocumentObject'
+    'cpmeta:country': 'station_country',
+    'cpmeta:belongsToTheNetworkOf': 'Station_thematic_center',
+    'cpmeta:hasStationId': 'station_id',
+    'cpmeta:countryCode': 'station_country_code',
+    'cpmeta:hasAncillaryEntry': 'Station_ancillary_entry',
+    'cpmeta:hasStationClass': 'station_class',
+    'cpmeta:operatesOn': 'station_Site',
+    'cpmeta:hasResponsibleOrganization': 'Station_organization',
+    'cpmeta:hasStationSpecificParam': 'station_spec_param',
+    'cpmeta:hasClimateZone': 'Station_climate_zone',
+    'cpmeta:hasMeanAnnualTemp': 'station_mean_annual_temperature',
+    'cpmeta:hasOperationalPeriod': 'station_operational_period',
+    'cpmeta:hasElevation': 'station_elevation',
+    'cpmeta:hasLatitude': 'station_latitude',
+    'cpmeta:hasLongitude': 'station_longitude',
+    'cpmeta:hasFunding': 'Station_funding',
+    'cpmeta:hasSpatialCoverage': 'Station_spatial_coverage',
+    'cpmeta:hasDocumentationObject': 'Station_document_object',
+    'cpmeta:hasEasternBound': 'station_eastern_bound',
+    'cpmeta:hasNothernBound': 'station_northern_bound',
+    'cpmeta:hasSouthernBound': 'station_southern_bound',
+    'cpmeta:hasWesternBound': 'station_western_bound'
 }
 
 
 # ----------------------------------------------
-class Station(ICPObj):
+class Station(Organization):
     """
     >>> t.getMeta()
     >>> t.show(True)

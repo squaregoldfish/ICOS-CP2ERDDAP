@@ -30,12 +30,13 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasEcosystemType': 'EcosystemType'
+    'cpmeta:hasEcosystemType': 'Es_ecosystem_type',
+    'cpmeta:hasSamplingPoint': 'Es_sampling_point'
 }
 
 
 # ----------------------------------------------
-class Es(IcosStation):
+class ES(IcosStation):
     """
     >>> t.getMeta()
     >>> t.show(True)
