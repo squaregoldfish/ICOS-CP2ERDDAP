@@ -30,29 +30,31 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:country': 'station_country',
     'cpmeta:belongsToTheNetworkOf': 'Station_thematic_center',
-    'cpmeta:hasStationId': 'station_id',
+    'cpmeta:country': 'station_country',
     'cpmeta:countryCode': 'station_country_code',
     'cpmeta:hasAncillaryEntry': 'Station_ancillary_entry',
-    'cpmeta:hasStationClass': 'station_class',
-    'cpmeta:operatesOn': 'station_Site',
-    'cpmeta:hasResponsibleOrganization': 'Station_organization',
-    'cpmeta:hasStationSpecificParam': 'station_spec_param',
     'cpmeta:hasClimateZone': 'Station_climate_zone',
-    'cpmeta:hasMeanAnnualTemp': 'station_mean_annual_temperature',
-    'cpmeta:hasOperationalPeriod': 'station_operational_period',
-    'cpmeta:hasElevation': 'station_elevation',
-    'cpmeta:hasLatitude': 'station_latitude',
-    'cpmeta:hasLongitude': 'station_longitude',
-    'cpmeta:hasFunding': 'Station_funding',
-    'cpmeta:hasSpatialCoverage': 'Station_spatial_coverage',
     'cpmeta:hasDocumentationObject': 'Station_document_object',
     'cpmeta:hasEasternBound': 'station_eastern_bound',
+    'cpmeta:hasElevation': 'station_elevation',
+    'cpmeta:hasFunding': 'Station_funding',
+    'cpmeta:hasLatitude': 'station_latitude',
+    'cpmeta:hasLongitude': 'station_longitude',
+    'cpmeta:hasMeanAnnualTemp': 'station_mean_annual_temperature',
     'cpmeta:hasNothernBound': 'station_northern_bound',
+    'cpmeta:hasOperationalPeriod': 'station_operational_period',
+    'cpmeta:hasResponsibleOrganization': 'Station_organization',
     'cpmeta:hasSouthernBound': 'station_southern_bound',
-    'cpmeta:hasWesternBound': 'station_western_bound'
+    'cpmeta:hasSpatialCoverage': 'Station_spatial_coverage',
+    'cpmeta:hasStationClass': 'station_class',
+    'cpmeta:hasStationId': 'station_id',
+    'cpmeta:hasStationSpecificParam': 'station_spec_param',
+    'cpmeta:hasWesternBound': 'station_western_bound',
+    'cpmeta:operatesOn': 'station_Site'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -89,8 +91,20 @@ class Station(Organization):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Station'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

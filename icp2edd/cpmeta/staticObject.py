@@ -30,24 +30,26 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'prov:hadPrimarySource': 'static_object_primary_source',
-    'prov:wasGeneratedBy': 'static_object_generator',
-    'prov:wasRevisionOf': 'static_object_previous_revision',
-    'cpmeta:hasSha256sum': 'static_object_sha256_sum',  # hex or base64 see https://meta.icos-cp.eu/objects/-K3X6eqvjXbtWAjiMKGqI6kN
-    'cpmeta:hasSizeInBytes': 'static_object_size_in_bites',
-    'cpmeta:wasSubmittedBy': 'Static_object_data_submission',
     'cpmeta:hasCitationString': 'static_object_citation',
-    # Warning: if change, do not forget to change in:
-    #   superIcpObj.py:_getSubAttr(): elif k in 'NextVersionOf':
-    'cpmeta:isNextVersionOf': 'NextVersionOf',
     'cpmeta:hasDoi': 'static_object_doi',
-    # Warning: if change, do not forget to change in:
-    #   dataObject.py: filename = Path(val['static_object_name'].value)
-    #   superIcpObj.py: fname = self.m['DataObject'][k]['static_object_name'].value[:self.m['DataObject'][k]['static_object_name'].value.rfind(".")]
-    'cpmeta:hasName': 'static_object_name',
+    'cpmeta:hasName': 'static_object_name',  # Warning: linked to:
+    #                                        # - dataObject.py: filename = Path(val['static_object_name'].value)
+    #                                        # - superIcpObj.py: fname = self.m['DataObject'][k]['static_object_name'...
+    'cpmeta:hasSha256sum': 'static_object_sha256_sum',
+    'cpmeta:hasSizeInBytes': 'static_object_size_in_bites',
+    'cpmeta:isNextVersionOf': 'NextVersionOf',  # Warning: linked to:
+    #                                           # - superIcpObj.py:_getSubAttr(): elif k in 'NextVersionOf':
     'cpmeta:wasAcquiredBy': 'Static_object_acquirer',
-    'cpmeta:wasProducedBy': 'Static_object_producer'
+    'cpmeta:wasProducedBy': 'Static_object_producer',
+    'cpmeta:wasSubmittedBy': 'Static_object_data_submission',
+    'prov:hadPrimarySource': 'PrimarySource',  # Warning: linked to:
+    #                                          # - superIcpObj.py:_getSubAttr(): elif k in 'PrimarySource':
+    'prov:wasGeneratedBy': 'static_object_generator',
+    'prov:wasRevisionOf': 'RevisionOf'  # Warning: linked to:
+    #                                   # - superIcpObj.py:_getSubAttr(): elif k in 'RevisionOf':
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -93,8 +95,20 @@ class StaticObject(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/StaticObject'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

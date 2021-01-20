@@ -30,10 +30,12 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasVariable': 'Dataset_spec_variable',
+    'cpmeta:hasColumn': 'Dataset_spec_column',
     'cpmeta:hasTemporalResolution': 'dataset_spec_temporal_resolution',  # time_coverage_resolution ? + cf dataObject
-    'cpmeta:hasColumn': 'Dataset_spec_column'
+    'cpmeta:hasVariable': 'Dataset_spec_variable'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -70,8 +72,20 @@ class DatasetSpec(DataObjectSpecifyingThing):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DatasetSpec'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

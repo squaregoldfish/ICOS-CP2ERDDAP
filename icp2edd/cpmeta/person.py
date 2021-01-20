@@ -30,17 +30,19 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
+    'cpmeta:hasAtcId': 'person_atcid',
     'cpmeta:hasDepiction': 'person_depiction',
+    'cpmeta:hasEmail': 'person_email',
+    'cpmeta:hasEtcId': 'person_etcid',
     'cpmeta:hasFirstName': 'person_first_ame',
     'cpmeta:hasLastName': 'person_last_name',
-    'cpmeta:hasOrcidId': 'person_orcid_id',
     'cpmeta:hasMembership': 'Person_membership',
-    'cpmeta:hasEmail': 'person_email',
-    'cpmeta:hasTcId': 'person_tcid',
-    'cpmeta:hasAtcId': 'person_atcid',
-    'cpmeta:hasEtcId': 'person_etcid',
-    'cpmeta:hasOtcId': 'person_otcid'
+    'cpmeta:hasOrcidId': 'person_orcid_id',
+    'cpmeta:hasOtcId': 'person_otcid',
+    'cpmeta:hasTcId': 'person_tcid'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -77,8 +79,20 @@ class Person(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Person'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

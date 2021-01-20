@@ -31,11 +31,15 @@ _logger = logging.getLogger(__name__)
 # Note: 'object/value' will be the output attribute name
 _attr = {
     'cpmeta:hasColumnTitle': 'dataset_column_column_title',
-    'cpmeta:hasValueFormat': 'dataset_column_valueFormat',
+    'cpmeta:hasValueType': 'Dataset_variable_value_type',   # TODO see how to get it through checkOnto
+    'cpmeta:hasValueFormat': 'Dataset_column_valueFormat',
     'cpmeta:isOptionalColumn': 'dataset_column_is_optional_column',
-    'cpmeta:isRegexColumn': 'dataset_column_is_regex_column',
-    'cpmeta:isQualityFlagFor': 'Dataset_column'
+    'cpmeta:isQualityFlagFor': 'QualityFlagFor',  # Warning: linked to:
+    #                                             # - superIcpObj.py:_getSubAttr(): elif k in 'QualityFlagFor':
+    'cpmeta:isRegexColumn': 'dataset_column_is_regex_column'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -72,8 +76,20 @@ class DatasetColumn(DataObjectSpecifyingThing):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DatasetColumn'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

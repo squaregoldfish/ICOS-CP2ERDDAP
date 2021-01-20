@@ -30,17 +30,19 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'prov:wasAssociatedWith': 'Acquisition_AssociatedWith',
-    'prov:startedAtTime': 'acquisition_started_at_time',
-    'prov:endedAtTime': 'acquisition_ended_at_time',
-    'cpmeta:wasPerformedAt': 'Acquisition_performed_at',
     'cpmeta:hasSamplingHeight': 'acquisition_sampling_height',
     'cpmeta:hasSamplingPoint': 'Acquisition_position',
-    'cpmeta:wasPerformedWith': 'Acquisition_PerformedWith',
     'cpmeta:wasHostedBy': 'Acquisition_host',
     'cpmeta:wasParticipatedInBy': 'Acquisition_was_participated_in_by',
-    'cpmeta:wasPerformedBy': 'Acquisition_performer'
+    'cpmeta:wasPerformedAt': 'Acquisition_performed_at',
+    'cpmeta:wasPerformedBy': 'Acquisition_performer',
+    'cpmeta:wasPerformedWith': 'Acquisition_PerformedWith',
+    'prov:endedAtTime': 'acquisition_ended_at_time',
+    'prov:startedAtTime': 'acquisition_started_at_time',
+    'prov:wasAssociatedWith': 'Acquisition_AssociatedWith'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -77,8 +79,20 @@ class DataAcquisition(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataAcquisition'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

@@ -30,17 +30,20 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
+    'cpmeta:hasDoi': 'collection_doi',
+    'cpmeta:isNextVersionOf': 'NextVersionOf',  # Warning: linked to:
+    #                                           # - superIcpObj.py:_getSubAttr(): elif k in 'NextVersionOf':
     'cpmeta:wasAcquiredBy': 'Collection_acquirer',
     'cpmeta:wasProducedBy': 'Collection_producer',
     'cpmeta:wasSubmittedBy': 'Collection_submitter',
-    'prov:hadPrimarySource': 'collection_primary_source',
+    'prov:hadPrimarySource': 'PrimarySource',  # Warning: linked to:
+    #                                          # - superIcpObj.py:_getSubAttr(): elif k in 'PrimarySource':
     'prov:wasGeneratedBy': 'collection_generator',
-    'prov:wasRevisionOf': 'collection_previous_revision',
-    # Warning: if change, do not forget to change in:
-    #   superIcpObj.py:_getSubAttr(): elif k in 'NextVersionOf':
-    'cpmeta:isNextVersionOf': 'NextVersionOf',
-    'cpmeta:hasDoi': 'collection_doi'
+    'prov:wasRevisionOf': 'RevisionOf'  # Warning: linked to:
+    #                                   # - superIcpObj.py:_getSubAttr(): elif k in 'RevisionOf':
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -80,8 +83,20 @@ class Collection(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Collection'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

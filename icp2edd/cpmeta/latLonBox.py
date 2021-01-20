@@ -30,11 +30,13 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasWesternBound': 'latlon_box_western_bound',
-    'cpmeta:hasSouthernBound': 'latlon_box_southern_bound',
+    'cpmeta:hasEasternBound': 'latlon_box_eastern_bound',
     'cpmeta:hasNothernBound': 'latlon_box_northern_bound',
-    'cpmeta:hasEasternBound': 'latlon_box_eastern_bound'
+    'cpmeta:hasSouthernBound': 'latlon_box_southern_bound',
+    'cpmeta:hasWesternBound': 'latlon_box_western_bound'
 }
+# list of equivalent class
+_equivalentClass = ['SpatialCoverage']
 
 
 # ----------------------------------------------
@@ -71,8 +73,20 @@ class LatLonBox(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/LatLonBox'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

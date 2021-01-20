@@ -30,15 +30,17 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasDepiction': 'organization_depiction',
-    'cpmeta:locatedAt': 'Organization_located_at',
-    'cpmeta:hasEmail': 'organization_email',
-    'cpmeta:hasName': 'organization_name',
-    'cpmeta:hasTcId': 'organization_tcid',
     'cpmeta:hasAtcId': 'organization_atcid',
+    'cpmeta:hasDepiction': 'organization_depiction',
+    'cpmeta:hasEmail': 'organization_email',
     'cpmeta:hasEtcId': 'organization_etcid',
-    'cpmeta:hasOtcId': 'organization_otcid'
+    'cpmeta:hasName': 'organization_name',
+    'cpmeta:hasOtcId': 'organization_otcid',
+    'cpmeta:hasTcId': 'organization_tcid',
+    'cpmeta:locatedAt': 'Organization_located_at'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -75,8 +77,20 @@ class Organization(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Organization'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

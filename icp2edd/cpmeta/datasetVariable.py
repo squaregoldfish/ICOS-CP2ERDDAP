@@ -30,14 +30,16 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
+    'cpmeta:hasColumnTitle': 'dataset_variable_column_title',
     'cpmeta:hasValueType': 'Dataset_variable_value_type',
     'cpmeta:hasVariableTitle': 'dataset_variable_variable_title',  # variable_name ? see http://meta.icos-cp.eu/resources/cpmeta/co2flux_land_flow_rate
-    'cpmeta:isOptionalVariable': 'dataset_variable_is_optional_variable',
-    'cpmeta:isRegexVariable': 'dataset_variable_is_regex_variable',
-    'cpmeta:hasColumnTitle': 'dataset_variable_column_title',
     'cpmeta:isOptionalColumn': 'dataset_variable_is_optional_column',
-    'cpmeta:isRegexColumn': 'dataset_variable_is_regex_column'
+    'cpmeta:isOptionalVariable': 'dataset_variable_is_optional_variable',
+    'cpmeta:isRegexColumn': 'dataset_variable_is_regex_column',
+    'cpmeta:isRegexVariable': 'dataset_variable_is_regex_variable'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -74,8 +76,20 @@ class DatasetVariable(DataObjectSpecifyingThing):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DatasetVariable'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

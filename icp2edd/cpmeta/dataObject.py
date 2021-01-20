@@ -35,20 +35,19 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasObjectSpec': 'Data_object_spec',
-    'cpmeta:wasAcquiredBy': 'Data_object_acquisition',
-    'cpmeta:wasProducedBy': 'Data_object_production',
+    'cpmeta:hasActualVariable': 'Data_object_variable_info',
     'cpmeta:hasFormatSpecificMetadata': 'data_object_format_specific_metadata',
     'cpmeta:hasKeyword': 'data_object_keyword',
     'cpmeta:hasKeywords': 'data_object_keywords',
-    'cpmeta:hasVariableName': 'data_object_variable',
-    'cpmeta:hasActualVariable': 'data_object_variable_info',
+    'cpmeta:hasObjectSpec': 'Data_object_spec',
+    'cpmeta:hasSpatialCoverage': 'Data_object_spatial_coverage',
     'cpmeta:hasTemporalResolution': 'data_object_temporal_resolution',  # time_coverage_resolution ?
-    'cpmeta:hasSpatialCoverage': 'Data_object_spatial_coverage'
+    'cpmeta:hasVariableName': 'data_object_variable',
+    'cpmeta:wasAcquiredBy': 'Data_object_acquisition',
+    'cpmeta:wasProducedBy': 'Data_object_production'
 }
-# see DESCRIBE <https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z> :
-# http://purl.org/dc/terms/hasPart
-# http://www.w3.org/ns/prov#hadPrimarySource
+# list of equivalent class
+_equivalentClass = ['SimpleDataObject','SpatialDataObject']
 
 
 # ----------------------------------------------
@@ -56,7 +55,7 @@ class DataObject(StaticObject):
     """
     >>> t.getMeta()
     >>> t.show(True)
-
+    >>> t._queryString()
     """
 
     def __init__(self, limit=None, submfrom=None, submuntil=None, product=None, lastversion=None, uri=None):
@@ -100,8 +99,20 @@ class DataObject(StaticObject):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObject'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
     def download(self):
         """ download file associated to dataobject

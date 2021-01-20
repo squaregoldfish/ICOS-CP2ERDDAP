@@ -30,15 +30,17 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
+    'cpmeta:containsDataset': 'Data_object_spec_dataset_spec',
+    'cpmeta:hasAssociatedProject': 'Data_object_spec_associated_project',
     'cpmeta:hasDataLevel': 'icos_data_level',  # Data level according to ICOS classification ?
+    'cpmeta:hasDataTheme': 'Data_object_spec_data_theme',
+    'cpmeta:hasDocumentationObject': 'Data_object_spec_documentation_object',
     'cpmeta:hasEncoding': 'Data_object_spec_object_encoding',
     'cpmeta:hasFormat': 'Data_object_spec_object_format',
-    'cpmeta:containsDataset': 'Data_object_spec_dataset_spec',
-    'cpmeta:hasDataTheme': 'Data_object_spec_data_theme',
-    'cpmeta:hasAssociatedProject': 'Data_object_spec_associated_project',
-    'cpmeta:hasDocumentationObject': 'Data_object_spec_documentation_object',
     'cpmeta:hasKeywords': 'data_object_spec_keywords'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -74,8 +76,20 @@ class DataObjectSpec(DataObjectSpecifyingThing):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObjectSpec'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

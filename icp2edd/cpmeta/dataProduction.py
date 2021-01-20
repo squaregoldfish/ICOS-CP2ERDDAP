@@ -30,11 +30,13 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'prov:wasAssociatedWith': 'Data_production_associated_with',
-    'prov:startedAtTime': 'data_production_started_at_time',
+    'cpmeta:wasPerformedAt': 'Data_production_feature',
     'prov:endedAtTime': 'data_production_ended_at_time',
-    'cpmeta:wasPerformedAt': 'Data_production_feature'
+    'prov:startedAtTime': 'data_production_started_at_time',
+    'prov:wasAssociatedWith': 'Data_production_associated_with'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -71,8 +73,20 @@ class DataProduction(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataProduction'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

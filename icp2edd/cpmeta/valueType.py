@@ -33,7 +33,8 @@ _attr = {
     'cpmeta:hasQuantityKind': 'Value_type_quantity_kind',
     'cpmeta:hasUnit': 'value_type_units'
 }
-
+# list of equivalent class
+_equivalentClass = []
 
 # ----------------------------------------------
 class ValueType(DataObjectSpecifyingThing):
@@ -69,8 +70,20 @@ class ValueType(DataObjectSpecifyingThing):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/ValueType'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

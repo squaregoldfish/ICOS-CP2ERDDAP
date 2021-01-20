@@ -20,6 +20,7 @@ import logging
 # import from other lib
 # import from my project
 from icp2edd.icpObj import ICPObj
+import icp2edd.cpmeta.dataObject
 
 # --- module's variable ------------------------
 # load logger
@@ -33,6 +34,8 @@ _attr = {
     'cpmeta:hasActualColumnNames': 'simple_obj_actual_column_name',
     'cpmeta:hasNumberOfRows': 'simple_obj_number_of_rows'
 }
+# list of equivalent class
+_equivalentClass = ['DataObject']
 
 
 # ----------------------------------------------
@@ -71,8 +74,20 @@ class SimpleDataObject(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/SimpleDataObject'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

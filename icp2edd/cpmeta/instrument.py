@@ -30,16 +30,18 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasInstrumentOwner': 'Instrument_Owner',
-    'cpmeta:hasVendor': 'Instrument_vendor',
-    'cpmeta:hasModel': 'instrument_model',
-    'cpmeta:hasSerialNumber': 'instrument_serial_number',
-    'cpmeta:hasName': 'instrument_name',
-    'cpmeta:hasTcId': 'instrument_tcid',
     'cpmeta:hasAtcId': 'instrument_atcid',
     'cpmeta:hasEtcId': 'instrument_etcid',
-    'cpmeta:hasOtcId': 'instrument_otcid'
+    'cpmeta:hasInstrumentOwner': 'Instrument_Owner',
+    'cpmeta:hasModel': 'instrument_model',
+    'cpmeta:hasName': 'instrument_name',
+    'cpmeta:hasOtcId': 'instrument_otcid',
+    'cpmeta:hasSerialNumber': 'instrument_serial_number',
+    'cpmeta:hasTcId': 'instrument_tcid',
+    'cpmeta:hasVendor': 'Instrument_vendor'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -76,8 +78,20 @@ class Instrument(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Instrument'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

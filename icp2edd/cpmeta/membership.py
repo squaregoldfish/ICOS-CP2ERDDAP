@@ -31,12 +31,14 @@ _logger = logging.getLogger(__name__)
 # Note: 'object/value' will be the output attribute name
 _attr = {
     'cpmeta:atOrganization': 'Membership_organization',
-    'cpmeta:hasRole': 'Membership_role',
     'cpmeta:hasAttributionWeight': 'membership_attribution_weight',
-    'cpmeta:hasExtraRoleInfo': 'membership_extra_role_info',
     'cpmeta:hasEndTime': 'membership_end_time',
+    'cpmeta:hasExtraRoleInfo': 'membership_extra_role_info',
+    'cpmeta:hasRole': 'Membership_role',
     'cpmeta:hasStartTime': 'membership_start_time'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -73,8 +75,20 @@ class Membership(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Membership'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':
