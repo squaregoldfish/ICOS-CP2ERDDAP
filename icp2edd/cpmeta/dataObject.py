@@ -19,6 +19,7 @@
 # import from standard lib
 from pathlib import Path
 import logging
+import traceback
 # import from other lib
 import requests
 from requests.exceptions import HTTPError
