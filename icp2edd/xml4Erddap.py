@@ -15,7 +15,7 @@ import warnings
 # > conda forge
 import lxml.etree as etree
 # import from my project
-import icp2edd.case as case
+import icp2edd.util as util
 import icp2edd.setupcfg as setupcfg
 
 # --- module's variable ------------------------
@@ -204,7 +204,8 @@ class Xml4Erddap(object):
                                  universal_newlines=True)
         process.check_returncode()
 
-        newDatasetId = case.camel('icos_'+self._stem, sep='_')
+        newDatasetId = util.datasetidCase(self._stem)
+        # camelCase('icos_'+self._stem, sep='_')
         self.renameDatasetId(newDatasetId)
 
     def renameDatasetId(self, newDatasetId):

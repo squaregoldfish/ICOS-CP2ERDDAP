@@ -13,6 +13,7 @@ import icp2edd.csv4Erddap as c4edd
 from icp2edd.superIcpObj import SuperICPObj
 # import all class from submodules in cpmeta
 from icp2edd.cpmeta import *
+import timing
 
 
 # ----------------------------------------------
@@ -47,7 +48,7 @@ def main():
         _logger.exception('Something goes wrong when loading DataObj metadata')
         raise  # Throw exception again so calling code knows it happened
 
-    _logger.info('download DataObject from ICOS-CP:')
+    _logger.info('download DataObject from ICOS-CP')
     try:
         dd = dataobjs.download()
     except Exception:
@@ -96,7 +97,7 @@ def main():
         _logger.info(f'initialise SuperICPObj object')
         superObj = SuperICPObj()
         gloatt = superObj.getAttr()
-        superObj.show(gloatt)
+        superObj.show()
 
     except Exception:
         _logger.exception('Something goes wrong when initialising SuperICPObj')
@@ -107,6 +108,7 @@ def main():
         x4edd.changeAttr(dsxmlout, gloatt)
         _logger.info('replace ERDDAP datasets.xml file with the new one')
         x4edd.replaceXmlBy(dsxmlout)
+
     except Exception:
         _logger.exception('Something goes wrong when changing/adding attributes into ERDDAP datasets.xml')
         raise  # Throw exception again so calling code knows it happened
@@ -115,6 +117,7 @@ def main():
     setupcfg.add_last_subm()
 
     print(f"See output log for more details: {setupcfg.log_filename} ")
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':

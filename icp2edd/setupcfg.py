@@ -536,6 +536,7 @@ def main(logfile_=None):
     # check subm parameter from configuration file(s)
     _chk_subm(config)
 
+
 if __name__ == '__main__':
     main()
 
