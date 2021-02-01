@@ -10,6 +10,7 @@ import os
 import subprocess
 import logging
 import warnings
+from pprint import pformat
 # from importlib import resources
 # import from other lib
 # > conda forge
@@ -22,6 +23,8 @@ import icp2edd.setupcfg as setupcfg
 # load logger
 _logger = logging.getLogger(__name__)
 
+keepERDDAP = ['units']
+keepICOSCP = []
 
 class Xml4Erddap(object):
     """
@@ -114,13 +117,18 @@ class Xml4Erddap(object):
             # Sort files by sourceNames (default="")
             self._cmd.append('default')
             # infoUrl (default="")
-            self._cmd.append('default')
+            self._cmd.append('https://www.icos-cp.eu/')
             # institution (default="")
-            self._cmd.append('default')
+            self._cmd.append('ICOS Ocean Thematic Centre')
             # summary (default="")
-            self._cmd.append('default')
+            self._cmd.append('The Integrated Carbon Observation System, ICOS, is a European-wide greenhouse gas '
+                             'research infrastructure. ICOS produces standardised data on greenhouse gas concentrations'
+                             ' in the atmosphere, as well as on carbon fluxes between the atmosphere, the earth and '
+                             'oceans. This information is being used by scientists as well as by decision makers in '
+                             'predicting and mitigating climate change. The high-quality and open ICOS data is based '
+                             'on the measurements from over 140 stations across 12 European countries.')
             # title (default="")
-            self._cmd.append('default')
+            self._cmd.append(self._stem)
             # standardizeWhat (-1 to get the class' default) (default="")
             self._cmd.append('default')
             # cacheFromUrl (default="")
@@ -321,14 +329,24 @@ def changeAttr(ds, gloatt, out=None):
                 for attrNode in node.findall('addAttributes'):
                     _logger.debug(f'attrNode: tag -{attrNode.tag}- attribute -{attrNode.attrib}-')
                     for att in attrNode.iter('att'):
-                        _logger.debug(f"att name: {att.get('name')} val: {att.text}")
+                        attname = att.get('name')
+                        _logger.debug(f"att name: {attname} val: {att.text}")
                         if att.get('name') in gloatt[dsID]:
                             # TODO figure out how to keep information not to be changed
-                            attrNode.remove(att)
+                            if attname in keepERDDAP:
+                                # keep ERDDAP attribute
+                                del gloatt[dsID][attname]
+                            elif attname in keepICOSCP:
+                                # keep ICOS CP attribute
+                                attrNode.remove(att)
+                            else:
+                                # append ERDDAP attribute with ICOS CP one
+                                attrNode.remove(att)
+                                gloatt[dsID][att.get('name')].append(att.text)
                     for k, v in gloatt[dsID].items():
                         # for k, v in gloatt.items():
                         subnode = etree.SubElement(attrNode, 'att', name=k)
-                        subnode.text = str(v)
+                        subnode.text = ", ".join([str(x) for x in v])
 
         for varNode in node.iter('dataVariable'):
             _logger.debug(f'varNode : tag {varNode.tag} attribute {varNode.attrib}')
@@ -344,12 +362,22 @@ def changeAttr(ds, gloatt, out=None):
                 for attrNode in varNode.findall('addAttributes'):
                     _logger.debug(f'attrNode : tag {attrNode.tag} attribute {attrNode.attrib}')
                     for att in attrNode.iter('att'):
-                        _logger.debug(f"att name: {att.get('name')} val: {att.text}")
-                        if att.get('name') in gloatt[srcname]:
-                            attrNode.remove(att)
+                        attname = att.get('name')
+                        _logger.debug(f"att name: {attname} val: {att.text}")
+                        if attname in gloatt[srcname]:
+                            if attname in keepERDDAP:
+                                # keep ERDDAP attribute
+                                del gloatt[srcname][attname]
+                            elif attname in keepICOSCP:
+                                # keep ICOS CP attribute
+                                attrNode.remove(att)
+                            else:
+                                # append ERDDAP attribute with ICOS CP one
+                                attrNode.remove(att)
+                                gloatt[srcname][att.get('name')].append(att.text)
                     for k, v in gloatt[srcname].items():
                         subnode = etree.SubElement(attrNode, 'att', name=k)
-                        subnode.text = str(v)
+                        subnode.text = ", ".join([str(x) for x in v])
 
             etree.indent(node)
 

@@ -118,10 +118,13 @@ class SuperICPObj(object):
                             if objtype not in exclude_:
                                 if v.value in self.tmp.keys():
                                     for kk, vv in self.tmp[v.value].items():
-                                        kkk = k + '_' + kk
+                                        kkk = k + '/' + kk
                                         d[kkk] = vv
                                 else:
-                                    d = spread(v.value, exclude_=exclude_, cnt_=cnt_)
+                                    dd = spread(v.value, exclude_=exclude_, cnt_=cnt_)
+                                    for kk, vv in dd.items():
+                                        kkk = k + '/' + kk
+                                        d[kkk] = vv
                             else:
                                 self.repack(v.value)
 
@@ -143,14 +146,15 @@ class SuperICPObj(object):
         elif objtype in list_VariableObject:
             varname = self.meta[uri_]['dataset_column_column_title'][0].value
             # variableId = case.camel(varname, sep='_')
+            variableId = util.filterBracket(varname)
 
-            self.DataVariable[varname] = spread(uri_)
+            self.DataVariable[variableId] = spread(uri_)
 
         else:
             _logger.error(f"should not be run on {objtype}")
 
         # clean
-        self.tmp = {}
+        # self.tmp = {}
 
     # def repackMeta(self, list_obj_)        # TODO see if it could be merge with getSubAttr:
 

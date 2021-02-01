@@ -6,6 +6,7 @@
 # import from standard lib
 import logging
 from pathlib import Path
+import re
 # import from other lib
 import SPARQLWrapper
 # > conda forge
@@ -44,8 +45,7 @@ def combine_dict_in_list(d1_, d2_):
     :return: dictionary
     """
     d = {}
-    # for key in set(list(d1_.keys()) + list(d2_.keys())):
-    for key in set(d1_.keys()) | set(d2_.keys()):
+    for key in set(list(d1_.keys()) + list(d2_.keys())):
         try:
             if isinstance(d1_[key], list):
                 d.setdefault(key, []).extend(d1_[key])
@@ -130,6 +130,11 @@ def datasetidCase(filename_):
     if not isinstance(filename_, Path):
         filename_ = Path(filename_)
     return camelCase('icos_' + filename_.stem, sep='_')
+
+
+def filterBracket(name_):
+    """ """
+    return re.sub(r'(.*)(\[.*\])(.*)', r'\1'r'\3', name_).strip()
 
 
 # Press the green button in the gutter to run the script.
