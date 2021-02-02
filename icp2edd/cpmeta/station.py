@@ -17,9 +17,10 @@
 # --- import -----------------------------------
 # import from standard lib
 import logging
+import traceback
 # import from other lib
 # import from my project
-from icp2edd.icpObj import ICPObj
+from icp2edd.cpmeta.organization import Organization
 
 # --- module's variable ------------------------
 # load logger
@@ -30,29 +31,35 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:country': 'country',
-        'cpmeta:belongsToTheNetworkOf': 'ThematicCenter',
-        'cpmeta:hasStationId': 'stationId',
-        'cpmeta:countryCode': 'countryCode',
-        'cpmeta:hasAncillaryEntry': 'AncillaryEntry',
-        'cpmeta:hasStationClass': 'stationClass',
-        'cpmeta:operatesOn': 'Site',
-        'cpmeta:hasResponsibleOrganization': 'Organization',
-        'cpmeta:hasStationSpecificParam': 'stationSpecParam',
-        'cpmeta:hasClimateZone': 'ClimateZone',
-        'cpmeta:hasMeanAnnualTemp': 'meanAnnualTemp',
-        'cpmeta:hasOperationalPeriod': 'operationalPeriod',
-        'cpmeta:hasElevation': 'elevation',
-        'cpmeta:hasLatitude': 'latitude',
-        'cpmeta:hasLongitude': 'longitude',
-        'cpmeta:hasFunding': 'Funding',
-        'cpmeta:hasSpatialCoverage': 'SpatialCoverage',
-        'cpmeta:hasDocumentationObject': 'DocumentObject'
+    'cpmeta:belongsToTheNetworkOf': 'thematic_center',
+    'cpmeta:country': 'country',
+    'cpmeta:countryCode': 'country_code',
+    'cpmeta:hasAncillaryEntry': 'ancillary_entry',
+    'cpmeta:hasClimateZone': 'climate_zone',
+    'cpmeta:hasDocumentationObject': 'documentation',
+    'cpmeta:hasEasternBound': 'eastern_bound',
+    'cpmeta:hasElevation': 'elevation',
+    'cpmeta:hasFunding': 'funding',
+    'cpmeta:hasLatitude': 'latitude',
+    'cpmeta:hasLongitude': 'longitude',
+    'cpmeta:hasMeanAnnualTemp': 'mean_annual_temperature',
+    'cpmeta:hasNothernBound': 'northern_bound',
+    'cpmeta:hasOperationalPeriod': 'operational_period',
+    'cpmeta:hasResponsibleOrganization': 'organization',
+    'cpmeta:hasSouthernBound': 'southern_bound',
+    'cpmeta:hasSpatialCoverage': 'location',
+    'cpmeta:hasStationClass': 'class',
+    'cpmeta:hasStationId': 'id',
+    'cpmeta:hasStationSpecificParam': 'specific_parameter',
+    'cpmeta:hasWesternBound': 'western_bound',
+    'cpmeta:operatesOn': 'station_Site'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
-class Station(ICPObj):
+class Station(Organization):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -85,8 +92,20 @@ class Station(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Station'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

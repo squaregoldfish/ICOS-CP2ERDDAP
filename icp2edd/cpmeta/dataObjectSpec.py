@@ -17,6 +17,7 @@
 # --- import -----------------------------------
 # import from standard lib
 import logging
+import traceback
 # import from other lib
 # import from my project
 from icp2edd.cpmeta.dataObjectSpecifyingThing import DataObjectSpecifyingThing
@@ -30,15 +31,17 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasDataLevel': 'dataLevel',
-        'cpmeta:hasEncoding': 'ObjectEncoding',
-        'cpmeta:hasFormat': 'ObjectFormat',
-        'cpmeta:containsDataset': 'DatasetSpec',
-        'cpmeta:hasDataTheme': 'DataTheme',
-        'cpmeta:hasAssociatedProject': 'Project',
-        'cpmeta:hasDocumentationObject': 'DocumentObject',
-        'cpmeta:hasKeywords': 'keyword'
+    'cpmeta:containsDataset': 'dataset',
+    'cpmeta:hasAssociatedProject': 'project',
+    'cpmeta:hasDataLevel': 'data_level',  # Data level according to ICOS classification ?
+    'cpmeta:hasDataTheme': 'data_theme',
+    'cpmeta:hasDocumentationObject': 'documentation',
+    'cpmeta:hasEncoding': 'encoding',
+    'cpmeta:hasFormat': 'format',
+    'cpmeta:hasKeywords': 'keywords'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -74,8 +77,20 @@ class DataObjectSpec(DataObjectSpecifyingThing):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObjectSpec'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

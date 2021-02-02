@@ -17,6 +17,7 @@
 # --- import -----------------------------------
 # import from standard lib
 import logging
+import traceback
 # import from other lib
 # import from my project
 from icp2edd.icpObj import ICPObj
@@ -30,14 +31,19 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'prov:wasAssociatedWith': 'Thing_AssociatedWith',
-        'prov:startedAtTime': 'startedAtTime',
-        'prov:endedAtTime': 'endedAtTime',
-        'cpmeta:wasPerformedAt': 'Feature',
-        'cpmeta:hasSamplingHeight' 'samplingHeight'
-        'cpmeta:hasSamplingPoint': 'Position',
-        'cpmeta:wasPerformedWith': 'Thing_PerformedWith'
+    'cpmeta:hasSamplingHeight': 'sampling_height',
+    'cpmeta:hasSamplingPoint': 'sampling_point',
+    'cpmeta:wasHostedBy': 'hosted_by',          # organization
+    'cpmeta:wasParticipatedInBy': 'was_participated_in_by',
+    'cpmeta:wasPerformedAt': 'performed_at',       # geometry, location
+    'cpmeta:wasPerformedBy': 'performed_by',
+    'cpmeta:wasPerformedWith': 'performed_with',
+    'prov:endedAtTime': 'ended_at_time',
+    'prov:startedAtTime': 'started_at_time',
+    'prov:wasAssociatedWith': 'station'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -74,8 +80,20 @@ class DataAcquisition(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataAcquisition'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

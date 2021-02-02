@@ -19,13 +19,14 @@
 from pathlib import Path
 from urllib.parse import urlparse
 import logging
-from pprint import pformat
 import traceback
+from pprint import pformat
 # import from other lib
 # > conda-forge
 from SPARQLWrapper import SPARQLWrapper2
 from dateutil.parser import parse
 # import from my project
+import icp2edd.util as util
 
 # --- module's variable ------------------------
 # load logger
@@ -36,9 +37,22 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'rdfs:label': 'label',
     'rdfs:comment': 'comment',
-    'rdfs:seeAlso': 'seeAlso'
+    'rdfs:label': 'label',
+    'rdfs:seeAlso': 'see_also'
+}
+# list of equivalent class
+_equivalentClass = []
+# namespace
+_ns = {
+    'cpmeta': 'http://meta.icos-cp.eu/ontologies/cpmeta/',
+    'geosparql': 'http://www.opengis.net/ont/geosparql#',
+    'otcmeta': 'http://meta.icos-cp.eu/ontologies/otcmeta/',
+    'owl': 'http://www.w3.org/2002/07/owl#',
+    'prov': 'http://www.w3.org/ns/prov#',
+    'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
+    'xsd': 'http://www.w3.org/2001/XMLSchema#'
 }
 
 
@@ -48,11 +62,11 @@ class ICPObj(object):
     """
     >>> t._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObject'
     >>> t.getMeta()
-    >>> t.show()
+    >>> t.show(True)
     <BLANKLINE>
     type: <class '__main__.ICPObj'>
     <BLANKLINE>
-    Class name: xxx
+    Class name: uri
     ...
     <BLANKLINE>
     \turi                 : type: uri        value: ...
@@ -98,7 +112,7 @@ class ICPObj(object):
         :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
         """
         # set up class/instance variables
-        self._name = 'xxx'
+        # self._name = 'uri'
         self._uri = uri
         self._limit = limit
         self._from = submfrom
@@ -107,22 +121,28 @@ class ICPObj(object):
         self._lastversion = lastversion
 
         # object attributes' dictionary
+        # TODO change to attr to avoid access to protected member of class
         if not hasattr(self, '_attr'):
             # set up if not defined
             self._attr = {}
+
         if isinstance(_attr, dict):
+            # merge _attr and self.attr properties.
+            # Note:  _.attr's values are overwritten by the self.attr's
             self._attr = {**_attr, **self._attr}
 
+        # object attributes' dictionary
+        if not hasattr(self, '_equivalentClass'):
+            # set up if not defined
+            self._equivalentClass = []
+
+        self._ns = {**_ns}
+
         # list of prefix used in SPARQL query
-        self._prefix = """
-            prefix prov: <http://www.w3.org/ns/prov#>
-            prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            prefix xsd: <http://www.w3.org/2001/XMLSchema#>
-            prefix cpmeta: <http://meta.icos-cp.eu/ontologies/cpmeta/>
-            prefix otcmeta: <http://meta.icos-cp.eu/ontologies/otcmeta/>
-            prefix geosparql: <http://www.opengis.net/ont/geosparql#>
-            """
+        self._prefix = ''.join(f"prefix {k}: <{v}>\n" for k, v in self._ns.items())
+
+        # dictionary to store metadata
+        self.meta = {}
 
         # object type URI
         # self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObject'
@@ -133,9 +153,6 @@ class ICPObj(object):
         self._objtype = None
         if self._object is not None:
             self.objtype = self._getObjectType()
-
-        # dictionary to store metadata
-        self.meta = {}
 
         # get instance name
         (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
@@ -152,12 +169,21 @@ class ICPObj(object):
         - filter on number of output, in any case
         """
         # TODO check every attribute value are unique
+        # add equivalent class attribute
+        if self._equivalentClass:
+            # merge _equivalentClass._attr and self.attr properties.
+            # Note:  _equivalentClass.attr's values are overwritten by the self.attr's
+            for k in self._equivalentClass:
+                exec('from icp2edd.cpmeta import *')
+                klass = eval(k)
+                inst = klass()
+                self._attr = {**inst._attr, **self._attr}
 
-        select = f"select ?xxx"
+        select = f"select ?uri"
         option = ''
         for k, v in self._attr.items():
             select = select + ' ?' + v
-            option = option + "\n\tOPTIONAL { ?xxx %s ?%s .}" % (k, v)
+            option = option + "\n\tOPTIONAL { ?uri %s ?%s .}" % (k, v)
 
         # start where block
         query = select + '\nwhere {'
@@ -174,14 +200,14 @@ class ICPObj(object):
             query = query + \
                      f'\n\t{self._filterProduct(self._product)} # _filterProduct(product)'
             # add main object
-            query = query + '\n\t ?xxx cpmeta:hasObjectSpec ?spec .'
+            query = query + '\n\t ?uri cpmeta:hasObjectSpec ?spec .'
         else:
             # add main object
-            query = query + '\n\t ?xxx rdf:type/rdfs:subClassOf* <%s> .' % self._object
+            query = query + '\n\t ?uri rdf:type/rdfs:subClassOf* <%s> .' % self._object
 
         # filter: submission time
         if 'cpmeta:wasSubmittedBy' in self._attr.keys():
-            query = query + '\n\t?xxx cpmeta:wasSubmittedBy [' \
+            query = query + '\n\t?uri cpmeta:wasSubmittedBy [' \
                             '\n\t\tprov:endedAtTime ?submTime ;' \
                             '\n\t\tprov:wasAssociatedWith ?submitter' \
                             '\n\t\t] .'\
@@ -272,18 +298,47 @@ class ICPObj(object):
         fill instance's dictionary _meta (keys are: 'type','value')
         with metadata, and their attributes from ICOS CP
 
-        meta = { ?uri : ?result, ... }
-            ?result = { ?attr : {type: ? , value: ?}, ... }
+        meta = {uri: binding, ...}
+            binding = {variable: [SPARQLWrapper.Value,...], ...}
         """
         queryString = self._queryString()
         #
         res = self._query(queryString)
-        for result in res.bindings:
-            # result = { ? :{type: ? , value: ?}, ... }
-            result['uri'] = result.pop("xxx")
-            uri = result['uri'].value
-            # self.meta[uri] = self._renameKeyDic(result)
-            self.meta[uri] = result
+        # print(f"{res.variables}")
+        self.meta = self._groupby(res)
+
+        # create/overwrite list of uri
+        self._uri = self.meta.keys()
+
+    def _groupby(self, res):
+        """
+        :param res: SPARQL query output
+        :return: {uri: {variable: [SPARQLWrapper.Value, ...], ...}, ...}
+        """
+        # bindings = [
+        #   {SPARQL query output variable 1: SPARQLWrapper.Value, SPARQL query output variable 2: SPARQLWrapper.Value },
+        #   ...
+        # ]
+        # exemple SPARQL output variables: 'uri', 'static_object_citation',...
+        # TODO see for use of util.combine.. instead
+        dict1 = {}
+        for binding in res.bindings:
+            uri = binding['uri'].value
+            if uri not in dict1:
+                dict1[uri] = {}
+            dict2 = dict1[uri]
+
+            for k, v in binding.items():
+                if k not in dict2.keys():
+                    dict2[k] = []
+
+                # Using a in b is simply translates to b.__contains__(a)
+                if v not in dict2[k]:
+                    dict2[k] += [v]
+                else:
+                    pass
+                    # already registered
+        return dict1
 
     def show(self, print_=False):
         """
@@ -296,24 +351,19 @@ class ICPObj(object):
             _logger.error(f"Invalid type argument -{print_}-")
             raise TypeError("Invalid type argument")
 
-        _logger.info("Class name: {}".format(self._name))
+        _logger.info("Class name: {}".format(self._objtype))
+        _logger.info("Instance name: {}".format(self._instance_name))
         _logger.info("\ttype: {}".format(type(self)))
         _logger.info('\t' + pformat(self.meta))
 
         if print_:
-            print("\nClass name: {}".format(self._name))
+            print("\nClass name: {}".format(self._objtype))
             print("\nInstance name: {}".format(self._instance_name))
             print("\ttype: {}".format(type(self)))
-            print('\t'+pformat(self.meta))
-
-    # def _renameKeyDic(self, _):
-    #    """
-    #    rename dictionary keys:
-    #    :return: renamed dictionary
-    #    """
-    #    for oldKey, newKey in self._convAttr.items():
-    #        _ = dict((newKey, v) if k == oldKey else (k, v) for k, v in _.items())
-    #    return _
+            print('\t' + pformat(self.meta))
+            # for binding in self.bindings:
+            #     for k, v in binding.items():
+            #         print('\tkey:',k,'\n\t\tValue:',v)
 
     def _filterLimit(self, limit_=0):
         """
@@ -453,7 +503,7 @@ class ICPObj(object):
         >>> t._filterLastVersion(False)
         ''
         >>> t._filterLastVersion(True)
-        'FILTER NOT EXISTS {[] cpmeta:isNextVersionOf ?xxx}'
+        'FILTER NOT EXISTS {[] cpmeta:isNextVersionOf ?uri}'
         >>> t._filterLastVersion('toto')
         Traceback (most recent call last):
             ...
@@ -463,7 +513,7 @@ class ICPObj(object):
 
         if lastversion_:
             if isinstance(lastversion_, bool):
-                return "FILTER NOT EXISTS {[] cpmeta:isNextVersionOf ?xxx}"
+                return "FILTER NOT EXISTS {[] cpmeta:isNextVersionOf ?uri}"
             else:
                 raise TypeError('Invalid lastVersion type: {}'.format(lastversion_))
         else:
@@ -503,20 +553,20 @@ class ICPObj(object):
             raise TypeError('Invalid object format: {}'.format(uri_))
         TypeError: Invalid object format: 33
         >>> t._filterObj('https://www.jetbrains.com/help/pycharm')
-        'VALUES ?xxx {<https://www.jetbrains.com/help/pycharm>}'
+        'VALUES ?uri {<https://www.jetbrains.com/help/pycharm>}'
         >>> t._filterObj(['toto',33])
         Traceback (most recent call last):
         ...
             raise TypeError('Invalid object format: {}'.format(uri_))
         TypeError: Invalid object format: ['toto', 33]
         >>> t._filterObj(['https://www.jetbrains.com/help/pycharm','https://docs.python.org/3/tutorial/errors.html'])
-        'VALUES ?xxx {<https://www.jetbrains.com/help/pycharm> <https://docs.python.org/3/tutorial/errors.html>}'
+        'VALUES ?uri {<https://www.jetbrains.com/help/pycharm> <https://docs.python.org/3/tutorial/errors.html>}'
         """
         if uri_:
             if self._is_url(uri_):
-                return "VALUES ?xxx {<%s>}" % uri_
+                return "VALUES ?uri {<%s>}" % uri_
             elif isinstance(uri_, list) and all(self._is_url(n) for n in uri_):
-                return "VALUES ?xxx {%s}" % " ".join('<{}>'.format(w) for w in uri_)
+                return "VALUES ?uri {%s}" % " ".join('<{}>'.format(w) for w in uri_)
             else:
                 raise TypeError('Invalid object format: {}'.format(uri_))
         else:
@@ -536,19 +586,19 @@ class ICPObj(object):
 
             if self._is_url(self._object):
                 queryString = """
-                select ?xxx
+                select ?uri
                 where{
                  VALUES ?name {%s}
-                 ?xxx rdf:type <%s> ;
+                 ?uri rdf:type <%s> ;
                      cpmeta:hasName ?name .
-                 FILTER NOT EXISTS {[] cpmeta:isNextVersionOf ?xxx}
+                 FILTER NOT EXISTS {[] cpmeta:isNextVersionOf ?uri}
                 }
                 """ % (filenames, self._object)
             else:
                 raise TypeError(f'Invalid object format: {self._object}')
 
             res = self._query(queryString)
-            return [r['xxx'].value for r in res.bindings]
+            return [r['uri'].value for r in res.bindings]
 
         else:
             return ''

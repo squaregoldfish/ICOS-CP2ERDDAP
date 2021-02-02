@@ -17,6 +17,7 @@
 # --- import -----------------------------------
 # import from standard lib
 import logging
+import traceback
 # import from other lib
 # import from my project
 from icp2edd.cpmeta.ancillaryDatum import AncillaryDatum
@@ -30,9 +31,11 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasAncillaryDataValue': 'ancillaryDataValue',
-        'cpmeta:hasAncillaryObjectValue': 'AncillaryValue'
+    'cpmeta:hasAncillaryDataValue': 'ancillary_data_value',
+    'cpmeta:hasAncillaryObjectValue': 'ancillary_object_value'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -69,8 +72,20 @@ class AncillaryEntry(AncillaryDatum):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/AncillaryEntry'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

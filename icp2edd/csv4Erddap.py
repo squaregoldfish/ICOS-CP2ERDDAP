@@ -5,13 +5,13 @@
 # --- import -----------------------------------
 # import from standard lib
 from pathlib import Path
-import re
 import logging
 # import from other lib
 # > conda forge
 import pandas as pd
 from dateutil.parser import parse
 # import from my project
+import icp2edd.util as util
 
 # --- module's variable ------------------------
 # load logger
@@ -77,8 +77,10 @@ def modify(f):
     data = pd.read_csv(f)
 
     # remove units from variable name
+    # WARNING: report change on header on superObj.DatasetVariable keys
     # TODO see how ERDDAP handle second line with unit, and unit between parentheses ?
-    data.rename(columns=lambda x: re.sub(r'(.*)(\[.*\])(.*)', r'\1'r'\3', x), inplace=True)
+    # data.rename(columns=lambda x: re.sub(r'(.*)(\[.*\])(.*)', r'\1'r'\3', x), inplace=True)
+    data.rename(columns=lambda x: util.filterBracket(x), inplace=True)
 
     # reformat Date/Time with 3 decimals
     # TODO check Date/Time column exist

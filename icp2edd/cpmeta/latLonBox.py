@@ -17,9 +17,10 @@
 # --- import -----------------------------------
 # import from standard lib
 import logging
+import traceback
 # import from other lib
 # import from my project
-from icp2edd.cpmeta.spatialCoverage import SpatialCoverage
+from icp2edd.icpObj import ICPObj
 
 # --- module's variable ------------------------
 # load logger
@@ -30,15 +31,17 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasWesternBound': 'westernBound',
-        'cpmeta:hasSouthernBound': 'southernBound',
-        'cpmeta:hasNothernBound': 'northernBound',
-        'cpmeta:hasEasternBound': 'easternBound'
+    'cpmeta:hasEasternBound': 'eastern_bound',
+    'cpmeta:hasNothernBound': 'northern_bound',
+    'cpmeta:hasSouthernBound': 'southern_bound',
+    'cpmeta:hasWesternBound': 'western_bound'
 }
+# list of equivalent class
+_equivalentClass = ['SpatialCoverage']
 
 
 # ----------------------------------------------
-class LatLonBox(SpatialCoverage):
+class LatLonBox(ICPObj):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -71,8 +74,20 @@ class LatLonBox(SpatialCoverage):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/LatLonBox'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

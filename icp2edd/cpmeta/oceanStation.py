@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# as.py
+# os.py
 
 """
-    The as module is used to explore ICOS CP ASs' metadata.
+    The os module is used to explore ICOS CP OSs' metadata.
 
     Example usage:
 
-    From as import AS
+    From os import OS
 
-    ass = AS()                # initialise ICOS CP AS object
-    ass.get_meta()            # get ass' metadata from ICOS CP
-    ass.show()                # print ass' metadata
+    oss = OS()                # initialise ICOS CP OS object
+    oss.get_meta()            # get oss' metadata from ICOS CP
+    oss.show()                # print oss' metadata
 """
 
 # --- import -----------------------------------
 # import from standard lib
 import logging
+import traceback
 # import from other lib
 # import from my project
 from icp2edd.cpmeta.icosStation import IcosStation
@@ -31,10 +32,12 @@ _logger = logging.getLogger(__name__)
 # Note: 'object/value' will be the output attribute name
 _attr = {
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
-class AS(IcosStation):
+class OS(IcosStation):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -42,18 +45,18 @@ class AS(IcosStation):
     """
 
     def __init__(self, limit=None, uri=None):
-        """ initialise instance of AS(IcosStation).
+        """ initialise instance of OS(IcosStation).
 
-        It will be used to set up a sparql query, and get all metadata of AS from ICOS CP.
+        It will be used to set up a sparql query, and get all metadata of OS from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select AS:
+        and/or select OS:
         - with ICOS CP 'uri'
 
         Example:
-            AS(limit=5)
+            OS(limit=5)
 
         :param limit: number of returned results
         :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
@@ -67,14 +70,26 @@ class AS(IcosStation):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
-        self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/AS'
+        self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/OS'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':
     import doctest
 
-    doctest.testmod(extraglobs={'t': AS(limit=10)},
+    doctest.testmod(extraglobs={'t': OS(limit=10)},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
 

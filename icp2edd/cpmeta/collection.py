@@ -17,9 +17,10 @@
 # --- import -----------------------------------
 # import from standard lib
 import logging
+import traceback
 # import from other lib
 # import from my project
-from icp2edd.cpmeta.organization import Organization
+from icp2edd.icpObj import ICPObj
 
 # --- module's variable ------------------------
 # load logger
@@ -30,13 +31,24 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:isNextVersionOf': 'Collection',
-        'cpmeta:hasDoi': 'doi'
+    'cpmeta:hasDoi': 'collection_doi',
+    'cpmeta:isNextVersionOf': 'NextVersionOf',  # Warning: linked to:
+    #                                           # - superIcpObj.py:_getSubAttr(): elif k in 'NextVersionOf':
+    'cpmeta:wasAcquiredBy': 'acquisition',
+    'cpmeta:wasProducedBy': 'production',
+    'cpmeta:wasSubmittedBy': 'submission',
+    'prov:hadPrimarySource': 'PrimarySource',  # Warning: linked to:
+    #                                          # - superIcpObj.py:_getSubAttr(): elif k in 'PrimarySource':
+    'prov:wasGeneratedBy': 'generated_by',
+    'prov:wasRevisionOf': 'RevisionOf'  # Warning: linked to:
+    #                                   # - superIcpObj.py:_getSubAttr(): elif k in 'RevisionOf':
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
-class Collection(Organization):
+class Collection(ICPObj):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -72,8 +84,20 @@ class Collection(Organization):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Collection'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

@@ -38,13 +38,13 @@ handlers:
         level: ERROR
         formatter: error
         # mailhost: 'smtp.skynet.com'
-        mailhost: 'smtp.uib.no'
+        mailhost: 'smtp.mail.com'
         # fromaddr: logging@skynet.com
         fromaddr: julien.paul@uib.no
         # toaddrs: [ admin1@skynet.com, admin2@skynet.com ]
         toaddrs: [julien.paul@uib.no]
         credentials: (jpa029@uib.no, password)
-        subject: ICOS-CP2ERDDAD System Alert
+        subject: ICOS-CP2ERDDAP System Alert
 
 # loggers:
 #     icp2edd:

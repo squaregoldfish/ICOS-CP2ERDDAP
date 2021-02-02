@@ -17,9 +17,10 @@
 # --- import -----------------------------------
 # import from standard lib
 import logging
+import traceback
 # import from other lib
 # import from my project
-from icp2edd.cpmeta.organization import Organization
+from icp2edd.icpObj import ICPObj
 
 # --- module's variable ------------------------
 # load logger
@@ -30,17 +31,22 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasInstrumentOwner': 'Owner_Organization',
-        'cpmeta:hasVendor': 'Vendor_Organization',
-        'cpmeta:hasModel': 'model',
-        'cpmeta:hasSerialNumber': 'serialNumber',
-        'cpmeta:hasName': 'name',
-        'cpmeta:hasTcId': 'tcid'
+    'cpmeta:hasAtcId': 'atcid',
+    'cpmeta:hasEtcId': 'etcid',
+    'cpmeta:hasInstrumentOwner': 'owner',
+    'cpmeta:hasModel': 'model',
+    'cpmeta:hasName': 'name',
+    'cpmeta:hasOtcId': 'otcid',
+    'cpmeta:hasSerialNumber': 'serial_number',
+    'cpmeta:hasTcId': 'tcid',
+    'cpmeta:hasVendor': 'vendor'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
-class Instrument(Organization):
+class Instrument(ICPObj):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -73,8 +79,20 @@ class Instrument(Organization):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Instrument'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

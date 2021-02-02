@@ -2,7 +2,7 @@
 
 we use **pbr** to create this package
 
-## To set up/update  package library
+## How to set up/update  package library
 $ python3 setup.py sdist bdist_wheel
 
 This command should output a lot of text and once completed should generate two files in the
@@ -12,11 +12,21 @@ Newer pip versions preferentially install built distributions, but will fall bac
 if needed. You should always upload a source archive and provide built archives for the platforms your
  project is compatible with.
 
-## To install package
+## How to install package
 $ python3 -m pip install path/to/package/dist/icp2edd.SOME_RELEASE.tar.gz
 
-## To install package in development mode
-pip install -e path/to/package
+## How to install package in development mode
+$ pip install -e path/to/package
+
+## How to install one of github hosted repo's specific tag
+### using git clone
+
+$ git clone -b { tag name } --single-branch { repo name } .  
+
+> --single-branch flag prevents fetching all the branches in the cloned repository
+
+### using pip
+$ pip install -e git://github.com/{ username }/{ repo name }.git@{ tag name }#egg={ desired egg name }  
 
 ## Version
 

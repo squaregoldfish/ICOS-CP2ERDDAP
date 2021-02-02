@@ -19,6 +19,8 @@
 # import from standard lib
 from pathlib import Path
 import logging
+import traceback
+from pprint import pformat
 # import from other lib
 import requests
 from requests.exceptions import HTTPError
@@ -35,16 +37,17 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasObjectSpec': 'DataObjectSpec',
-        'cpmeta:wasAcquiredBy': 'DataAcquisition',
-        'cpmeta:wasProducedBy': 'DataProduction',
-        'cpmeta:hasFormatSpecificMetadata': 'formatSpecificMetadata',
-        'cpmeta:hasKeyword': 'keyword',
-        'cpmeta:hasVariableName': 'variable',
-        'cpmeta:hasActualVariable': 'VariableInfo',
-        'cpmeta:hasTemporalResolution': 'temporalResolution',
-        'cpmeta:hasSpatialCoverage': 'SpatialCoverage'
+    'cpmeta:hasActualVariable': 'variable',
+    'cpmeta:hasFormatSpecificMetadata': 'format',
+    'cpmeta:hasKeyword': 'keyword',
+    'cpmeta:hasKeywords': 'keywords',
+    'cpmeta:hasObjectSpec': 'specification',  # Data Object specification
+    'cpmeta:hasSpatialCoverage': 'location',
+    'cpmeta:hasTemporalResolution': 'temporal_resolution',  # time_coverage_resolution ?
+    'cpmeta:hasVariableName': 'variable_name'
 }
+# list of equivalent class
+_equivalentClass = ['SimpleDataObject', 'SpatialDataObject']
 
 
 # ----------------------------------------------
@@ -52,7 +55,7 @@ class DataObject(StaticObject):
     """
     >>> t.getMeta()
     >>> t.show(True)
-
+    >>> t._queryString()
     """
 
     def __init__(self, limit=None, submfrom=None, submuntil=None, product=None, lastversion=None, uri=None):
@@ -96,8 +99,20 @@ class DataObject(StaticObject):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/DataObject'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
     def download(self):
         """ download file associated to dataobject
@@ -114,60 +129,69 @@ class DataObject(StaticObject):
         """
         # TODO check everything needed exist
         d = {}
-        for _, val in self.meta.items():
-
-            uri = val['uri'].value  # Warning do not convert to Path (https:// => https./)
+        for uri, binding in self.meta.items():
+            # there is at least one binding covering the optional "opt", too
+            # uri = binding['uri'].value  # Warning do not convert to Path (https:// => https./)
             pid = uri.split("/")[-1]
-            filename = Path(val['name'].value)
-            stemname = filename.stem
+            # Warning: linked to staticObject.py 'cpmeta:hasName': 'filename'
+            if len(binding['filename']) > 1:
+                _logger.critical(f"several filenames associated to one uri, meta:\n{pformat(binding)}")
+            else:
+                filename = Path(binding['filename'][0].value)
+                stemname = filename.stem
 
-            dirout = setupcfg.datasetCsvPath / stemname
-            try:
-                dirout.mkdir(parents=True)
-            except FileExistsError:
-                # directory already exists
-                pass
-
-            url = str(uri).replace('meta', 'data')
-            fileout = dirout / filename
-            d[filename] = dirout
-
-            cookies = dict(CpLicenseAcceptedFor=pid)
-            # Fill in your details here to be posted to the login form.
-            # user, pswd = 'julien.paul@uib.no', 'Lw9ucQr5EEQ9SaK'
-
-            # Use 'with' to ensure the session context is closed after use.
-            with requests.Session() as s:
-                # LOGIN_URL = 'https://cpauth.icos-cp.eu/login/'
-                # p = s.post(LOGIN_URL, data={user : pswd})
-                # print the html returned or something more intelligent to see if it's a successful login page.
-                # print('html return ')#, p.text)
-
-                # TODO check error case
-                # TODO use this 'try except else' format everywhere
+                dirout = setupcfg.datasetCsvPath / stemname
                 try:
-                    # an authorised request.
-                    # r = s.get(url, auth=(user,pswd), stream=True)
-                    # r = s.get(url, auth=HTTPDigestAuth(user, pswd), stream=True)
-                    r = s.get(str(url), cookies=cookies, stream=True)
-                    # If the response was successful, no Exception will be raised
-                    r.raise_for_status()
-                except HTTPError:  # as http_err:
-                    # https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
-                    # raise HTTPError(f'HTTP error occurred: {http_err}')  # Python 3.6
-                    _logger.exception(f'HTTP error occurred:')
-                    raise  #
-                except Exception:  # as err:
-                    # raise Exception(f'Other error occurred: {err}')  # Python 3.6
-                    _logger.exception(f'Other error occurred:')
-                    raise  #
-                else:
-                    # Success!
-                    _logger.info(f'download file {uri} on {fileout}')
-                    with open(fileout, 'wb') as f:
-                        for chunk in r.iter_content(chunk_size=1024):
-                            if chunk:  # filter out keep-alive new chunks
-                                f.write(chunk)
+                    dirout.mkdir(parents=True)
+                except FileExistsError:
+                    # directory already exists
+                    pass
+
+                url = str(uri).replace('meta', 'data')
+                fileout = dirout / filename
+                if filename not in d:
+                    # download
+                    d[filename] = dirout
+
+                    cookies = dict(CpLicenseAcceptedFor=pid)
+                    # Fill in your details here to be posted to the login form.
+                    # user, pswd = 'julien.paul at uib.no', 'Lw9ucQr5EEQ9SaK'
+
+                    # Use 'with' to ensure the session context is closed after use.
+                    with requests.Session() as s:
+                        # LOGIN_URL = 'https://cpauth.icos-cp.eu/login/'
+                        # p = s.post(LOGIN_URL, data={user : pswd})
+                        # print the html returned or something more intelligent to see if it's a successful login page.
+                        # print('html return ')#, p.text)
+
+                        # TODO check error case
+                        # TODO use this 'try except else' format everywhere
+                        try:
+                            # an authorised request.
+                            # r = s.get(url, auth=(user,pswd), stream=True)
+                            # r = s.get(url, auth=HTTPDigestAuth(user, pswd), stream=True)
+                            r = s.get(str(url), cookies=cookies, stream=True)
+                            # If the response was successful, no Exception will be raised
+                            r.raise_for_status()
+                        except HTTPError:  # as http_err:
+                            # https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+                            # raise HTTPError(f'HTTP error occurred: {http_err}')  # Python 3.6
+                            _logger.exception(f'HTTP error occurred:')
+                            raise  #
+                        except Exception:  # as err:
+                            # raise Exception(f'Other error occurred: {err}')  # Python 3.6
+                            _logger.exception(f'Other error occurred:')
+                            raise  #
+                        else:
+                            # Success!
+                            _logger.info(f'download file {uri} on {fileout}')
+                            # perc = float(i) / ?? * 100
+                            # print(f'downloading file {uri} [{perc}%] on {fileout}', end='')
+                            # print('Downloading File FooFile.txt [%d%%]\r'%i, end="")
+                            with open(fileout, 'wb') as f:
+                                for chunk in r.iter_content(chunk_size=1024):
+                                    if chunk:  # filter out keep-alive new chunks
+                                        f.write(chunk)
 
         return d
 

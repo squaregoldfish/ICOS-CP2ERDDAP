@@ -17,6 +17,7 @@
 # --- import -----------------------------------
 # import from standard lib
 import logging
+import traceback
 # import from other lib
 # import from my project
 from icp2edd.icpObj import ICPObj
@@ -30,14 +31,26 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:hasSha256sum': 'hexBinary',
-        'cpmeta:hasSizeInBytes': 'sizeInBites',
-        'cpmeta:wasSubmittedBy': 'DataSubmission',
-        'cpmeta:hasCitationString': 'string',
-        'cpmeta:isNextVersionOf': 'NextVersionOf',
-        'cpmeta:hasDoi': 'doi',
-        'cpmeta:hasName': 'name'
+    'cpmeta:hasCitationString': 'citation',
+    'cpmeta:hasDoi': 'doi',
+    'cpmeta:hasName': 'filename',  # Warning: linked to:
+    #                              # - dataObject.py: filename = Path(val['static_object_name'].value)
+    #                              # - superIcpObj.py: fname = self.m['DataObject'][k]['static_object_name'...
+    'cpmeta:hasSha256sum': 'sha256_sum',
+    'cpmeta:hasSizeInBytes': 'size_in_bites',
+    'cpmeta:isNextVersionOf': 'NextVersionOf',  # Warning: linked to:
+    #                                           # - superIcpObj.py:_getSubAttr(): elif k in 'NextVersionOf':
+    'cpmeta:wasAcquiredBy': 'acquisition',
+    'cpmeta:wasProducedBy': 'production',
+    'cpmeta:wasSubmittedBy': 'submission',
+    'prov:hadPrimarySource': 'PrimarySource',  # Warning: linked to:
+    #                                          # - superIcpObj.py:_getSubAttr(): elif k in 'PrimarySource':
+    'prov:wasGeneratedBy': 'generated_by',
+    'prov:wasRevisionOf': 'RevisionOf'  # Warning: linked to:
+    #                                   # - superIcpObj.py:_getSubAttr(): elif k in 'RevisionOf':
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
@@ -83,8 +96,20 @@ class StaticObject(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/StaticObject'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

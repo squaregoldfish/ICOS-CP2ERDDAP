@@ -1,7 +1,24 @@
 CHANGES
 =======
 
-## [Unreleased]
+## [0.5.0] - 2021-02-02
+
+### Added
+* add checkOntology
+* add equivalentClass for each ICOS CP objects
+* change to read and group attributes from CP ojects
+* change attribute, and variable name
+
+### Changed
+* update properties associated to each class, thanks to checkOntology
+* parse log filename from command line argument
+* update README on how to run checkOntology
+* add try block to check setup log arguments
+* set up namespace dictionary
+
+### Fixed
+* fix reading argument from inline command
+* fix setting up of instance name
 
 ## [0.4.0] - 2020-12-04
 

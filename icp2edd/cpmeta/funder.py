@@ -17,9 +17,10 @@
 # --- import -----------------------------------
 # import from standard lib
 import logging
+import traceback
 # import from other lib
 # import from my project
-from icp2edd.icpObj import ICPObj
+from icp2edd.cpmeta.organization import Organization
 
 # --- module's variable ------------------------
 # load logger
@@ -30,13 +31,15 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-        'cpmeta:funderIdentifier': 'funderId',
-        'cpmeta:funderIdentifierType': 'funderIdType'
+    'cpmeta:funderIdentifier': 'id',
+    'cpmeta:funderIdentifierType': 'id_type'
 }
+# list of equivalent class
+_equivalentClass = []
 
 
 # ----------------------------------------------
-class Funder(ICPObj):
+class Funder(Organization):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -69,8 +72,20 @@ class Funder(ICPObj):
         if isinstance(_attr, dict):
             self._attr = {**_attr, **self._attr}
 
+        if isinstance(_equivalentClass, list):
+            self._equivalentClass = _equivalentClass
+
         # object type URI
         self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Funder'
+
+        #
+        self._objtype = None
+        if self._object is not None:
+            self.objtype = self._getObjectType()
+
+        # get instance name
+        (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
+        self._instance_name = text[:text.find('=')].strip()
 
 
 if __name__ == '__main__':

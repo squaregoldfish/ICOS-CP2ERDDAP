@@ -13,9 +13,9 @@ paths:
     log: '/home/jpa029/Data/ICOS2ERDDAP/log'
 
 subm:
-    # # from: dataset submitted from
+    # from: dataset submitted from [default: end date of last update]
     # from: '2020-01-01T00:00:00.000Z'
-    # # until: dataset submitted until [default: today]
+    # until: dataset submitted until [default: today]
     # until: '05-08-2020'
     # product: data 'type' selected
     product: 'icosOtcL2Product'
@@ -25,8 +25,11 @@ subm:
     authorised_product: ['icosOtcL1Product_v2', 'icosOtcL2Product']
 
 log:
-    # standard output parameter
-    # True|False
-    quiet: False
-    # [DEBUG, INFO, WARN, ERROR, CRITICAL]
+    # filename: logger filename
+    # filename:
+    # below, apply only on standard output log
+    # TODO find a way to make it work, overwrite by argument
+    # verbose: activate verbose mode [True|False]
+    verbose: False
+    # level: log level [DEBUG, INFO, WARN, ERROR, CRITICAL]
     level: 'INFO'
