@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-## [Unreleased] - 2021-01-08
+## [0.5.0] - 2021-02-02
 
 ### Added
 * add checkOntology
@@ -19,7 +19,6 @@ CHANGES
 ### Fixed
 * fix reading argument from inline command
 * fix setting up of instance name
-
 
 ## [0.4.0] - 2020-12-04
 
