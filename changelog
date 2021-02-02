@@ -5,6 +5,9 @@ CHANGES
 
 ### Added
 * add checkOntology
+* add equivalentClass for each ICOS CP objects
+* change to read and group attributes from CP ojects
+* change attribute, and variable name
 
 ### Changed
 * update properties associated to each class, thanks to checkOntology
@@ -15,6 +18,7 @@ CHANGES
 
 ### Fixed
 * fix reading argument from inline command
+* fix setting up of instance name
 
 
 ## [0.4.0] - 2020-12-04
