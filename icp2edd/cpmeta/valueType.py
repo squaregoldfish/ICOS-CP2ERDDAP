@@ -31,8 +31,8 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasQuantityKind': 'Value_type_quantity_kind',
-    'cpmeta:hasUnit': 'value_type_units'
+    'cpmeta:hasQuantityKind': 'quantity',
+    'cpmeta:hasUnit': 'units'
 }
 # list of equivalent class
 _equivalentClass = []

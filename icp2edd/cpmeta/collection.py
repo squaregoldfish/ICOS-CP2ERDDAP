@@ -34,12 +34,12 @@ _attr = {
     'cpmeta:hasDoi': 'collection_doi',
     'cpmeta:isNextVersionOf': 'NextVersionOf',  # Warning: linked to:
     #                                           # - superIcpObj.py:_getSubAttr(): elif k in 'NextVersionOf':
-    'cpmeta:wasAcquiredBy': 'Collection_acquirer',
-    'cpmeta:wasProducedBy': 'Collection_producer',
-    'cpmeta:wasSubmittedBy': 'Collection_submitter',
+    'cpmeta:wasAcquiredBy': 'acquisition',
+    'cpmeta:wasProducedBy': 'production',
+    'cpmeta:wasSubmittedBy': 'submission',
     'prov:hadPrimarySource': 'PrimarySource',  # Warning: linked to:
     #                                          # - superIcpObj.py:_getSubAttr(): elif k in 'PrimarySource':
-    'prov:wasGeneratedBy': 'collection_generator',
+    'prov:wasGeneratedBy': 'generated_by',
     'prov:wasRevisionOf': 'RevisionOf'  # Warning: linked to:
     #                                   # - superIcpObj.py:_getSubAttr(): elif k in 'RevisionOf':
 }

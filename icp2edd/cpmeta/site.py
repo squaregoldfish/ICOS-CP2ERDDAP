@@ -31,10 +31,10 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasEcosystemType': 'Site_ecosystem_type',
-    'cpmeta:hasSamplingPoint': 'Site_position',
-    'cpmeta:hasSpatialCoverage': 'Site_spatial_coverage',
-    'geosparql:hasGeometry': 'Site_geometry'
+    'cpmeta:hasEcosystemType': 'ecosystem_type',
+    'cpmeta:hasSamplingPoint': 'sampling_point',
+    'cpmeta:hasSpatialCoverage': 'location',
+    'geosparql:hasGeometry': 'geometry'
 }
 # list of equivalent class
 _equivalentClass = []

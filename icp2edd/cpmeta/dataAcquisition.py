@@ -31,16 +31,16 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasSamplingHeight': 'acquisition_sampling_height',
-    'cpmeta:hasSamplingPoint': 'Acquisition_position',
-    'cpmeta:wasHostedBy': 'Acquisition_host',
-    'cpmeta:wasParticipatedInBy': 'Acquisition_was_participated_in_by',
-    'cpmeta:wasPerformedAt': 'Acquisition_performed_at',
-    'cpmeta:wasPerformedBy': 'Acquisition_performer',
-    'cpmeta:wasPerformedWith': 'Acquisition_PerformedWith',
-    'prov:endedAtTime': 'acquisition_ended_at_time',
-    'prov:startedAtTime': 'acquisition_started_at_time',
-    'prov:wasAssociatedWith': 'Acquisition_AssociatedWith'
+    'cpmeta:hasSamplingHeight': 'sampling_height',
+    'cpmeta:hasSamplingPoint': 'sampling_point',
+    'cpmeta:wasHostedBy': 'hosted_by',          # organization
+    'cpmeta:wasParticipatedInBy': 'was_participated_in_by',
+    'cpmeta:wasPerformedAt': 'performed_at',       # geometry, location
+    'cpmeta:wasPerformedBy': 'performed_by',
+    'cpmeta:wasPerformedWith': 'performed_with',
+    'prov:endedAtTime': 'ended_at_time',
+    'prov:startedAtTime': 'started_at_time',
+    'prov:wasAssociatedWith': 'station'
 }
 # list of equivalent class
 _equivalentClass = []

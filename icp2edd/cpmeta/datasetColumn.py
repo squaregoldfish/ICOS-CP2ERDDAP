@@ -31,13 +31,14 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasColumnTitle': 'dataset_column_column_title',
-    'cpmeta:hasValueFormat': 'Dataset_column_valueFormat',
-    'cpmeta:hasValueType': 'Dataset_variable_value_type',   # TODO see how to get it through checkOnto
-    'cpmeta:isOptionalColumn': 'dataset_column_is_optional_column',
+    'cpmeta:hasColumnTitle': 'column_title',  # Warning: linked to:
+    #                                         #
+    'cpmeta:hasValueFormat': 'format',
+    'cpmeta:hasValueType': 'type',   # TODO see how to get it through checkOnto
+    'cpmeta:isOptionalColumn': 'is_optional_column',
     'cpmeta:isQualityFlagFor': 'QualityFlagFor',  # Warning: linked to:
     #                                             # - superIcpObj.py:_getSubAttr(): elif k in 'QualityFlagFor':
-    'cpmeta:isRegexColumn': 'dataset_column_is_regex_column'
+    'cpmeta:isRegexColumn': 'is_regex_column'
 }
 # list of equivalent class
 _equivalentClass = []

@@ -31,7 +31,7 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasGoodFlagValue': 'object_format_good_flag_value'
+    'cpmeta:hasGoodFlagValue': 'good_flag_value'
 }
 # list of equivalent class
 _equivalentClass = []

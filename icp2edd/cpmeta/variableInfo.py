@@ -31,8 +31,8 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasMaxValue': 'variable_info_max_value',
-    'cpmeta:hasMinValue': 'variable_info_min_value'
+    'cpmeta:hasMaxValue': 'max_value',
+    'cpmeta:hasMinValue': 'min_value'
 }
 # list of equivalent class
 _equivalentClass = []

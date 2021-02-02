@@ -31,11 +31,11 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasHideFromSearchPolicy': 'project_hide_from_search_policy',
-    'cpmeta:hasKeywords': 'project_keyword',
-    'cpmeta:hasPolicy': 'project_policy',
-    'cpmeta:hasSkipPidMintingPolicy': 'project_skip_pid_minting_policy',
-    'cpmeta:hasSkipStoragePolicy': 'project_skip_storage_policy'
+    'cpmeta:hasHideFromSearchPolicy': 'hide_from_search_policy',
+    'cpmeta:hasKeywords': 'keywords',
+    'cpmeta:hasPolicy': 'policy',
+    'cpmeta:hasSkipPidMintingPolicy': 'skip_pid_minting_policy',
+    'cpmeta:hasSkipStoragePolicy': 'skip_storage_policy'
 }
 # list of equivalent class
 _equivalentClass = []

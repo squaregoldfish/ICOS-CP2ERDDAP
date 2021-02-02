@@ -31,13 +31,13 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasColumnTitle': 'dataset_variable_column_title',
-    'cpmeta:hasValueType': 'Dataset_variable_value_type',
-    'cpmeta:hasVariableTitle': 'dataset_variable_variable_title',  # variable_name ? see http://meta.icos-cp.eu/resources/cpmeta/co2flux_land_flow_rate
-    'cpmeta:isOptionalColumn': 'dataset_variable_is_optional_column',
-    'cpmeta:isOptionalVariable': 'dataset_variable_is_optional_variable',
-    'cpmeta:isRegexColumn': 'dataset_variable_is_regex_column',
-    'cpmeta:isRegexVariable': 'dataset_variable_is_regex_variable'
+    'cpmeta:hasColumnTitle': 'column_title',
+    'cpmeta:hasValueType': 'type',
+    'cpmeta:hasVariableTitle': 'variable_title',  # variable_name ? see http://meta.icos-cp.eu/resources/cpmeta/co2flux_land_flow_rate
+    'cpmeta:isOptionalColumn': 'is_optional_column',
+    'cpmeta:isOptionalVariable': 'is_optional_variable',
+    'cpmeta:isRegexColumn': 'is_regex_column',
+    'cpmeta:isRegexVariable': 'is_regex_variable'
 }
 # list of equivalent class
 _equivalentClass = []

@@ -31,8 +31,8 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasIcon': 'data_theme_icon',
-    'cpmeta:hasMarkerIcon': 'data_theme_marker_icon'
+    'cpmeta:hasIcon': 'icon',
+    'cpmeta:hasMarkerIcon': 'marker_icon'
 }
 # list of equivalent class
 _equivalentClass = []

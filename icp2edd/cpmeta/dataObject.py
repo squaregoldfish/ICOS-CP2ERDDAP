@@ -37,16 +37,14 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasActualVariable': 'Data_object_variable_info',
-    'cpmeta:hasFormatSpecificMetadata': 'data_object_format_specific_metadata',
-    'cpmeta:hasKeyword': 'data_object_keyword',
-    'cpmeta:hasKeywords': 'data_object_keywords',
-    'cpmeta:hasObjectSpec': 'Data_object_spec',
-    'cpmeta:hasSpatialCoverage': 'Data_object_spatial_coverage',
-    'cpmeta:hasTemporalResolution': 'data_object_temporal_resolution',  # time_coverage_resolution ?
-    'cpmeta:hasVariableName': 'data_object_variable',
-    'cpmeta:wasAcquiredBy': 'Data_object_acquisition',
-    'cpmeta:wasProducedBy': 'Data_object_production'
+    'cpmeta:hasActualVariable': 'variable',
+    'cpmeta:hasFormatSpecificMetadata': 'format',
+    'cpmeta:hasKeyword': 'keyword',
+    'cpmeta:hasKeywords': 'keywords',
+    'cpmeta:hasObjectSpec': 'specification',  # Data Object specification
+    'cpmeta:hasSpatialCoverage': 'location',
+    'cpmeta:hasTemporalResolution': 'temporal_resolution',  # time_coverage_resolution ?
+    'cpmeta:hasVariableName': 'variable_name'
 }
 # list of equivalent class
 _equivalentClass = ['SimpleDataObject', 'SpatialDataObject']
@@ -135,11 +133,11 @@ class DataObject(StaticObject):
             # there is at least one binding covering the optional "opt", too
             # uri = binding['uri'].value  # Warning do not convert to Path (https:// => https./)
             pid = uri.split("/")[-1]
-            # Warning: linked to staticObject.py 'cpmeta:hasName': 'static_object_name'
-            if len(binding['static_object_name']) > 1:
+            # Warning: linked to staticObject.py 'cpmeta:hasName': 'filename'
+            if len(binding['filename']) > 1:
                 _logger.critical(f"several filenames associated to one uri, meta:\n{pformat(binding)}")
             else:
-                filename = Path(binding['static_object_name'][0].value)
+                filename = Path(binding['filename'][0].value)
                 stemname = filename.stem
 
                 dirout = setupcfg.datasetCsvPath / stemname

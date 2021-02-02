@@ -31,21 +31,21 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasCitationString': 'static_object_citation',
-    'cpmeta:hasDoi': 'static_object_doi',
-    'cpmeta:hasName': 'static_object_name',  # Warning: linked to:
-    #                                        # - dataObject.py: filename = Path(val['static_object_name'].value)
-    #                                        # - superIcpObj.py: fname = self.m['DataObject'][k]['static_object_name'...
-    'cpmeta:hasSha256sum': 'static_object_sha256_sum',
-    'cpmeta:hasSizeInBytes': 'static_object_size_in_bites',
+    'cpmeta:hasCitationString': 'citation',
+    'cpmeta:hasDoi': 'doi',
+    'cpmeta:hasName': 'filename',  # Warning: linked to:
+    #                              # - dataObject.py: filename = Path(val['static_object_name'].value)
+    #                              # - superIcpObj.py: fname = self.m['DataObject'][k]['static_object_name'...
+    'cpmeta:hasSha256sum': 'sha256_sum',
+    'cpmeta:hasSizeInBytes': 'size_in_bites',
     'cpmeta:isNextVersionOf': 'NextVersionOf',  # Warning: linked to:
     #                                           # - superIcpObj.py:_getSubAttr(): elif k in 'NextVersionOf':
-    'cpmeta:wasAcquiredBy': 'Static_object_acquirer',
-    'cpmeta:wasProducedBy': 'Static_object_producer',
-    'cpmeta:wasSubmittedBy': 'Static_object_data_submission',
+    'cpmeta:wasAcquiredBy': 'acquisition',
+    'cpmeta:wasProducedBy': 'production',
+    'cpmeta:wasSubmittedBy': 'submission',
     'prov:hadPrimarySource': 'PrimarySource',  # Warning: linked to:
     #                                          # - superIcpObj.py:_getSubAttr(): elif k in 'PrimarySource':
-    'prov:wasGeneratedBy': 'static_object_generator',
+    'prov:wasGeneratedBy': 'generated_by',
     'prov:wasRevisionOf': 'RevisionOf'  # Warning: linked to:
     #                                   # - superIcpObj.py:_getSubAttr(): elif k in 'RevisionOf':
 }

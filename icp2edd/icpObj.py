@@ -365,15 +365,6 @@ class ICPObj(object):
             #     for k, v in binding.items():
             #         print('\tkey:',k,'\n\t\tValue:',v)
 
-    # def _renameKeyDic(self, _):
-    #    """
-    #    rename dictionary keys:
-    #    :return: renamed dictionary
-    #    """
-    #    for oldKey, newKey in self._convAttr.items():
-    #        _ = dict((newKey, v) if k == oldKey else (k, v) for k, v in _.items())
-    #    return _
-
     def _filterLimit(self, limit_=0):
         """
         create a string to inject into sparql queries to limit the

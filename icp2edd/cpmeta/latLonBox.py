@@ -31,10 +31,10 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasEasternBound': 'latlon_box_eastern_bound',
-    'cpmeta:hasNothernBound': 'latlon_box_northern_bound',
-    'cpmeta:hasSouthernBound': 'latlon_box_southern_bound',
-    'cpmeta:hasWesternBound': 'latlon_box_western_bound'
+    'cpmeta:hasEasternBound': 'eastern_bound',
+    'cpmeta:hasNothernBound': 'northern_bound',
+    'cpmeta:hasSouthernBound': 'southern_bound',
+    'cpmeta:hasWesternBound': 'western_bound'
 }
 # list of equivalent class
 _equivalentClass = ['SpatialCoverage']

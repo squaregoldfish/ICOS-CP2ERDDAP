@@ -31,9 +31,9 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasColumn': 'Dataset_spec_column',
-    'cpmeta:hasTemporalResolution': 'dataset_spec_temporal_resolution',  # time_coverage_resolution ? + cf dataObject
-    'cpmeta:hasVariable': 'Dataset_spec_variable'
+    'cpmeta:hasColumn': 'dataset_column',
+    'cpmeta:hasTemporalResolution': 'temporal_resolution',  # time_coverage_resolution ? + cf dataObject
+    'cpmeta:hasVariable': 'variable'
 }
 # list of equivalent class
 _equivalentClass = []

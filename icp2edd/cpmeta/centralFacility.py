@@ -31,7 +31,7 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:hasFunding': 'Central_facility_funding'
+    'cpmeta:hasFunding': 'funding'
 }
 # list of equivalent class
 _equivalentClass = []

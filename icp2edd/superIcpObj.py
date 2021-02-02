@@ -35,6 +35,10 @@ _logger = logging.getLogger(__name__)
 list_VariableObject = ["DatasetVariable", "DatasetColumn"]
 list_DataObject = ["DataObject"]
 
+# separator between object and attribute
+_sep = '_'
+dict_convAttr = {'type' + _sep + 'units': 'units'}
+
 
 # ----------------------------------------------
 class SuperICPObj(object):
@@ -49,6 +53,7 @@ class SuperICPObj(object):
 
         # list uri of all datasets already loaded
         listuri = self._listDatasetLoaded()
+        #  listuri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
         try:
             _logger.info('get DataObject metadata from ICOS CP')
             _ = DataObject(uri=listuri)
@@ -88,6 +93,15 @@ class SuperICPObj(object):
 
         return {**self.DataObject, **self.DataVariable}
 
+    def _renameKeyDic(self, _):
+       """
+       rename dictionary keys:
+       :return: renamed dictionary
+       """
+       for oldKey, newKey in dict_convAttr.items():
+           _ = dict((newKey, v) if k == oldKey else (k, v) for k, v in _.items())
+       return _
+
     def repack(self, uri_):
         # TODO see if it could be merge with getSubAttr
         def spread(uri_, exclude_=[], cnt_=0):
@@ -118,16 +132,19 @@ class SuperICPObj(object):
                             if objtype not in exclude_:
                                 if v.value in self.tmp.keys():
                                     for kk, vv in self.tmp[v.value].items():
-                                        kkk = k + '/' + kk
+                                        # separator between object and attribute
+                                        kkk = k + _sep + kk
                                         d[kkk] = vv
                                 else:
                                     dd = spread(v.value, exclude_=exclude_, cnt_=cnt_)
                                     for kk, vv in dd.items():
-                                        kkk = k + '/' + kk
+                                        # separator between object and attribute
+                                        kkk = k + _sep + kk
                                         d[kkk] = vv
                             else:
                                 self.repack(v.value)
 
+                        d = self._renameKeyDic(d)
                         self.tmp[uri_] = util.combine_dict_in_list(d, self.tmp[uri_])
 
             return self.tmp[uri_]
@@ -137,14 +154,14 @@ class SuperICPObj(object):
         objtype = _.objtype
 
         if objtype in list_DataObject:
-            filename = Path(self.meta[uri_]['static_object_name'][0].value)
+            filename = Path(self.meta[uri_]['filename'][0].value)
             # datasetId = case.camel('icos_' + filename.stem, sep='_')
             datasetId = util.datasetidCase(filename)
 
             self.DataObject[datasetId] = spread(uri_, exclude_=list_VariableObject)
 
         elif objtype in list_VariableObject:
-            varname = self.meta[uri_]['dataset_column_column_title'][0].value
+            varname = self.meta[uri_]['column_title'][0].value
             # variableId = case.camel(varname, sep='_')
             variableId = util.filterBracket(varname)
 
@@ -176,7 +193,7 @@ class SuperICPObj(object):
     #                     objtype = ICPObj(uri=uri).objtype
 
     #                     if objtype in list_DataObject:
-    #                         filename = Path(self.meta[uri]['static_object_name'][0].value)
+    #                         filename = Path(self.meta[uri]['filename'][0].value)
     #                         # datasetId = case.camel('icos_' + filename.stem, sep='_')
     #                         datasetId = util.datasetidCase(filename)
     #                         # self.DataObject[datasetId] = _

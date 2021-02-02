@@ -31,15 +31,15 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:asGeoJSON': 'spatial_coverage_geo_json',
-    'cpmeta:hasEasternBound': 'spatial_coverage_eastern_bound',
-    'cpmeta:hasElevation': 'spatial_coverage_elevation',
-    'cpmeta:hasLatitude': 'spatial_coverage_latitude',
-    'cpmeta:hasLongitude': 'spatial_coverage_longitude',
-    'cpmeta:hasNothernBound': 'spatial_coverage_northern_bound',
-    'cpmeta:hasSouthernBound': 'spatial_coverage_southern_bound',
-    'cpmeta:hasWesternBound': 'spatial_coverage_western_bound',
-    'geosparql:hasSerialization': 'spatial_coverage_serialization'
+    'cpmeta:asGeoJSON': 'geo_json',
+    'cpmeta:hasEasternBound': 'eastern_bound',
+    'cpmeta:hasElevation': 'elevation',
+    'cpmeta:hasLatitude': 'latitude',
+    'cpmeta:hasLongitude': 'longitude',
+    'cpmeta:hasNothernBound': 'northern_bound',
+    'cpmeta:hasSouthernBound': 'southern_bound',
+    'cpmeta:hasWesternBound': 'western_bound',
+    'geosparql:hasSerialization': 'serialization'
 }
 # list of equivalent class
 _equivalentClass = ['LatLonBox']

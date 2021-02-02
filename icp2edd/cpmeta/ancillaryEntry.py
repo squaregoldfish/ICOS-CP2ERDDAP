@@ -32,7 +32,7 @@ _logger = logging.getLogger(__name__)
 # Note: 'object/value' will be the output attribute name
 _attr = {
     'cpmeta:hasAncillaryDataValue': 'ancillary_data_value',
-    'cpmeta:hasAncillaryObjectValue': 'Ancillary_object_value'
+    'cpmeta:hasAncillaryObjectValue': 'ancillary_object_value'
 }
 # list of equivalent class
 _equivalentClass = []

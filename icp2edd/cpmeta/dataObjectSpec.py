@@ -31,14 +31,14 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:containsDataset': 'Data_object_spec_dataset_spec',
-    'cpmeta:hasAssociatedProject': 'Data_object_spec_associated_project',
-    'cpmeta:hasDataLevel': 'icos_data_level',  # Data level according to ICOS classification ?
-    'cpmeta:hasDataTheme': 'Data_object_spec_data_theme',
-    'cpmeta:hasDocumentationObject': 'Data_object_spec_documentation_object',
-    'cpmeta:hasEncoding': 'Data_object_spec_object_encoding',
-    'cpmeta:hasFormat': 'Data_object_spec_object_format',
-    'cpmeta:hasKeywords': 'data_object_spec_keywords'
+    'cpmeta:containsDataset': 'dataset',
+    'cpmeta:hasAssociatedProject': 'project',
+    'cpmeta:hasDataLevel': 'data_level',  # Data level according to ICOS classification ?
+    'cpmeta:hasDataTheme': 'data_theme',
+    'cpmeta:hasDocumentationObject': 'documentation',
+    'cpmeta:hasEncoding': 'encoding',
+    'cpmeta:hasFormat': 'format',
+    'cpmeta:hasKeywords': 'keywords'
 }
 # list of equivalent class
 _equivalentClass = []

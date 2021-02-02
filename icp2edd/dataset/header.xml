@@ -65,33 +65,40 @@ ERDDAP follows
 
 <startBodyHtml5><![CDATA[
 <body>
-<!-- table class="compact nowrap" style="width:100%; background-color:#128CB5;" -->
-<table class="compact nowrap" style="width:100%; background-color:#46a9b3;">
-  <tr>
-    <td style="text-align:center; width:80px;"><a rel="bookmark"
-      href="https://www.bcdc.no/"><img
-      title="Bjerknes Climate Data Centre"
-      src="&erddapUrl;/images/bccr_t25.png" alt="BCDC"
-      style="vertical-align:middle;"></a></td>
-    <td style="text-align:left; font-size:x-large; color:#FFFFFF; ">
-      <strong>ERDDAP</strong>
-      <br><small><small><small>Easier access to scientific data</small></small></small>
-      </td>
-    <td style="text-align:right; font-size:small;">
-      &loginInfo; &nbsp; &nbsp;
-      <br>Brought to you by
-      <a title="National Oceanic and Atmospheric Administration" rel="bookmark"
-      href="https://www.noaa.gov">NOAA</a>
-      <a title="National Marine Fisheries Service" rel="bookmark"
-      href="https://www.fisheries.noaa.gov">NMFS</a>
-      <a title="Southwest Fisheries Science Center" rel="bookmark"
-      href="https://swfsc.noaa.gov">SWFSC</a>
-      <a title="Environmental Research Division" rel="bookmark"
-      href="https://swfsc.noaa.gov/textblock.aspx?Division=ERD&amp;id=1315&amp;ParentMenuId=200">ERD</a>
-      &nbsp; &nbsp;
-      </td>
-  </tr>
-</table>
+<table class="compact nowrap"
+       style="width:100%;
+              background-color:#46a9b3;
+              background-image: url('&erddapUrl;/images/icos-header.jpeg');
+              background-repeat: no-repeat;
+              background-size: 100% 150px;"
+       >
+    <tr>
+        <!-- TODO check width between background and logo -->
+        <td style="text-align:center; width:80px;">
+            <a rel="bookmark" href="https://www.icos-cp.eu/">
+                <img title="Integrated Carbon Observation System"
+                     src="&erddapUrl;/images/icos-logo.png"
+                     alt="ICOS"
+                     style="vertical-align:middle;">
+                </a>
+            </td>
+        <td style="text-align:left; font-size:x-large; color:#FFFFFF; ">
+            <strong>ERDDAP</strong>
+            <br><small><small><small>Easier access to scientific data</small></small></small>
+            </td>
+        <td style="text-align:right;  vertical-align: bottom; font-size:small;">
+            &loginInfo; &nbsp; &nbsp;
+            <br>Brought to you by
+            <a title="Integrated Carbon Observation System" rel="bookmark"
+               href="https://www.icos-cp.eu">ICOS</a>
+            <a title="Bjerknes Climate Data Centre" rel="bookmark"
+               href="https://www.bcdc.no/">BCDC</a>
+            <a title="Lund University" rel="bookmark"
+               href="https://www.lunduniversity.lu.se/">LU</a>
+            &nbsp; &nbsp;
+            </td>
+        </tr>
+    </table>
 ]]></startBodyHtml5>
 
 <theShortDescriptionHtml><![CDATA[

@@ -31,13 +31,13 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    'cpmeta:wasHostedBy': 'Data_submission_hosted_by',
-    'cpmeta:wasParticipatedInBy': 'data_submission_participated_in_by',
-    'cpmeta:wasPerformedAt': 'Data_submission_performed_at',
-    'cpmeta:wasPerformedBy': 'Data_submission_perform_by',
-    'prov:endedAtTime': 'data_submission_ended_at_time',
-    'prov:startedAtTime': 'data_submission_started_at_time',
-    'prov:wasAssociatedWith': 'Data_submission_associated_with'
+    'cpmeta:wasHostedBy': 'hosted_by',
+    'cpmeta:wasParticipatedInBy': 'participated_in_by',
+    'cpmeta:wasPerformedAt': 'performed_at',
+    'cpmeta:wasPerformedBy': 'performed_by',
+    'prov:endedAtTime': 'ended_at_time',
+    'prov:startedAtTime': 'started_at_time',
+    'prov:wasAssociatedWith': 'thematic_center'
 }
 # list of equivalent class
 _equivalentClass = []
