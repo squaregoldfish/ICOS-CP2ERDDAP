@@ -5,6 +5,7 @@
 # ----------------------------------------------
 # import from standard lib
 import logging
+from time import strftime, localtime
 # import from other lib
 # import from my project
 import icp2edd.setupcfg as setupcfg
@@ -13,7 +14,7 @@ import icp2edd.csv4Erddap as c4edd
 from icp2edd.superIcpObj import SuperICPObj
 # import all class from submodules in cpmeta
 from icp2edd.cpmeta import *
-import timing
+import icp2edd.timing
 
 
 # ----------------------------------------------
@@ -116,6 +117,10 @@ def main():
     # store ending submitted date of current update
     setupcfg.add_last_subm()
 
+    # add footer to log file
+    _logger.info(f'-------------------')
+    _logger.info(f'end time: {strftime("%Y-%m-%d %H:%M:%S", localtime())}')
+    _logger.info(f'-------------------')
     print(f"See output log for more details: {setupcfg.log_filename} ")
 
 

@@ -14,6 +14,7 @@ import os
 import warnings
 import argparse
 import datetime as dt
+from time import strftime, localtime
 # import from other lib
 import confuse  # Initialize config with your app
 from dateutil.parser import parse
@@ -376,6 +377,7 @@ def _setup_logger(config_):
     logging.info(f'-------------------')
     logging.info(f'package: {icp2edd.__name__}')
     logging.info(f'version: {icp2edd.__version__}')
+    logging.info(f'start time: {strftime("%Y-%m-%d %H:%M:%S", localtime())}')
     logging.info(f'-------------------')
 
 
