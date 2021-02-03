@@ -1,6 +1,14 @@
 CHANGES
 =======
 
+## [0.6.0] - 2021-02-03
+### Added
+* use scheduler to run main script, as well as checkOntology
+
+## [0.5.1] - 2021-02-03
+### Fixed
+* fix Request-URI too large
+
 ## [0.5.0] - 2021-02-02
 
 ### Added

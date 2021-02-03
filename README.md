@@ -3,8 +3,6 @@
 ---
 ## To run 'module.__main__' from terminal
 $ python3 -m icp2edd  
-or  
-$ python3 wrapper.py
 
 ### To get help/usage message
 $ python3 -m icp2edd --help
@@ -18,6 +16,9 @@ $ python3 wrapper.py --check
 
 ### To get help/usage message
 $ python3 -m icp2edd.checkOntology --help
+
+## To run icp2edd and checkOntology inside a scheduler
+$ python3 wrapper.py
 
 ## Configuration file
 put your own configuration file in
