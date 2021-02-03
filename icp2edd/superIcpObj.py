@@ -55,12 +55,14 @@ class SuperICPObj(object):
         listuri = self._listDatasetLoaded()
         #  listuri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
         try:
-            _logger.info('get DataObject metadata from ICOS CP')
-            _ = DataObject(uri=listuri)
-            _.getMeta()
-            _.show()
-            #
-            self.meta = _.meta
+            # to avoid too large Request-URI, loop over listuri
+            for uri in listuri:
+                _logger.info('get DataObject metadata from ICOS CP')
+                _ = DataObject(uri=uri)
+                _.getMeta()
+                _.show()
+                #
+                self.meta = {**_.meta, **self.meta}
         except Exception:
             _logger.exception('Something goes wrong when loading metadata from DataObject')
             raise  # Throw exception again so calling code knows it happened
