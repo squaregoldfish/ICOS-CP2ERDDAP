@@ -1,7 +1,7 @@
 # ICOS-CP2ERDDAP
 
 ---
-## To run 'module.__main__' from terminal
+## To run 'package' from terminal
 $ python3 -m icp2edd  
 
 ### To get help/usage message
@@ -61,7 +61,36 @@ log:
 > **NOTE:** arguments overwrite value in configuration file.
 
 ## To run tests
-see [here](tests/README.md)
+see [HERE](tests/README.md)
 
 ## To install set up/update package library
 see [PACKAGE.md](PACKAGE.md)
+
+## Use cron to schedule job
+$ crontab -e  
+```bash
+# crontab -e
+SHELL=/bin/bash
+MAILTO=jpa029@uib.no
+
+# Example of job definition:
+# m h dom mon dow   command
+
+# * * * * *  command to execute
+# ┬ ┬ ┬ ┬ ┬
+# │ │ │ │ │
+# │ │ │ │ │
+# │ │ │ │ └───── day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# │ │ │ └────────── month (1 - 12)
+# │ │ └─────────────── day of month (1 - 31)
+# │ └──────────────────── hour (0 - 23)
+# └───────────────────────── min (0 - 59)
+
+# For details see man 4 crontabs
+
+# daily update (at 00:30) of ICOS-CP data portal synchronisation with ICOS-CP ERDDAP server
+30 00 * * * python3 -m icp2edd
+
+# weekly check (every monday at 01:30) of ICOS-CP data portal ontology
+30 01 1 * * python3 -m icp2edd.checkOntology
+```

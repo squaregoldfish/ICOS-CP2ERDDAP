@@ -26,10 +26,8 @@ handlers:
         formatter: error
         utc: True
         filename: ../log/debug.log
-        interval: 1
-        when: 'm'
-        # interval: 23
-        # when: 'h'
+        interval: 12
+        when: 'h'
         backupCount: 9
         encoding: utf8
 
