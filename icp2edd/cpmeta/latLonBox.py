@@ -32,7 +32,7 @@ _logger = logging.getLogger(__name__)
 # Note: 'object/value' will be the output attribute name
 _attr = {
     'cpmeta:hasEasternBound': 'eastern_bound',
-    'cpmeta:hasNothernBound': 'northern_bound',
+    'cpmeta:hasNorthernBound': 'northern_bound',
     'cpmeta:hasSouthernBound': 'southern_bound',
     'cpmeta:hasWesternBound': 'western_bound'
 }

@@ -9,15 +9,11 @@ $ python3 -m icp2edd --help
 
 # To run check of ICOS CP ontoloy
 $ python3 -m icp2edd.checkOntology  
-<!--
-or  
-$ python3 wrapper.py --check
--->
 
 ### To get help/usage message
 $ python3 -m icp2edd.checkOntology --help
 
-## To run icp2edd and checkOntology inside a scheduler
+## To run icp2edd and checkOntology inside a wrapper
 $ python3 wrapper.py
 
 ## Configuration file
@@ -32,9 +28,9 @@ paths:
     # dataset: path where store file from each dataset
     dataset:
         # path where store csv file from ICOS CP for each dataset
-        csv: '/home/jpa029/Data/ICOS2ERDDAP'
+        csv: '/home/jpa029/Data/ICOS2ERDDAP/dataset/csv'
         # path where store xml file from ICOS CP for each dataset
-        xml: '/home/jpa029/Data/ICOS2ERDDAP/dataset'
+        xml: '/home/jpa029/Data/ICOS2ERDDAP/dataset/xml'
     # log: path where store output log file
     log: '/home/jpa029/Data/ICOS2ERDDAP/log'
 
