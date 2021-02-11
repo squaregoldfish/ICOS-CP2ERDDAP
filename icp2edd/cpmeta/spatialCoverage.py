@@ -36,7 +36,7 @@ _attr = {
     'cpmeta:hasElevation': 'elevation',
     'cpmeta:hasLatitude': 'latitude',
     'cpmeta:hasLongitude': 'longitude',
-    'cpmeta:hasNothernBound': 'northern_bound',
+    'cpmeta:hasNorthernBound': 'northern_bound',
     'cpmeta:hasSouthernBound': 'southern_bound',
     'cpmeta:hasWesternBound': 'western_bound',
     'geosparql:hasSerialization': 'serialization'

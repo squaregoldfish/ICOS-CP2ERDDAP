@@ -43,7 +43,7 @@ _attr = {
     'cpmeta:hasLatitude': 'latitude',
     'cpmeta:hasLongitude': 'longitude',
     'cpmeta:hasMeanAnnualTemp': 'mean_annual_temperature',
-    'cpmeta:hasNothernBound': 'northern_bound',
+    'cpmeta:hasNorthernBound': 'northern_bound',
     'cpmeta:hasOperationalPeriod': 'operational_period',
     'cpmeta:hasResponsibleOrganization': 'organization',
     'cpmeta:hasSouthernBound': 'southern_bound',
