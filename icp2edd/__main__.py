@@ -9,6 +9,7 @@ from time import strftime, localtime
 # import from other lib
 # import from my project
 import icp2edd.setupcfg as setupcfg
+import icp2edd.parameters as parameters
 import icp2edd.xml4Erddap as x4edd
 import icp2edd.csv4Erddap as c4edd
 from icp2edd.superIcpObj import SuperICPObj
@@ -26,6 +27,9 @@ def main():
     # set up logger, paths, ...
     setupcfg.main()
     _logger = logging.getLogger(__name__)
+
+    # check parameters file
+    param = parameters.main()
 
     # First part get new dataObject on ICOS CP, and create associated ERDDAP dataset.xml
     _logger.info('-1- get new dataObject on ICOS CP, and create associated ERDDAP dataset.xml\n')

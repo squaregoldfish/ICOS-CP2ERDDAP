@@ -23,48 +23,14 @@ import icp2edd
 
 # --- module's variable ------------------------
 # public
-global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath, datasetCsvPath, logPath, icp2eddPath, \
-    submFrom, submUntil, product, lastversion, log_filename
+global erddapPath, erddapWebInfDir, erddapContentDir, \
+       datasetXmlPath, datasetCsvPath, \
+       icp2eddPath, logPath, log_filename, \
+       submFrom, submUntil, product, lastversion, \
+       authorised_product, extraParam
+
 # private
-global _update_log
-
-
-def _chk_subm_version(cfg_):
-    """ check submitted version
-    """
-    global lastversion
-
-    try:
-        lastversion = cfg_['subm']['version'].get(bool)
-    except confuse.exceptions.NotFoundError:
-        lastversion = None
-        # do not raise other exception as it will be by calling function
-
-
-def _chk_subm_product(cfg_):
-    """ check submitted product
-    """
-    global product
-
-    # Authorised product
-    try:
-        listProduct = cfg_['subm']['authorised_product'].get(list)
-    except confuse.exceptions.NotFoundError:
-        listProduct = None
-        # do not raise other exception as it will be by calling function
-
-    if listProduct is not None:
-        try:
-            product = cfg_['subm']['product'].as_choice(listProduct)
-        except confuse.exceptions.NotFoundError:
-            product = None
-            # do not raise other exception as it will be by calling function
-    else:
-        try:
-            product = cfg_['subm']['product'].get(str)
-        except confuse.exceptions.NotFoundError:
-            product = None
-            # do not raise other exception as it will be by calling function
+global _cfg_path, _update_log
 
 
 def add_last_subm():
@@ -97,7 +63,7 @@ def _get_last_subm():
         raise FileNotFoundError
 
 
-def _chk_subm_timeseries(dt_):
+def _chk_product_subm_timeseries(dt_):
     """ check submitted date (used to load dataset) time series
     """
     # last update to be used
@@ -115,7 +81,7 @@ def _chk_subm_timeseries(dt_):
             logging.debug(f" last ending date registered -{dref}- greater than starting date to be used -{duse}-")
 
 
-def _chk_subm_date(cfg_):
+def _chk_product_subm(cfg_):
     """ check submitted dates
 
     dates assume to be UTC
@@ -123,20 +89,30 @@ def _chk_subm_date(cfg_):
     global submFrom, submUntil
 
     try:
-        _ = cfg_['subm']['from'].get(str)
-        submFrom = parse(_).astimezone(tz=dt.timezone.utc).isoformat()
-        # check last update
-        _chk_subm_timeseries(submFrom)
+        _ = cfg_['product']['subm']['from'].get()
+        if _ is not None:
+            submFrom = parse(_).astimezone(tz=dt.timezone.utc).isoformat()
+        else:
+            submFrom = None
     except confuse.exceptions.NotFoundError:
-        submFrom = _get_last_subm()
+        submFrom = None
     except Exception:
         logging.exception(f'Invalid date format (submitted from); '
                           f'Check arguments/configuration file(s)')
         raise  # Throw exception again so calling code knows it happened
 
+    if submFrom is None:
+        submFrom = _get_last_subm()
+    else:
+        # check last update
+        _chk_product_subm_timeseries(submFrom)
+
     try:
-        _ = cfg_['subm']['until'].get(str)
-        submUntil = parse(_).astimezone(tz=dt.timezone.utc).isoformat()
+        _ = cfg_['product']['subm']['until'].get()
+        if _ is not None:
+            submUntil = parse(_).astimezone(tz=dt.timezone.utc).isoformat()
+        else:
+            submUntil = None
     except confuse.exceptions.NotFoundError:
         submUntil = None
     except Exception:
@@ -145,108 +121,195 @@ def _chk_subm_date(cfg_):
         raise  # Throw exception again so calling code knows it happened
 
 
-def _chk_subm(cfg_=None):
+def _chk_config_product(cfg_):
     """ check submitted dates, product and version
 
     """
-    if cfg_ is None:
-        cfg_ = confuse.Configuration('icp2edd', modname=icp2edd.__pkg_cfg__)  # Get a value from your YAML file
-        _ = Path(cfg_._package_path)
-        cfg_.default_config_path = _ / confuse.DEFAULT_FILENAME
-
+    global authorised_product, product
+    global lastversion
     try:
-        _chk_subm_date(cfg_)
-        _chk_subm_product(cfg_)
-        _chk_subm_version(cfg_)
+        # check product submission
+        _chk_product_subm(cfg_)
+
+        # check product type
+        try:
+            product = cfg_['product']['type'].as_choice(authorised_product)
+        except confuse.exceptions.NotFoundError:
+            product = None
+            # do not raise other exception as it will be by calling function
+
+        # check product version
+        try:
+            lastversion = cfg_['product']['last'].get(bool)
+        except confuse.exceptions.NotFoundError:
+            lastversion = None
+            # do not raise other exception as it will be by calling function
+
     except Exception:
         logging.exception("Something goes wrong when checking 'submission' parameters")
         raise  # Throw exception again so calling code knows it happened
 
 
-def _chk_path_log(cfg_):
-    """ check path to log files, and set up global variable
+def _search_file(cfg_, filename_):
+    """ search file in several directory
 
-    path where log files will be stored
+    look for file 'filename_' in:
+    - local directory or given path
+    - package directory
+    - user    config directory
+    - package config directory
+
+    :param cfg_:
+    :param filename_: name of the file search
+    :return: absolute path to filename_
     """
-    global logPath
+    global _cfg_path
 
-    logPath = Path(cfg_['paths']['log'].get(str))
-    if not logPath.is_dir():
-        logPath.mkdir(parents=True, exist_ok=True)
-        warnings.warn('log path {} did not exist before.\n Check config file(s) {} and/or {}'.
-                      format(logPath, cfg_.user_config_path(), cfg_.default_config_path))
+    # check file exist
+    if Path(filename_).is_file():
+        # local directory
+        return Path(filename_).absolute()
+    elif Path(icp2eddPath / filename_).is_file():
+        # ~/path/to/package/ directory
+        return Path(icp2eddPath / filename_)
+    elif Path(_cfg_path / filename_).is_file():
+        # package config directory
+        # ~/path/to/package/cfg directory
+        return Path(_cfg_path / filename_)
+    elif Path(Path(cfg_.config_dir()) / filename_).is_file():
+        # user config directory
+        # ~/.config/<package> directory
+        return Path(Path(cfg_.config_dir()) / filename_)
+    else:
+        logging.exception(f"can not find file -{filename_}-; "
+                          f'Check arguments/configuration file(s)')
+        raise FileNotFoundError
 
-    logging.debug(f'logPath: {logPath}')
 
-
-def _chk_path_csv(cfg_):
-    """ check path to csv files, and set up global variable
-
-    path where csv files will be stored
+def _chk_config_extra(cfg_):
     """
-    global datasetCsvPath
-
-    datasetCsvPath = Path(cfg_['paths']['dataset']['csv'].as_filename())
-    if not datasetCsvPath.is_dir():
-        raise FileNotFoundError('Can not find path where store dataset csv file {}.\n'
-                                'Check config file(s) {} and/or {}'.format(datasetCsvPath,
-                                                                           cfg_.user_config_path(),
-                                                                           cfg_.default_config_path))
-    logging.debug(f'datasetCsvPath: {datasetCsvPath}')
-
-
-def _chk_path_edd(cfg_):
-    """ check path to ERDDAP, and set up global variables
-
-    path where ERDDAP has been previously installed, as well as
-    path where xml files will be stored
     """
-    global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath
-
-    erddapPath = Path(cfg_['paths']['erddap'].get(str))
-    if not erddapPath.is_dir():
-        raise FileNotFoundError('can not find ERDDAP path {}.\n'
-                                'Check config file(s) {} and/or {}'.format(erddapPath,
-                                                                           cfg_.user_config_path(),
-                                                                           cfg_.default_config_path))
-    logging.debug(f'erddapPath: {erddapPath}')
-
-    erddapWebInfDir = erddapPath / 'webapps' / 'erddap' / 'WEB-INF'
-    if not erddapWebInfDir.is_dir():
-        raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
-                                'check ERDDAP installation. '.format(erddapWebInfDir))
-    logging.debug(f'erddapWebInfDir: {erddapWebInfDir}')
-
-    erddapContentDir = erddapPath / 'content' / 'erddap'
-    if not erddapContentDir.is_dir():
-        raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
-                                'check ERDDAP installation'.format(erddapContentDir))
-    logging.debug(f'erddapContentDir: {erddapContentDir}')
-
-    datasetXmlPath = Path(cfg_['paths']['dataset']['xml'].as_filename())
-    if not datasetXmlPath.is_dir():
-        raise FileNotFoundError('can not find path where store dataset xml file {}.\n'
-                                'Check config file(s) {} and/or {}'.format(datasetXmlPath,
-                                                                           cfg_.user_config_path(),
-                                                                           cfg_.default_config_path))
-    logging.debug(f'datasetXmlPath: {datasetXmlPath}')
-
-
-def _chk_path(cfg_=None):
-    """
-
-    """
-    if cfg_ is None:
-        cfg_ = confuse.Configuration('icp2edd', modname=icp2edd.__pkg_cfg__)  # Get a value from your YAML file
-        _ = Path(cfg_._package_path)
-        cfg_.default_config_path = _ / confuse.DEFAULT_FILENAME
+    global extraParam
 
     try:
-        _chk_path_edd(cfg_)
-        _chk_path_csv(cfg_)
-        _chk_path_log(cfg_)
+        extraParam = cfg_['extra']['parameters'].get(str)
+    except confuse.exceptions.NotFoundError:
+        logging.exception(f'Can not find extra parameters; '
+                          f'Check arguments/configuration file(s)')
+        raise  # Throw exception again so calling code knows it happened
+    except Exception:
+        logging.exception(f'Invalid parameters yaml filename; '
+                          f'Check arguments/configuration file(s)')
+        raise  # Throw exception again so calling code knows it happened
+
+    # check config file exist
+    extraParam = _search_file(cfg_, extraParam)
+
+
+def _chk_config_authorised(cfg_):
+    """
+    """
+    global authorised_product
+
+    # Authorised product
+    try:
+        authorised_product = cfg_['authorised']['product'].get(list)
+    except confuse.exceptions.NotFoundError:
+        authorised_product = None
+        # do not raise other exception as it will be by calling function
+
+
+def _chk_config_log(cfg_):
+    """
+    """
+    # TODO
+    pass
+
+
+def _chk_config_paths(cfg_):
+    """
+    """
+    try:
+        # check path to ERDDAP, and set up global variables
+        #   path where ERDDAP has been previously installed, as well as
+        #   path where xml files will be stored
+        global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath
+
+        erddapPath = Path(cfg_['paths']['erddap'].get(str))
+        if not erddapPath.is_dir():
+            raise FileNotFoundError('can not find ERDDAP path {}.\n'
+                                    'Check config file(s) {} and/or {}'.format(erddapPath,
+                                                                               cfg_.user_config_path(),
+                                                                               cfg_.default_config_path))
+        logging.debug(f'erddapPath: {erddapPath}')
+
+        # erddapWebInfDir = erddapPath / 'webapps' / <ROOT> / 'WEB-INF'
+        erddapWebInfDir = Path(cfg_['paths']['webinf'].get(str))
+        if not erddapWebInfDir.is_dir():
+            raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
+                                    'check ERDDAP installation. '.format(erddapWebInfDir))
+        logging.debug(f'erddapWebInfDir: {erddapWebInfDir}')
+
+        erddapContentDir = erddapPath / 'content' / 'erddap'
+        if not erddapContentDir.is_dir():
+            raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
+                                    'check ERDDAP installation'.format(erddapContentDir))
+        logging.debug(f'erddapContentDir: {erddapContentDir}')
+
+        datasetXmlPath = Path(cfg_['paths']['dataset']['xml'].as_filename())
+        if not datasetXmlPath.is_dir():
+            raise FileNotFoundError('can not find path where store dataset xml file {}.\n'
+                                    'Check config file(s) {} and/or {}'.format(datasetXmlPath,
+                                                                               cfg_.user_config_path(),
+                                                                               cfg_.default_config_path))
+        logging.debug(f'datasetXmlPath: {datasetXmlPath}')
+
+        # check path to csv files, and set up global variable
+        #   path where csv files will be stored
+        global datasetCsvPath
+
+        datasetCsvPath = Path(cfg_['paths']['dataset']['csv'].as_filename())
+        if not datasetCsvPath.is_dir():
+            raise FileNotFoundError('Can not find path where store dataset csv file {}.\n'
+                                    'Check config file(s) {} and/or {}'.format(datasetCsvPath,
+                                                                               cfg_.user_config_path(),
+                                                                               cfg_.default_config_path))
+        logging.debug(f'datasetCsvPath: {datasetCsvPath}')
+
+        # check path to log files, and set up global variable
+        #   path where log files will be stored
+        global logPath
+
+        logPath = Path(cfg_['paths']['log'].get(str))
+        if not logPath.is_dir():
+            logPath.mkdir(parents=True, exist_ok=True)
+            warnings.warn('log path {} did not exist before.\n Check config file(s) {} and/or {}'.
+                          format(logPath, cfg_.user_config_path(), cfg_.default_config_path))
+
+        logging.debug(f'logPath: {logPath}')
+
     except Exception:
         logging.exception('Something goes wrong when checking paths')
+        raise  # Throw exception again so calling code knows it happened
+
+
+def _chk_config(cfg_):
+    """
+    :param cfg_: config from confuse _setup_config
+    """
+    try:
+        # check paths parameters from configuration file(s)
+        _chk_config_paths(cfg_)
+        # check log parameters from configuration file(s)
+        _chk_config_log(cfg_)
+        # check authorised list from configuration file(s)
+        _chk_config_authorised(cfg_)
+        # check update parameters from configuration file(s)
+        _chk_config_extra(cfg_)
+        # check product parameters from configuration file(s)
+        _chk_config_product(cfg_)
+    except Exception:
+        logging.exception('Something goes wrong when checking configuration file')
         raise  # Throw exception again so calling code knows it happened
 
 
@@ -296,14 +359,14 @@ def _setup_logger(config_):
     > CRITICAL:
     > A serious error, indicating that the program itself may be unable to continue running.
     """
-    global log_filename
+    global log_filename, _cfg_path
 
-    cfg_path = Path(_find_package_path(icp2edd.__pkg_cfg__))
-    if not cfg_path.is_dir():
+    _cfg_path = Path(_find_package_path(icp2edd.__pkg_cfg__))
+    if not _cfg_path.is_dir():
         logging.exception('Can not find configuration path')
         raise FileNotFoundError
 
-    _logcfg = cfg_path / 'logging.yaml'
+    _logcfg = _cfg_path / 'logging.yaml'
     try:
         with open(_logcfg, 'rt') as file:
             cfg_log = yaml.safe_load(file.read())
@@ -337,7 +400,7 @@ def _setup_logger(config_):
 
             try:
                 # rename log file with config or parser value
-                _log_filename = config_['log']['filename'].get(str)
+                _log_filename = config_['log']['filename'].get()
                 if _log_filename is not None:
                     cfg_log['handlers']['file']['filename'] = _log_filename
             except confuse.exceptions.NotFoundError:
@@ -417,20 +480,37 @@ def _parse(logfile_):
                         help="logger path, where log will be stored",
                         dest='paths.log'
                         )
+    parser.add_argument("--param",
+                        type=str,
+                        help="parameters configuration file",
+                        dest='extra.parameters'
+                        )
     parser.add_argument("--from",
                         type=str,
                         help="download dataset submitted from",
-                        dest='subm.from'
+                        dest='product.subm.from'
                         )
     parser.add_argument("--until",
                         type=str,
                         help="download dataset submitted until",
-                        dest='subm.until'
+                        dest='product.subm.until'
                         )
-    parser.add_argument("--product",
+    parser.add_argument("--type",
                         type=str,
                         help="data 'type' to be used",
-                        dest='subm.product'
+                        dest='product.type'
+                        )
+    parser.add_argument("--arguments",
+                        action="store_const",
+                        const=True,
+                        help="print arguments value (from config file and/or inline argument) and exit",
+                        dest='arguments'
+                        )
+    parser.add_argument("--version",
+                        action="store_const",
+                        const=True,
+                        help="print release version and exit",
+                        dest='version'
                         )
 
     # parse arguments
@@ -502,6 +582,37 @@ def _default_logger():
     logging.captureWarnings(True)
 
 
+def _show_arguments(cfg_):
+    """ """
+    print(f"paths.erddap        : {erddapPath}")
+    print(f"paths.webinf        : {erddapWebInfDir}")
+    print(f"paths.dataset.csv   : {datasetCsvPath}")
+    print(f"paths.dataset.xml   : {datasetXmlPath}")
+    print(f"paths.log           : {logPath}\n")
+
+    print(f"log.filename        : {log_filename} ")
+    print(f"log.verbose         : {cfg_['log']['verbose']}  ")
+    print(f"log.level           : {cfg_['log']['level']}\n")
+
+    print(f"authorised.product  : {authorised_product}\n")
+
+    print(f"extra.parameters    : {extraParam}\n")
+
+    print(f"product.sub.from    : {submFrom}")
+    print(f"product.sub.until   : {submUntil}")
+    print(f"product.type        : {product}")
+    print(f"product.last        : {lastversion}")
+    exit(0)
+
+
+def _show_version():
+    """ """
+    # print release version
+    print(f'package: {icp2edd.__name__}')
+    print(f'version: {icp2edd.__version__}')
+    exit(0)
+
+
 def main(logfile_=None):
     """set up icp2edd
 
@@ -523,20 +634,20 @@ def main(logfile_=None):
     # read command line arguments
     args = _parse(logfile_)
 
+    if args.version:
+        _show_version()
+
     # overwrite configuration file parameter with parser arguments
     config.set_args(args, dots=True)
 
     # read logging configuration file
     _setup_logger(config)
 
-    # check paths from configuration file(s)
-    _chk_path(config)
+    # check configuration file
+    _chk_config(config)
 
-    # TODO check log from configuration file(s)
-    # _chk_log(config)
-
-    # check subm parameter from configuration file(s)
-    _chk_subm(config)
+    if args.arguments:
+        _show_arguments(config)
 
 
 if __name__ == '__main__':

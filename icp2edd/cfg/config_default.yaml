@@ -3,33 +3,44 @@
 paths:
     # erddap: path of the main ERDDAP repository [tomcat]
     erddap: '/home/jpa029/Code/apache-tomcat-8.5.57'
+    # webinf: path to the 'WEB-INF' repository
+    webinf: '/home/jpa029/Code/apache-tomcat-8.5.57/webapps/ROOT/WEB-INF'
     # dataset: path where store file from each dataset
     dataset:
         # path where store csv file from ICOS CP for each dataset
-        csv: '/home/jpa029/Data/ICOS2ERDDAP'
+        csv: '/home/jpa029/Data/ICOS2ERDDAP/dataset/csv'
         # path where store xml file from ICOS CP for each dataset
-        xml: '/home/jpa029/Data/ICOS2ERDDAP/dataset'
+        xml: '/home/jpa029/Data/ICOS2ERDDAP/dataset/xml'
     # log: path where store output log file
     log: '/home/jpa029/Data/ICOS2ERDDAP/log'
 
-subm:
-    # from: dataset submitted from [default: end date of last update]
-    # from: '2020-01-01T00:00:00.000Z'
-    # until: dataset submitted until [default: today]
-    # until: '05-08-2020'
-    # product: data 'type' selected
-    product: 'icosOtcL2Product'
-    # version: get only last version [default False]
-    version: True
-    # list of authorised product
-    authorised_product: ['icosOtcL1Product_v2', 'icosOtcL2Product']
-
 log:
-    # filename: logger filename
-    # filename:
-    # below, apply only on standard output log
-    # TODO find a way to make it work, overwrite by argument
+    # filename: logger filename [default debug.log]
+    filename:
+    # Below, apply only on standard output log
     # verbose: activate verbose mode [True|False]
     verbose: False
     # level: log level [DEBUG, INFO, WARN, ERROR, CRITICAL]
     level: 'INFO'
+
+authorised:
+    # product: list of authorised product
+    product: ['icosOtcL1Product_v2', 'icosOtcL2Product']
+
+extra:
+    # parameters: extra parameters configuration file for bcedd
+    parameters: 'parameters.yaml'
+
+product:
+    # subm: submitted dates
+    subm:
+        # from: dataset submitted from [default: end date of last update]
+        #   ex: '2020-01-01T00:00:00.000Z'
+        from:
+        # until: dataset submitted until [default: today]
+        #   ex: '05-08-2020'
+        until:
+    # type: data 'type' selected
+    type: 'icosOtcL2Product'
+    # last: get only last version [default False]
+    last: True

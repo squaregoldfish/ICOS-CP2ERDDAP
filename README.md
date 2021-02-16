@@ -17,14 +17,19 @@ $ python3 -m icp2edd.checkOntology --help
 $ python3 wrapper.py
 
 ## Configuration file
-put your own configuration file in
-~/.config/icp2edd/config.yaml
+This file contains configuration parameters
+> **NOTE:** arguments overwrite value in configuration file.
+
+Put your own configuration file in `~/.config/icp2edd/config.yaml`
 
 ```python
 # This is the default config file for icp2edd
+
 paths:
     # erddap: path of the main ERDDAP repository [tomcat]
     erddap: '/home/jpa029/Code/apache-tomcat-8.5.57'
+    # webinf: path to the 'WEB-INF' repository
+    webinf: '/home/jpa029/Code/apache-tomcat-8.5.57/webapps/ROOT/WEB-INF'
     # dataset: path where store file from each dataset
     dataset:
         # path where store csv file from ICOS CP for each dataset
@@ -34,27 +39,61 @@ paths:
     # log: path where store output log file
     log: '/home/jpa029/Data/ICOS2ERDDAP/log'
 
-subm:
-    # from: dataset submitted from [default: end date of last update]
-    from: '2020-01-01T00:00:00.000Z'
-    # until: dataset submitted until [default: today]
-    until: '05-08-2020'
-    # product: data 'type' selected
-    product: 'icosOtcL2Product'
-    # version: get only last version [default False]
-    version: True
-
 log:
-    # filename: logger filename
-    filename: 'debug.log'
-    # below, apply only on standard output log
+    # filename: logger filename [default 'debug.log']
+    filename:
+    # Below, apply only on standard output log
     # verbose: activate verbose mode [True|False]
     verbose: False
-    # level: log level [NOTSET, DEBUG, INFO, WARN, ERROR, CRITICAL]
+    # level: log level [DEBUG, INFO, WARN, ERROR, CRITICAL]
     level: 'INFO'
+
+authorised:
+    # product: list of authorised product
+    product: ['icosOtcL1Product_v2', 'icosOtcL2Product']
+
+extra:
+    # parameters: extra parameters configuration file for bcedd
+    parameters: 'parameters.yaml'
+
+product:
+    # subm: submitted dates
+    subm:
+        # from: dataset submitted from [default: end date of last update]
+        #   ex: '2020-01-01T00:00:00.000Z'
+        from:
+        # until: dataset submitted until [default: today]
+        #   ex: '05-08-2020'
+        until:
+    # type: data 'type' selected
+    type: 'icosOtcL2Product'
+    # last: get only last version [default False]
+    last: True
 ```
 
-> **NOTE:** arguments overwrite value in configuration file.
+### Parameters files
+This file contains parameters to run
+
+```python
+# This is the parameters file for icp2edd
+
+# attributes' configuration
+attributes:
+    # sep: separator between object and attribute, use in origin attribute name
+    #   ex: 'type' + sep + 'units' > 'type_units'
+    sep: '_'
+    # convert: attribute name(s) to convert
+    #   origin_name: target_name
+    convert:
+        type_units: 'units'
+    #
+    keep:
+        # keep attribute(s) from erddap (overwrite attribute(s) from icoscp)
+        icoscp:
+        # keep attribute(s) from icoscp (overwrite attribute(s) from erddap)
+        erddap:
+            - 'units'
+```
 
 ## To run tests
 see [HERE](tests/README.md)
@@ -88,5 +127,5 @@ MAILTO=jpa029@uib.no
 30 00 * * * python3 -m icp2edd
 
 # weekly check (every monday at 01:30) of ICOS-CP data portal ontology
-30 01 1 * * python3 -m icp2edd.checkOntology
+30 01 * * 1 python3 -m icp2edd.checkOntology
 ```
