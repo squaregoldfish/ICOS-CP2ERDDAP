@@ -18,13 +18,12 @@ import lxml.etree as etree
 # import from my project
 import icp2edd.util as util
 import icp2edd.setupcfg as setupcfg
+import icp2edd.parameters as parameters
 
 # --- module's variable ------------------------
 # load logger
 _logger = logging.getLogger(__name__)
 
-keepERDDAP = ['units']
-keepICOSCP = []
 
 class Xml4Erddap(object):
     """
@@ -316,6 +315,9 @@ def changeAttr(ds, gloatt, out=None):
         if node.text is None:
             node.text = ''
 
+    # check parameters file
+    param = parameters.main()
+
     # for node in list(root):
     #    if node is not None:
     # TODO need to test with variable attributes to add at every variables whatever datasetID
@@ -332,15 +334,14 @@ def changeAttr(ds, gloatt, out=None):
                         attname = att.get('name')
                         _logger.debug(f"att name: {attname} val: {att.text}")
                         if att.get('name') in gloatt[dsID]:
-                            # TODO figure out how to keep information not to be changed
-                            if attname in keepERDDAP:
-                                # keep ERDDAP attribute
+                            if attname in param['attributes']['keep']['erddap']:
+                                # keep ERDDAP attributes
                                 del gloatt[dsID][attname]
-                            elif attname in keepICOSCP:
-                                # keep ICOS CP attribute
+                            elif attname in param['attributes']['keep']['icoscp']:
+                                # keep ICOS CP attributes
                                 attrNode.remove(att)
                             else:
-                                # append ERDDAP attribute with ICOS CP one
+                                # append ERDDAP attributes with ICOS CP one
                                 attrNode.remove(att)
                                 gloatt[dsID][att.get('name')].append(att.text)
                     for k, v in gloatt[dsID].items():
@@ -365,14 +366,14 @@ def changeAttr(ds, gloatt, out=None):
                         attname = att.get('name')
                         _logger.debug(f"att name: {attname} val: {att.text}")
                         if attname in gloatt[srcname]:
-                            if attname in keepERDDAP:
-                                # keep ERDDAP attribute
+                            if attname in param['attributes']['keep']['erddap']:
+                                # keep ERDDAP attributes
                                 del gloatt[srcname][attname]
-                            elif attname in keepICOSCP:
-                                # keep ICOS CP attribute
+                            elif attname in param['attributes']['keep']['icoscp']:
+                                # keep ICOS CP attributes
                                 attrNode.remove(att)
                             else:
-                                # append ERDDAP attribute with ICOS CP one
+                                # append ERDDAP attributes with ICOS CP one
                                 attrNode.remove(att)
                                 gloatt[srcname][att.get('name')].append(att.text)
                     for k, v in gloatt[srcname].items():

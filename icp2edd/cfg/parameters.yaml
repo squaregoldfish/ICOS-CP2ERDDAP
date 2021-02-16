@@ -1,0 +1,19 @@
+# This is the parameters file for icp2edd
+
+# attributes' configuration
+attributes:
+    # sep: separator between property and value name, use to create ICOS CP attribute name
+    #   ex: 'type' + sep + 'units' > 'type_units'
+    sep: '_'
+    # convert: attribute name(s) to convert
+    #   origin_name: target_name
+    convert:
+        type_units: 'units'
+    # if need be which attribute is kept
+    # by default, values of attribute with same name are concatenated in a single one
+    keep:
+        # keep attribute(s) from icoscp (overwrite attribute(s) from erddap)
+        icoscp:
+        # keep attribute(s) from erddap (overwrite attribute(s) from icoscp)
+        erddap:
+            - 'units'
