@@ -39,7 +39,7 @@ def add_last_subm():
     global submUntil
 
     if submUntil is None:
-        # use current date
+        # use current date (UTC)
         submUntil = dt.datetime.now(dt.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
 
     with open(_update_log, "a") as file:
@@ -67,10 +67,10 @@ def _chk_product_subm_timeseries(dt_):
     """ check submitted date (used to load dataset) time series
     """
     # last update to be used
-    duse = parse(dt_)
+    duse = parse(dt_).isoformat()
     # last update registered
     try:
-        dref = parse(_get_last_subm())
+        dref = parse(_get_last_subm()).isoformat()
     except FileNotFoundError:
         # no previous date registered
         logging.info('No previous dates registered. Can not check time series')
@@ -91,7 +91,8 @@ def _chk_product_subm(cfg_):
     try:
         _ = cfg_['product']['subm']['from'].get()
         if _ is not None:
-            submFrom = parse(_).astimezone(tz=dt.timezone.utc).isoformat()
+            # submFrom = parse(_).astimezone(tz=dt.timezone.utc).isoformat()
+            submFrom = parse(_).isoformat()
         else:
             submFrom = None
     except confuse.exceptions.NotFoundError:
@@ -102,7 +103,14 @@ def _chk_product_subm(cfg_):
         raise  # Throw exception again so calling code knows it happened
 
     if submFrom is None:
-        submFrom = _get_last_subm()
+        try:
+            submFrom = _get_last_subm()
+        except FileNotFoundError:
+            # no previous date registered
+            logging.warning('No previous dates registered. No initial date to your request.')
+        except Exception:
+            logging.exception(f'Something goes wrong when looking for last submitted date')
+            raise  # Throw exception again so calling code knows it happened
     else:
         # check last update
         _chk_product_subm_timeseries(submFrom)
@@ -110,7 +118,8 @@ def _chk_product_subm(cfg_):
     try:
         _ = cfg_['product']['subm']['until'].get()
         if _ is not None:
-            submUntil = parse(_).astimezone(tz=dt.timezone.utc).isoformat()
+            # submUntil = parse(_).astimezone(tz=dt.timezone.utc).isoformat()
+            submUntil = parse(_).isoformat()
         else:
             submUntil = None
     except confuse.exceptions.NotFoundError:
@@ -582,27 +591,47 @@ def _default_logger():
     logging.captureWarnings(True)
 
 
-def _show_arguments(cfg_):
+def _show_arguments(cfg_, print_=False):
     """ """
-    print(f"paths.erddap        : {erddapPath}")
-    print(f"paths.webinf        : {erddapWebInfDir}")
-    print(f"paths.dataset.csv   : {datasetCsvPath}")
-    print(f"paths.dataset.xml   : {datasetXmlPath}")
-    print(f"paths.log           : {logPath}\n")
+    logging.debug(f"paths.erddap        : {erddapPath}")
+    logging.debug(f"paths.webinf        : {erddapWebInfDir}")
+    logging.debug(f"paths.dataset.csv   : {datasetCsvPath}")
+    logging.debug(f"paths.dataset.xml   : {datasetXmlPath}")
+    logging.debug(f"paths.log           : {logPath}\n")
 
-    print(f"log.filename        : {log_filename} ")
-    print(f"log.verbose         : {cfg_['log']['verbose']}  ")
-    print(f"log.level           : {cfg_['log']['level']}\n")
+    logging.debug(f"log.filename        : {log_filename} ")
+    logging.debug(f"log.verbose         : {cfg_['log']['verbose']}  ")
+    logging.debug(f"log.level           : {cfg_['log']['level']}\n")
 
-    print(f"authorised.product  : {authorised_product}\n")
+    logging.debug(f"authorised.product  : {authorised_product}\n")
 
-    print(f"extra.parameters    : {extraParam}\n")
+    logging.debug(f"extra.parameters    : {extraParam}\n")
 
-    print(f"product.sub.from    : {submFrom}")
-    print(f"product.sub.until   : {submUntil}")
-    print(f"product.type        : {product}")
-    print(f"product.last        : {lastversion}")
-    exit(0)
+    logging.debug(f"product.sub.from    : {submFrom}")
+    logging.debug(f"product.sub.until   : {submUntil}")
+    logging.debug(f"product.type        : {product}")
+    logging.debug(f"product.last        : {lastversion}")
+
+    if print_:
+        print(f"paths.erddap        : {erddapPath}")
+        print(f"paths.webinf        : {erddapWebInfDir}")
+        print(f"paths.dataset.csv   : {datasetCsvPath}")
+        print(f"paths.dataset.xml   : {datasetXmlPath}")
+        print(f"paths.log           : {logPath}\n")
+
+        print(f"log.filename        : {log_filename} ")
+        print(f"log.verbose         : {cfg_['log']['verbose']}  ")
+        print(f"log.level           : {cfg_['log']['level']}\n")
+
+        print(f"authorised.product  : {authorised_product}\n")
+
+        print(f"extra.parameters    : {extraParam}\n")
+
+        print(f"product.sub.from    : {submFrom}")
+        print(f"product.sub.until   : {submUntil}")
+        print(f"product.type        : {product}")
+        print(f"product.last        : {lastversion}")
+        exit(0)
 
 
 def _show_version():
@@ -646,8 +675,8 @@ def main(logfile_=None):
     # check configuration file
     _chk_config(config)
 
-    if args.arguments:
-        _show_arguments(config)
+    # print parameters use from config file and/or inline command
+    _show_arguments(config, args.arguments)
 
 
 if __name__ == '__main__':

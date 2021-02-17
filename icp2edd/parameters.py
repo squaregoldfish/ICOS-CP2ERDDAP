@@ -4,13 +4,19 @@
 
 # ----------------------------------------------
 # import from standard lib
+import logging
 from urllib.parse import urlparse
 import yaml
+from pprint import pformat
 # import from other lib
 # import from my project
 import icp2edd.setupcfg as setupcfg
 
 # --- module's variable ------------------------
+# load logger
+_logger = logging.getLogger(__name__)
+
+# TODO create class for parameters
 
 
 # ----------------------------------------------
@@ -29,7 +35,7 @@ def _is_url(url_):
         return False
 
 
-def _get_list(list_):
+def _get_list(list_=None):
     """ get list from yaml file element
     """
     if not isinstance(list_, list):
@@ -51,7 +57,7 @@ def _check_param_attributes_keep(dict_=None):
 
     if 'icoscp' in dict_:
         _['icoscp'] = _get_list(dict_['icoscp'])
-    if 'erddap' in dict:
+    if 'erddap' in dict_:
         _['erddap'] = _get_list(dict_['erddap'])
 
     return _
@@ -134,6 +140,11 @@ def _check_param(dict_):
         _['attributes'] = _check_param_attributes({})
 
     return _
+
+
+def show(param_):
+    """ """
+    print(f"parameters:\n {pformat(param_)}")
 
 
 def main():
