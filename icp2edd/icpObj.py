@@ -150,7 +150,7 @@ class ICPObj(object):
         if self._uri is not None:
             self._object = self._getObject()
 
-        self._objtype = None
+        self.objtype = None
         if self._object is not None:
             self.objtype = self._getObjectType()
 
@@ -304,8 +304,9 @@ class ICPObj(object):
         queryString = self._queryString()
         #
         res = self._query(queryString)
-        # print(f"{res.variables}")
         self.meta = self._groupby(res)
+        #
+        _logger.debug(f"self.meta: {pformat(self.meta)}")
 
         # create/overwrite list of uri
         self._uri = self.meta.keys()
@@ -332,6 +333,9 @@ class ICPObj(object):
                 if k not in dict2.keys():
                     dict2[k] = []
 
+                # change type -to avoid later issue digging into those URI-
+                if v.type == 'uri' and 'meta.icos-cp.eu' not in v.value:
+                    v.type = 'literal'
                 # Using a in b is simply translates to b.__contains__(a)
                 if v not in dict2[k]:
                     dict2[k] += [v]
