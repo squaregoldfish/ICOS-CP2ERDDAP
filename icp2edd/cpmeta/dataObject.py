@@ -127,7 +127,6 @@ class DataObject(StaticObject):
         download file  https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z  on
             .../58GS20190711_SOCAT_enhanced/58GS20190711_SOCAT_enhanced.csv
         """
-        # TODO check everything needed exist
         d = {}
         for uri, binding in self.meta.items():
             # there is at least one binding covering the optional "opt", too
@@ -136,7 +135,7 @@ class DataObject(StaticObject):
             # Warning: linked to staticObject.py 'cpmeta:hasName': 'filename'
             if not hasattr(binding, 'filename'):
                 _logger.critical(f"can not find 'filename' attribute in binding.\n "
-                                 f"Check value of 'cpmeta:hasName' in staticObject.py")
+                                 f"Check value of 'cpmeta:hasName' in StaticObject")
 
             if len(binding['filename']) > 1:
                 _logger.critical(f"several filenames associated to one uri, meta:\n{pformat(binding)}")
@@ -168,7 +167,6 @@ class DataObject(StaticObject):
                         # print the html returned or something more intelligent to see if it's a successful login page.
                         # print('html return ')#, p.text)
 
-                        # TODO check error case
                         # TODO use this 'try except else' format everywhere
                         try:
                             # an authorised request.

@@ -32,7 +32,7 @@ _logger = logging.getLogger(__name__)
 # Note: 'object/value' will be the output attribute name
 _attr = {
     'cpmeta:hasColumnTitle': 'column_title',  # Warning: linked to:
-    #                                         #
+    #                                         # - superIcpObj.py:repack():
     'cpmeta:hasValueFormat': 'format',
     'cpmeta:hasValueType': 'type',   # TODO see how to get it through checkOnto
     'cpmeta:isOptionalColumn': 'is_optional_column',

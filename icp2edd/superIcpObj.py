@@ -96,13 +96,13 @@ class SuperICPObj(object):
         return {**self.DataObject, **self.DataVariable}
 
     def _renameKeyDic(self, _):
-       """
-       rename dictionary keys:
-       :return: renamed dictionary
-       """
-       for oldKey, newKey in dict_convAttr.items():
-           _ = dict((newKey, v) if k == oldKey else (k, v) for k, v in _.items())
-       return _
+        """
+        rename dictionary keys:
+        :return: renamed dictionary
+        """
+        for oldKey, newKey in dict_convAttr.items():
+            _ = dict((newKey, v) if k == oldKey else (k, v) for k, v in _.items())
+        return _
 
     def repack(self, uri_):
         # TODO see if it could be merge with getSubAttr
@@ -156,6 +156,11 @@ class SuperICPObj(object):
         objtype = _.objtype
 
         if objtype in list_DataObject:
+            # Warning: linked to:
+            # - 'cpmeta:hasName' in StaticObject
+            if not hasattr(self.meta[uri_], 'filename'):
+                _logger.critical(f"can not find 'filename' attribute in meta of {uri_}.\n "
+                                 f"Check value of 'cpmeta:hasName' in StaticObject")
             filename = Path(self.meta[uri_]['filename'][0].value)
             # datasetId = case.camel('icos_' + filename.stem, sep='_')
             datasetId = util.datasetidCase(filename)
@@ -163,6 +168,11 @@ class SuperICPObj(object):
             self.DataObject[datasetId] = spread(uri_, exclude_=list_VariableObject)
 
         elif objtype in list_VariableObject:
+            # Warning: linked to:
+            # - 'cpmeta:hasColumnTitle in DatasetColumn
+            if not hasattr(self.meta[uri_], 'column_title'):
+                _logger.critical(f"can not find 'column_title' attribute in meta of {uri_}.\n "
+                                 f"Check value of 'cpmeta:hasColumnTitle' in DatasetColumn")
             varname = self.meta[uri_]['column_title'][0].value
             # variableId = case.camel(varname, sep='_')
             variableId = util.filterBracket(varname)
