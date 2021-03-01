@@ -313,26 +313,41 @@ class ICPObj(object):
 
     def _groupby(self, res):
         """
+        combine bindings of a SPARQL query output in a dictionary
+
+        bindings = [
+          {var1: Value11, var2: Value21, var3: Value31 },
+          {var1: Value11, var2: Value21, var3: Value32 },
+          {var1: Value11, var2: Value21, var3: Value33 },
+          {var1: Value11, var2: Value22, var3: Value31 },
+          {var1: Value11, var2: Value22, var3: Value32 },
+          {var1: Value11, var2: Value22, var3: Value33 }
+        ]
+
+        out = { uri: { var1: [Value11],
+                       var2: [Value21, Value22],
+                       var3: [Value31, Value32, Value33]
+                      }
+        }
+
+         Furthermore, if the type of the SPARQL Value is 'uri' but not point to a 'meta.icos-cp.eu' element,
+         the type value is change to 'literal' to avoid later issue digging into those URI
+
         :param res: SPARQL query output
         :return: {uri: {variable: [SPARQLWrapper.Value, ...], ...}, ...}
         """
-        # bindings = [
-        #   {SPARQL query output variable 1: SPARQLWrapper.Value, SPARQL query output variable 2: SPARQLWrapper.Value },
-        #   ...
-        # ]
         # exemple SPARQL output variables: 'uri', 'static_object_citation',...
-        # TODO see for use of util.combine.. instead
         dict1 = {}
         for binding in res.bindings:
             uri = binding['uri'].value
             if uri not in dict1:
                 dict1[uri] = {}
+            #
             dict2 = dict1[uri]
 
             for k, v in binding.items():
                 if k not in dict2.keys():
                     dict2[k] = []
-
                 # change type -to avoid later issue digging into those URI-
                 if v.type == 'uri' and 'meta.icos-cp.eu' not in v.value:
                     v.type = 'literal'
