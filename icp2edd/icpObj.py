@@ -56,7 +56,6 @@ _ns = {
 }
 
 
-# TODO check and replace if x vs if x is None...
 # ----------------------------------------------
 class ICPObj(object):
     """
@@ -121,15 +120,14 @@ class ICPObj(object):
         self._lastversion = lastversion
 
         # object attributes' dictionary
-        # TODO change to attr to avoid access to protected member of class
-        if not hasattr(self, '_attr'):
+        if not hasattr(self, 'attr'):
             # set up if not defined
-            self._attr = {}
+            self.attr = {}
 
         if isinstance(_attr, dict):
-            # merge _attr and self.attr properties.
-            # Note:  _.attr's values are overwritten by the self.attr's
-            self._attr = {**_attr, **self._attr}
+            # merge attr and self.attr properties.
+            # Note:  .attr's values are overwritten by the self.attr's
+            self.attr = {**_attr, **self.attr}
 
         # object attributes' dictionary
         if not hasattr(self, '_equivalentClass'):
@@ -171,17 +169,17 @@ class ICPObj(object):
         # TODO check every attribute value are unique
         # add equivalent class attribute
         if self._equivalentClass:
-            # merge _equivalentClass._attr and self.attr properties.
+            # merge _equivalentClass.attr and self.attr properties.
             # Note:  _equivalentClass.attr's values are overwritten by the self.attr's
             for k in self._equivalentClass:
                 exec('from icp2edd.cpmeta import *')
                 klass = eval(k)
                 inst = klass()
-                self._attr = {**inst._attr, **self._attr}
+                self.attr = {**inst.attr, **self.attr}
 
         select = f"select ?uri"
         option = ''
-        for k, v in self._attr.items():
+        for k, v in self.attr.items():
             select = select + ' ?' + v
             option = option + "\n\tOPTIONAL { ?uri %s ?%s .}" % (k, v)
 
@@ -206,7 +204,7 @@ class ICPObj(object):
             query = query + '\n\t ?uri rdf:type/rdfs:subClassOf* <%s> .' % self._object
 
         # filter: submission time
-        if 'cpmeta:wasSubmittedBy' in self._attr.keys():
+        if 'cpmeta:wasSubmittedBy' in self.attr.keys():
             query = query + '\n\t?uri cpmeta:wasSubmittedBy [' \
                             '\n\t\tprov:endedAtTime ?submTime ;' \
                             '\n\t\tprov:wasAssociatedWith ?submitter' \
@@ -217,7 +215,7 @@ class ICPObj(object):
                             f"# _filterSubmTime(until, op_='<=')"
 
         # filter last version
-        if 'cpmeta:isNextVersionOf' in self._attr.keys():
+        if 'cpmeta:isNextVersionOf' in self.attr.keys():
             query = query + f'\n\t{self._filterLastVersion(self._lastversion)} # _filterLastVersion(lastversion)'
 
         # add optional request (all attributes)

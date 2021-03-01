@@ -763,7 +763,7 @@ def _get_edd_ontology():
     for k in isSubClassOf['edd'].keys():
         clss = eval(k)
         _ = clss()
-        for p in _._attr.keys():
+        for p in _.attr.keys():
             try:
                 if p in hasProperty['edd'][k]:
                     _logger.error(f'property {p} already in {k}')

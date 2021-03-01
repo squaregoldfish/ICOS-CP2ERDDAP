@@ -94,10 +94,12 @@ def main():
     _logger.info('-2- get ICOS CP metadata up to date, and update ERDDAP datasets.xml\n')
     _logger.info('change/add metadata on datasets.xml file, considering metadata from ICOS CP')
 
-    # TODO what about new metadata add directly in older DataObject ??
-    # get all metadata from dataObject use by ERDDAP
+    # TODO what about metadata add directly/manually in older dataset.xml ??
+    #   - keep release of former dataset.xml file
+    #   - check attributes diff with new dataset.xml
+    #   - get and push unique attributes from former dataset.xml in new one
 
-    _logger.info('loop on every new dataset load on ICOS CP (here just one)')
+    # get all metadata from dataObject use by ERDDAP
     try:
         _logger.info(f'initialise SuperICPObj object')
         superObj = SuperICPObj()
