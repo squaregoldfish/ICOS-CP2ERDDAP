@@ -320,7 +320,6 @@ def changeAttr(ds, gloatt, out=None):
 
     # for node in list(root):
     #    if node is not None:
-    # TODO need to test with variable attributes to add at every variables whatever datasetID
     for node in root.findall('dataset'):
         _logger.debug(f'node: tag -{node.tag}- attribute -{node.attrib}-')
         if 'datasetID' in node.attrib:

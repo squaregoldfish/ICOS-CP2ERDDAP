@@ -231,7 +231,7 @@ def _chk_config_authorised(cfg_):
 def _chk_config_log(cfg_):
     """
     """
-    # TODO
+    # see _setup_logger
     pass
 
 
