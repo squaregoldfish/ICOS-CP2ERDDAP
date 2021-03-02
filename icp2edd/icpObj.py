@@ -166,7 +166,6 @@ class ICPObj(object):
         - filter on last version, if property 'isNextVersionOf' is available
         - filter on number of output, in any case
         """
-        # TODO check every attribute value are unique
         # add equivalent class attribute
         if self._equivalentClass:
             # merge _equivalentClass.attr and self.attr properties.
@@ -175,7 +174,13 @@ class ICPObj(object):
                 exec('from icp2edd.cpmeta import *')
                 klass = eval(k)
                 inst = klass()
-                self.attr = {**inst.attr, **self.attr}
+                if set(inst.attr.keys()) & set(self.attr.keys()):
+                    # there is an intersection
+                    _logger.error(f"there is an intersection between attributes keys "
+                                  f"of {self._object} and {inst._object}")
+                else:
+                    # no intersection
+                    self.attr = {**inst.attr, **self.attr}
 
         select = f"select ?uri"
         option = ''
