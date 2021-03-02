@@ -35,6 +35,9 @@ _logger = logging.getLogger(__name__)
 list_VariableObject = ["DatasetVariable", "DatasetColumn"]
 list_DataObject = ["DataObject"]
 
+# list of object to not dig in in to avoid infinity loop / recursive search
+list_rec_search = ['NextVersionOf', 'RevisionOf', 'PrimarySource', 'QualityFlagFor']
+
 # separator between object and attribute
 _sep = '_'
 dict_convAttr = {'type' + _sep + 'units': 'units'}
@@ -96,13 +99,13 @@ class SuperICPObj(object):
         return {**self.DataObject, **self.DataVariable}
 
     def _renameKeyDic(self, _):
-       """
-       rename dictionary keys:
-       :return: renamed dictionary
-       """
-       for oldKey, newKey in dict_convAttr.items():
-           _ = dict((newKey, v) if k == oldKey else (k, v) for k, v in _.items())
-       return _
+        """
+        rename dictionary keys:
+        :return: renamed dictionary
+        """
+        for oldKey, newKey in dict_convAttr.items():
+            _ = dict((newKey, v) if k == oldKey else (k, v) for k, v in _.items())
+        return _
 
     def repack(self, uri_):
         # TODO see if it could be merge with getSubAttr
@@ -122,7 +125,7 @@ class SuperICPObj(object):
                     # if k not in self.tmp[uri_].keys():
                     #     d = {k: str(lv[0].value)}
                     #     self.tmp[uri_] = util.combine_dict_in_list(d, self.tmp[uri_])
-                elif k in ['NextVersionOf', 'RevisionOf', 'PrimarySource', 'QualityFlagFor']:  # TODO create global list shared between modules
+                elif k in list_rec_search:
                     _logger.debug(f'ignore {k} attribute. do not iterate to avoid recursive search')
                 else:
                     for v in lv:
@@ -156,6 +159,11 @@ class SuperICPObj(object):
         objtype = _.objtype
 
         if objtype in list_DataObject:
+            # Warning: linked to:
+            # - 'cpmeta:hasName' in StaticObject
+            if not hasattr(self.meta[uri_], 'filename'):
+                _logger.critical(f"can not find 'filename' attribute in meta of {uri_}.\n "
+                                 f"Check value of 'cpmeta:hasName' in StaticObject")
             filename = Path(self.meta[uri_]['filename'][0].value)
             # datasetId = case.camel('icos_' + filename.stem, sep='_')
             datasetId = util.datasetidCase(filename)
@@ -163,6 +171,11 @@ class SuperICPObj(object):
             self.DataObject[datasetId] = spread(uri_, exclude_=list_VariableObject)
 
         elif objtype in list_VariableObject:
+            # Warning: linked to:
+            # - 'cpmeta:hasColumnTitle in DatasetColumn
+            if not hasattr(self.meta[uri_], 'column_title'):
+                _logger.critical(f"can not find 'column_title' attribute in meta of {uri_}.\n "
+                                 f"Check value of 'cpmeta:hasColumnTitle' in DatasetColumn")
             varname = self.meta[uri_]['column_title'][0].value
             # variableId = case.camel(varname, sep='_')
             variableId = util.filterBracket(varname)
@@ -174,103 +187,6 @@ class SuperICPObj(object):
 
         # clean
         # self.tmp = {}
-
-    # def repackMeta(self, list_obj_)        # TODO see if it could be merge with getSubAttr:
-
-    #     def _repack_list_uri(list_uri_):
-    #         """ set up dictionaries for each uri
-
-    #         :param list_uri_: list of uri to fill
-    #         :return: list of uri not filled yet
-    #         """
-    #         list_uri = []
-    #         for uri in list_uri_:
-    #             if not uri in self.tmp.keys():
-    #                 _ = _repack_uri(uri)
-    #                 empty = not bool(_)
-    #                 if not empty:
-    #                     self.tmp[uri] = _
-
-    #                     # check object type
-    #                     objtype = ICPObj(uri=uri).objtype
-
-    #                     if objtype in list_DataObject:
-    #                         filename = Path(self.meta[uri]['filename'][0].value)
-    #                         # datasetId = case.camel('icos_' + filename.stem, sep='_')
-    #                         datasetId = util.datasetidCase(filename)
-    #                         # self.DataObject[datasetId] = _
-    #                         self.DataObject[datasetId] = {k:v for k,v in _.items() if not any(x in k for x in list_VariableObject)}
-
-    #                     elif objtype in list_VariableObject:
-    #                         varname = self.meta[uri]['dataset_column_column_title'][0].value
-    #                         # variableId = case.camel(varname, sep='_')
-    #                         self.DataVariable[varname] = _
-
-    #                 else:
-    #                     list_uri.append(uri)
-
-    #         return list_uri
-
-    #     def _repack_uri(uri_):
-    #         """ set up dictionary for one uri
-
-    #         :param uri_:
-    #         "return: dictionary
-    #         """
-    #         _ = {}
-    #         for k, lv in self.meta[uri_].items():
-    #             if k in ['uri']:
-    #                 _logger.debug(f"ignore uri attribute")
-    #             elif k in ['NextVersionOf', 'RevisionOf', 'PrimarySource', 'QualityFlagFor']: # TODO create global list shared between modules
-    #                 _logger.debug(f'ignore {k} attribute. do not iterate to avoid recursive search')
-    #             else:
-    #                 for v in lv:
-    #                     d = _repack_key_val(k, v)
-    #                     empty = not bool(d)
-    #                     if not empty:
-    #                         _ = util.combine_dict_in_list(d, _)
-    #                     else:
-    #                         return {}
-    #         return _
-
-    #     def _repack_key_val(k_, v_):
-    #         """
-    #         >>> k_ = 'x'
-    #         >>> v_ = Value('literal','toto')
-    #         >>> _repack_key_val(k_, v_)
-    #         {'x': ['toto']}
-
-    #         >>> k_ = 'y'
-    #         >>> v_ = Value('uri','http://x')
-    #         >>> _repack_key_val(k_, v_)
-    #         {'y_x':['toto']}
-
-    #         :param k_:
-    #         :param v_:
-    #         :return: dictionary
-    #         """
-    #         _ = {}
-    #         if v_.type != 'uri':
-    #             _[k_] = [v_.value]
-    #         else:
-    #             if v_.value in self.tmp.keys():
-    #                 for kk, vv in self.tmp[v_.value].items():
-    #                     kkk = k_ + '_' + kk
-    #                     _[kkk] = vv
-    #             else:
-    #                 return {}
-    #         return _
-
-    #     attempt = 0
-    #     max_allowed = 10
-    #     list_obj = list_obj_
-    #     while list_obj:
-    #         attempt += 1
-    #         if attempt == max_allowed+1:
-    #             _logger.critical(f"You've reached the maximum number of attempt to repack metadata.")
-    #             raise RuntimeError
-    #         else:
-    #             list_obj = _repack_list_uri(list_obj)
 
     def _getSubAttr(self, uri_, cnt_=0):
         """
@@ -287,7 +203,7 @@ class SuperICPObj(object):
             if k == 'uri':
                 # do nothing, you are currently exploring it
                 _logger.debug(f"do nothing, you are currently exploring this uri -{k}-")
-            elif k in ['NextVersionOf', 'RevisionOf', 'PrimarySource', 'QualityFlagFor']:
+            elif k in list_rec_search:
                 # Warning: linked to:
                 # - 'cpmeta:isNextVersionOf' in StaticObject, and Collection
                 # - 'cpmeta:isQualityFlagFor' in DatasetColumn
@@ -333,7 +249,7 @@ class SuperICPObj(object):
         return _.listUri(list(output))
 
     def show(self,  print_=False):
-
+        """ """
         if not isinstance(print_, bool):
             _logger.error(f"Invalid type argument -{print_}-")
             raise TypeError("Invalid type argument")

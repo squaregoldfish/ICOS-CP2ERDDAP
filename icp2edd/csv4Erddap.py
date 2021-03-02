@@ -83,8 +83,10 @@ def modify(f):
     data.rename(columns=lambda x: util.filterBracket(x), inplace=True)
 
     # reformat Date/Time with 3 decimals
-    # TODO check Date/Time column exist
-    data["Date/Time"] = data["Date/Time"].apply(lambda x: time_format(x, 3))
+    if hasattr(data, "Date/Time"):
+        data["Date/Time"] = data["Date/Time"].apply(lambda x: time_format(x, 3))
+    else:
+        _logger.warning(f"Can not find 'Date/Time' column in csv file -{f}-")
 
     # Preview the first 5 lines of the loaded data
     # print(data.head())

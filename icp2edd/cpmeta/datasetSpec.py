@@ -71,7 +71,7 @@ class DatasetSpec(DataObjectSpecifyingThing):
 
         # object attributes' dictionary
         if isinstance(_attr, dict):
-            self._attr = {**_attr, **self._attr}
+            self.attr = {**_attr, **self.attr}
 
         if isinstance(_equivalentClass, list):
             self._equivalentClass = _equivalentClass

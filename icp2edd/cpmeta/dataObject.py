@@ -97,7 +97,7 @@ class DataObject(StaticObject):
 
         # object attributes' dictionary
         if isinstance(_attr, dict):
-            self._attr = {**_attr, **self._attr}
+            self.attr = {**_attr, **self.attr}
 
         if isinstance(_equivalentClass, list):
             self._equivalentClass = _equivalentClass
@@ -118,7 +118,7 @@ class DataObject(StaticObject):
         """ download file associated to dataobject
 
         download every file associated with the dataobjects selected on ICOS CP,
-        and store them on local directory named by the dataset 'name'
+        and store them on a temporary directory named by the dataset 'name'
 
         :return: dictionary with csv file as key, and dirout as value
 
@@ -127,13 +127,16 @@ class DataObject(StaticObject):
         download file  https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z  on
             .../58GS20190711_SOCAT_enhanced/58GS20190711_SOCAT_enhanced.csv
         """
-        # TODO check everything needed exist
         d = {}
         for uri, binding in self.meta.items():
             # there is at least one binding covering the optional "opt", too
             # uri = binding['uri'].value  # Warning do not convert to Path (https:// => https./)
             pid = uri.split("/")[-1]
             # Warning: linked to staticObject.py 'cpmeta:hasName': 'filename'
+            if not hasattr(binding, 'filename'):
+                _logger.critical(f"can not find 'filename' attribute in binding.\n "
+                                 f"Check value of 'cpmeta:hasName' in StaticObject")
+
             if len(binding['filename']) > 1:
                 _logger.critical(f"several filenames associated to one uri, meta:\n{pformat(binding)}")
             else:
@@ -164,7 +167,6 @@ class DataObject(StaticObject):
                         # print the html returned or something more intelligent to see if it's a successful login page.
                         # print('html return ')#, p.text)
 
-                        # TODO check error case
                         # TODO use this 'try except else' format everywhere
                         try:
                             # an authorised request.
@@ -173,14 +175,14 @@ class DataObject(StaticObject):
                             r = s.get(str(url), cookies=cookies, stream=True)
                             # If the response was successful, no Exception will be raised
                             r.raise_for_status()
-                        except HTTPError:  # as http_err:
+                        except HTTPError as http_err:
                             # https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
                             # raise HTTPError(f'HTTP error occurred: {http_err}')  # Python 3.6
-                            _logger.exception(f'HTTP error occurred:')
+                            _logger.exception(f'HTTP error occurred: {http_err}')
                             raise  #
-                        except Exception:  # as err:
+                        except Exception as err:
                             # raise Exception(f'Other error occurred: {err}')  # Python 3.6
-                            _logger.exception(f'Other error occurred:')
+                            _logger.exception(f'Other error occurred: {err}')
                             raise  #
                         else:
                             # Success!

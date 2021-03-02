@@ -56,7 +56,6 @@ _ns = {
 }
 
 
-# TODO check and replace if x vs if x is None...
 # ----------------------------------------------
 class ICPObj(object):
     """
@@ -121,15 +120,14 @@ class ICPObj(object):
         self._lastversion = lastversion
 
         # object attributes' dictionary
-        # TODO change to attr to avoid access to protected member of class
-        if not hasattr(self, '_attr'):
+        if not hasattr(self, 'attr'):
             # set up if not defined
-            self._attr = {}
+            self.attr = {}
 
         if isinstance(_attr, dict):
-            # merge _attr and self.attr properties.
-            # Note:  _.attr's values are overwritten by the self.attr's
-            self._attr = {**_attr, **self._attr}
+            # merge attr and self.attr properties.
+            # Note:  .attr's values are overwritten by the self.attr's
+            self.attr = {**_attr, **self.attr}
 
         # object attributes' dictionary
         if not hasattr(self, '_equivalentClass'):
@@ -168,20 +166,25 @@ class ICPObj(object):
         - filter on last version, if property 'isNextVersionOf' is available
         - filter on number of output, in any case
         """
-        # TODO check every attribute value are unique
         # add equivalent class attribute
         if self._equivalentClass:
-            # merge _equivalentClass._attr and self.attr properties.
+            # merge _equivalentClass.attr and self.attr properties.
             # Note:  _equivalentClass.attr's values are overwritten by the self.attr's
             for k in self._equivalentClass:
                 exec('from icp2edd.cpmeta import *')
                 klass = eval(k)
                 inst = klass()
-                self._attr = {**inst._attr, **self._attr}
+                if set(inst.attr.keys()) & set(self.attr.keys()):
+                    # there is an intersection
+                    _logger.error(f"there is an intersection between attributes keys "
+                                  f"of {self._object} and {inst._object}")
+                else:
+                    # no intersection
+                    self.attr = {**inst.attr, **self.attr}
 
         select = f"select ?uri"
         option = ''
-        for k, v in self._attr.items():
+        for k, v in self.attr.items():
             select = select + ' ?' + v
             option = option + "\n\tOPTIONAL { ?uri %s ?%s .}" % (k, v)
 
@@ -206,7 +209,7 @@ class ICPObj(object):
             query = query + '\n\t ?uri rdf:type/rdfs:subClassOf* <%s> .' % self._object
 
         # filter: submission time
-        if 'cpmeta:wasSubmittedBy' in self._attr.keys():
+        if 'cpmeta:wasSubmittedBy' in self.attr.keys():
             query = query + '\n\t?uri cpmeta:wasSubmittedBy [' \
                             '\n\t\tprov:endedAtTime ?submTime ;' \
                             '\n\t\tprov:wasAssociatedWith ?submitter' \
@@ -217,7 +220,7 @@ class ICPObj(object):
                             f"# _filterSubmTime(until, op_='<=')"
 
         # filter last version
-        if 'cpmeta:isNextVersionOf' in self._attr.keys():
+        if 'cpmeta:isNextVersionOf' in self.attr.keys():
             query = query + f'\n\t{self._filterLastVersion(self._lastversion)} # _filterLastVersion(lastversion)'
 
         # add optional request (all attributes)
@@ -313,26 +316,41 @@ class ICPObj(object):
 
     def _groupby(self, res):
         """
+        combine bindings of a SPARQL query output in a dictionary
+
+        bindings = [
+          {var1: Value11, var2: Value21, var3: Value31 },
+          {var1: Value11, var2: Value21, var3: Value32 },
+          {var1: Value11, var2: Value21, var3: Value33 },
+          {var1: Value11, var2: Value22, var3: Value31 },
+          {var1: Value11, var2: Value22, var3: Value32 },
+          {var1: Value11, var2: Value22, var3: Value33 }
+        ]
+
+        out = { uri: { var1: [Value11],
+                       var2: [Value21, Value22],
+                       var3: [Value31, Value32, Value33]
+                      }
+        }
+
+         Furthermore, if the type of the SPARQL Value is 'uri' but not point to a 'meta.icos-cp.eu' element,
+         the type value is change to 'literal' to avoid later issue digging into those URI
+
         :param res: SPARQL query output
         :return: {uri: {variable: [SPARQLWrapper.Value, ...], ...}, ...}
         """
-        # bindings = [
-        #   {SPARQL query output variable 1: SPARQLWrapper.Value, SPARQL query output variable 2: SPARQLWrapper.Value },
-        #   ...
-        # ]
         # exemple SPARQL output variables: 'uri', 'static_object_citation',...
-        # TODO see for use of util.combine.. instead
         dict1 = {}
         for binding in res.bindings:
             uri = binding['uri'].value
             if uri not in dict1:
                 dict1[uri] = {}
+            #
             dict2 = dict1[uri]
 
             for k, v in binding.items():
                 if k not in dict2.keys():
                     dict2[k] = []
-
                 # change type -to avoid later issue digging into those URI-
                 if v.type == 'uri' and 'meta.icos-cp.eu' not in v.value:
                     v.type = 'literal'
