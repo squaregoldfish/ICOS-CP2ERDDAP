@@ -68,7 +68,7 @@ def main():
             fileout = Path.joinpath(rep, csv)
             c4edd.modify(fileout)
         except Exception:
-            _logger.exception('Something goes wrong when modifying cvs file')
+            _logger.exception('Something goes wrong when modifying csv file')
             raise  # Throw exception again so calling code knows it happened
 
         _logger.info('run ERDDAP GenerateDatasetXml tool to create dataset.xml file')

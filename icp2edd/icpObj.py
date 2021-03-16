@@ -174,13 +174,16 @@ class ICPObj(object):
                 exec('from icp2edd.cpmeta import *')
                 klass = eval(k)
                 inst = klass()
-                if set(inst.attr.keys()) & set(self.attr.keys()):
-                    # there is an intersection
-                    _logger.error(f"there is an intersection between attributes keys "
-                                  f"of {self._object} and {inst._object}")
-                else:
-                    # no intersection
-                    self.attr = {**inst.attr, **self.attr}
+                # TODO check every attribute value are unique, below too restrictive
+                # if set(inst.attr.keys()) & set(self.attr.keys()):
+                #     # there is an intersection
+                #     _logger.debug(f"{self._object} attributes: {self.attr.keys()}")
+                #     _logger.debug(f"{inst._object} attributes: {inst.attr.keys()}")
+                #     _logger.error(f"there is an intersection between attributes keys "
+                #                   f"of {self._object} and {inst._object}")
+                # else:
+                #     # no intersection
+                self.attr = {**inst.attr, **self.attr}
 
         select = f"select ?uri"
         option = ''
