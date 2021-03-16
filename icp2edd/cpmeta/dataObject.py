@@ -20,6 +20,7 @@
 from pathlib import Path
 import logging
 import traceback
+import re
 from pprint import pformat
 # import from other lib
 import requests
@@ -133,14 +134,15 @@ class DataObject(StaticObject):
             # uri = binding['uri'].value  # Warning do not convert to Path (https:// => https./)
             pid = uri.split("/")[-1]
             # Warning: linked to staticObject.py 'cpmeta:hasName': 'filename'
-            if not hasattr(binding, 'filename'):
+            if 'filename' not in binding:
                 _logger.critical(f"can not find 'filename' attribute in binding.\n "
                                  f"Check value of 'cpmeta:hasName' in StaticObject")
 
             if len(binding['filename']) > 1:
                 _logger.critical(f"several filenames associated to one uri, meta:\n{pformat(binding)}")
             else:
-                filename = Path(binding['filename'][0].value)
+                # replace white space(s) by underscore
+                filename = Path(re.sub('\s+', '_', binding['filename'][0].value))
                 stemname = filename.stem
 
                 dirout = setupcfg.datasetCsvPath / stemname
@@ -161,6 +163,7 @@ class DataObject(StaticObject):
                     # user, pswd = 'julien.paul at uib.no', 'Lw9ucQr5EEQ9SaK'
 
                     # Use 'with' to ensure the session context is closed after use.
+                    _logger.info(f'downloading file {uri} on {fileout}')
                     with requests.Session() as s:
                         # LOGIN_URL = 'https://cpauth.icos-cp.eu/login/'
                         # p = s.post(LOGIN_URL, data={user : pswd})
@@ -186,7 +189,7 @@ class DataObject(StaticObject):
                             raise  #
                         else:
                             # Success!
-                            _logger.info(f'download file {uri} on {fileout}')
+                            _logger.info(f'download completed, output on {fileout}')
                             # perc = float(i) / ?? * 100
                             # print(f'downloading file {uri} [{perc}%] on {fileout}', end='')
                             # print('Downloading File FooFile.txt [%d%%]\r'%i, end="")

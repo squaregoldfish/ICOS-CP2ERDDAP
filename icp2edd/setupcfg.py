@@ -59,8 +59,9 @@ def _get_last_subm():
                 file.seek(-2, os.SEEK_CUR)
             return file.readline().decode().split('until')[1].rstrip('\n').lstrip()
     else:
-        logging.debug(f"Can not find file -{_update_log}- where look for last update")
-        raise FileNotFoundError
+        msg = f"Can not find file -{_update_log}- where look for last update"
+        logging.debug(msg)
+        raise FileNotFoundError(msg)
 
 
 def _chk_product_subm_timeseries(dt_):
@@ -128,6 +129,14 @@ def _chk_product_subm(cfg_):
         logging.exception(f'Invalid date format (submitted until); '
                           f'Check arguments/configuration file(s)')
         raise  # Throw exception again so calling code knows it happened
+
+    # check submission dates order
+    if submFrom is not None and submUntil is not None and submFrom > submUntil:
+        msg =  f"Invalid dates. " \
+               f"End submission date -{submUntil}- lower than Start submission date -{submFrom}-. " \
+               f"Check arguments/configuration file(s)"
+        logging.exception(msg)
+        raise ValueError(msg)
 
 
 def _chk_config_product(cfg_):

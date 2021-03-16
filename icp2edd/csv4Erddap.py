@@ -82,9 +82,12 @@ def modify(f):
     # data.rename(columns=lambda x: re.sub(r'(.*)(\[.*\])(.*)', r'\1'r'\3', x), inplace=True)
     data.rename(columns=lambda x: util.filterBracket(x), inplace=True)
 
-    # reformat Date/Time with 3 decimals
-    if hasattr(data, "Date/Time"):
-        data["Date/Time"] = data["Date/Time"].apply(lambda x: time_format(x, 3))
+    # reformat Date & Time with 3 decimals only
+    dt_list = ["Date/Time","TIMESTAMP"] # column name
+    if any(dt in data for dt in dt_list):
+        for dt in dt_list:
+            if dt in  data:
+                data[dt] = data[dt].apply(lambda x: time_format(x, 3))
     else:
         _logger.warning(f"Can not find 'Date/Time' column in csv file -{f}-")
 
