@@ -7,6 +7,7 @@
 from pathlib import Path
 import logging
 import logging.config
+import atexit
 import yaml
 import pkgutil
 import sys
@@ -18,6 +19,7 @@ from time import strftime, localtime
 # import from other lib
 import confuse  # Initialize config with your app
 from dateutil.parser import parse
+import errorhandler
 # import from my project
 import icp2edd
 
@@ -30,7 +32,7 @@ global erddapPath, erddapWebInfDir, erddapContentDir, \
        authorised_product, extraParam
 
 # private
-global _cfg_path, _update_log, _logcfg
+global _cfg_path, _update_log, _logcfg, _warning_handler, _error_handler, _fatal_handler
 
 
 def add_last_subm():
@@ -352,6 +354,28 @@ def _find_package_path(name):
     return os.path.dirname(os.path.abspath(filepath))
 
 
+def _logger_header():
+    """ """
+    # add header to log file
+    logging.info(f'-------------------')
+    logging.info(f'package                  : {icp2edd.__name__}')
+    logging.info(f'version                  : {icp2edd.__version__}')
+    logging.info(f'start time               : {strftime("%Y-%m-%d %H:%M:%S", localtime())}')
+    logging.info(f'-------------------')
+
+
+def _logger_footer():
+    """ """
+    # add footer to log file
+    logging.info(f'-------------------')
+    logging.info(f"Warning     have occurred: {_warning_handler.fired}")
+    logging.info(f"Error       have occurred: {_error_handler.fired}")
+    logging.info(f"Fatal error have occurred: {_fatal_handler.fired}")
+    logging.info(f'end time                 : {strftime("%Y-%m-%d %H:%M:%S", localtime())}')
+    logging.info(f'-------------------')
+    print(f"See output log for more details: {log_filename} ")
+
+
 def _setup_logger(config_):
     """set up logger
 
@@ -377,7 +401,7 @@ def _setup_logger(config_):
     > CRITICAL:
     > A serious error, indicating that the program itself may be unable to continue running.
     """
-    global log_filename, _cfg_path, _logcfg
+    global log_filename, _cfg_path, _logcfg, _warning_handler, _error_handler, _fatal_handler
 
     _cfg_path = Path(_find_package_path(icp2edd.__pkg_cfg__))
     if not _cfg_path.is_dir():
@@ -446,6 +470,10 @@ def _setup_logger(config_):
             logging.config.dictConfig(cfg_log)
             # redirect warnings issued by the warnings module to the logging system.
             logging.captureWarnings(True)
+            # Track if message gets logged with severity of error or greater
+            _warning_handler = errorhandler.ErrorHandler(logging.WARNING)
+            _error_handler = errorhandler.ErrorHandler(logging.ERROR)
+            _fatal_handler = errorhandler.ErrorHandler(logging.CRITICAL)
 
             # keep log filename and path name
             log_filename = Path(cfg_log['handlers']['file']['filename']).resolve()
@@ -454,12 +482,8 @@ def _setup_logger(config_):
         logging.exception('Error loading configuration file. Using default configs')
         raise  # Throw exception again so calling code knows it happened
 
-    # add header to log file
-    logging.info(f'-------------------')
-    logging.info(f'package: {icp2edd.__name__}')
-    logging.info(f'version: {icp2edd.__version__}')
-    logging.info(f'start time: {strftime("%Y-%m-%d %H:%M:%S", localtime())}')
-    logging.info(f'-------------------')
+    _logger_header()
+    atexit.register(_logger_footer)
 
 
 def _parse(logfile_):
