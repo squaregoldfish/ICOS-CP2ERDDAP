@@ -173,8 +173,8 @@ def _search_file(cfg_, filename_):
 
     look for file 'filename_' in:
     - local directory or given path
-    - package directory
     - user    config directory
+    - package directory
     - package config directory
 
     :param cfg_:
@@ -187,6 +187,10 @@ def _search_file(cfg_, filename_):
     if Path(filename_).is_file():
         # local directory
         return Path(filename_).absolute()
+    elif Path(Path(cfg_.config_dir()) / filename_).is_file():
+        # user config directory
+        # ~/.config/<package> directory
+        return Path(Path(cfg_.config_dir()) / filename_)
     elif Path(icp2eddPath / filename_).is_file():
         # ~/path/to/package/ directory
         return Path(icp2eddPath / filename_)
@@ -194,10 +198,6 @@ def _search_file(cfg_, filename_):
         # package config directory
         # ~/path/to/package/cfg directory
         return Path(_cfg_path / filename_)
-    elif Path(Path(cfg_.config_dir()) / filename_).is_file():
-        # user config directory
-        # ~/.config/<package> directory
-        return Path(Path(cfg_.config_dir()) / filename_)
     else:
         logging.exception(f"can not find file -{filename_}-; "
                           f'Check arguments/configuration file(s)')
@@ -377,14 +377,14 @@ def _setup_logger(config_):
     > CRITICAL:
     > A serious error, indicating that the program itself may be unable to continue running.
     """
-    global log_filename, _cfg_path
+    global log_filename, _cfg_path, _logcfg
 
     _cfg_path = Path(_find_package_path(icp2edd.__pkg_cfg__))
     if not _cfg_path.is_dir():
         logging.exception('Can not find configuration path')
         raise FileNotFoundError
 
-    _logcfg = _cfg_path / 'logging.yaml'
+    _logcfg = _search_file(config_, 'logging.yaml')
     try:
         with open(_logcfg, 'rt') as file:
             cfg_log = yaml.safe_load(file.read())
@@ -602,6 +602,12 @@ def _default_logger():
 
 def _show_arguments(cfg_, print_=False):
     """ """
+    logging.debug(f"config files:")
+    logging.debug(f"   pkg              : {cfg_.default_config_path}")
+    logging.debug(f"   user             : {cfg_.user_config_path()}")
+    logging.debug(f"   logging          : {_logcfg}")
+    logging.debug(f"   update           : {_update_log}\n")
+
     logging.debug(f"paths.erddap        : {erddapPath}")
     logging.debug(f"paths.webinf        : {erddapWebInfDir}")
     logging.debug(f"paths.dataset.csv   : {datasetCsvPath}")
@@ -622,6 +628,12 @@ def _show_arguments(cfg_, print_=False):
     logging.debug(f"product.last        : {lastversion}")
 
     if print_:
+        print(f"config files:")
+        print(f"   pkg              : {cfg_.default_config_path}")
+        print(f"   user             : {cfg_.user_config_path()}")
+        print(f"   logging          : {_logcfg}")
+        print(f"   update           : {_update_log}\n")
+
         print(f"paths.erddap        : {erddapPath}")
         print(f"paths.webinf        : {erddapWebInfDir}")
         print(f"paths.dataset.csv   : {datasetCsvPath}")
