@@ -161,7 +161,7 @@ class SuperICPObj(object):
         if objtype in list_DataObject:
             # Warning: linked to:
             # - 'cpmeta:hasName' in StaticObject
-            if not hasattr(self.meta[uri_], 'filename'):
+            if 'filename' not in self.meta[uri_]:
                 _logger.critical(f"can not find 'filename' attribute in meta of {uri_}.\n "
                                  f"Check value of 'cpmeta:hasName' in StaticObject")
             filename = Path(self.meta[uri_]['filename'][0].value)
@@ -173,7 +173,7 @@ class SuperICPObj(object):
         elif objtype in list_VariableObject:
             # Warning: linked to:
             # - 'cpmeta:hasColumnTitle in DatasetColumn
-            if not hasattr(self.meta[uri_], 'column_title'):
+            if 'column_title' not in self.meta[uri_]:
                 _logger.critical(f"can not find 'column_title' attribute in meta of {uri_}.\n "
                                  f"Check value of 'cpmeta:hasColumnTitle' in DatasetColumn")
             varname = self.meta[uri_]['column_title'][0].value
