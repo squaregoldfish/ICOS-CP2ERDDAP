@@ -30,7 +30,7 @@ global erddapPath, erddapWebInfDir, erddapContentDir, \
        authorised_product, extraParam
 
 # private
-global _cfg_path, _update_log
+global _cfg_path, _update_log, _logcfg
 
 
 def add_last_subm():
