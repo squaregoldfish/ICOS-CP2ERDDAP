@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# atmoStation.py
+# template.py
 
 """
-    The atmoStation module is used to explore ICOS CP AtmoStations' metadata.
+    The template module is used to explore ICOS CP Templates' metadata.
 
     Example usage:
 
-    From atmoStation import AtmoStation
+    From template import Template
 
-    atmoStations = AtmoStation()       # initialise ICOS CP AtmoStation object
-    atmoStations.get_meta()            # get atmoStations' metadata from ICOS CP
-    atmoStations.show()                # print atmoStations' metadata
+    templates = Template()          # initialise ICOS CP Template object
+    templates.get_meta()            # get templates' metadata from ICOS CP
+    templates.show()                # print templates' metadata
 """
 
 # --- import -----------------------------------
@@ -20,7 +20,7 @@ import logging
 import traceback
 # import from other lib
 # import from my project
-from icp2edd.cpmeta.station import Station
+from icp2edd.icpObj import ICPObj
 
 # --- module's variable ------------------------
 # load logger
@@ -35,28 +35,27 @@ _attr = {
 # list of equivalent class
 _equivalentClass = []
 
-
 # ----------------------------------------------
-class AtmoStation(Station):
+class Template(ICPObj):
     """
     >>> t.getMeta()
-    >>> t.show(True)
+    >>> t.show()
 
     """
 
     def __init__(self, limit=None, uri=None):
-        """ initialise instance of AtmoStation(Station).
+        """ initialise instance of Template(ICPObj).
 
-        It will be used to set up a sparql query, and get all metadata of AtmoStation from ICOS CP.
+        It will be used to set up a sparql query, and get all metadata of Template from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select AtmoStation:
+        and/or select Template:
         - with ICOS CP 'uri'
 
         Example:
-            AtmoStation(limit=5)
+            Template(limit=5)
 
         :param limit: number of returned results
         :param uri: ICOS CP URI ('https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z')
@@ -80,7 +79,7 @@ class AtmoStation(Station):
             self._equivalentClass = _equivalentClass
 
         # object type URI
-        self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/AtmoStation'
+        self._object = 'http://meta.icos-cp.eu/ontologies/cpmeta/Template'
 
         #
         self._objtype = None
@@ -95,7 +94,7 @@ class AtmoStation(Station):
 if __name__ == '__main__':
     import doctest
 
-    doctest.testmod(extraglobs={'t': AtmoStation(limit=10)},
+    doctest.testmod(extraglobs={'t': Template(limit=10)},
                     optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
 

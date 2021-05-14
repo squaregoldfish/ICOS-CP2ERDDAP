@@ -124,10 +124,15 @@ class ICPObj(object):
             # set up if not defined
             self.attr = {}
 
+        # inherit properties
+        self._inherit = {**self.attr}
+
         if isinstance(_attr, dict):
-            # merge attr and self.attr properties.
+            # keep own properties
+            self._attr = _attr
+            # merge own and inherit properties.
             # Note:  .attr's values are overwritten by the self.attr's
-            self.attr = {**_attr, **self.attr}
+            self.attr = {**self._attr, **self._inherit}
 
         # object attributes' dictionary
         if not hasattr(self, '_equivalentClass'):
