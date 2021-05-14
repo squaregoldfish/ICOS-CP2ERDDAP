@@ -65,9 +65,15 @@ class WdcggStation(Station):
         self._uri = uri
         self._limit = limit
 
-        # object attributes' dictionary
+        # inherit properties
+        self._inherit = {**self.attr}
+
         if isinstance(_attr, dict):
-            self.attr = {**_attr, **self.attr}
+            # keep own properties
+            self._attr = _attr
+            # merge own and inherit properties.
+            # Note:  .attr's values are overwritten by the self.attr's
+            self.attr = {**self._attr, **self._inherit}
 
         if isinstance(_equivalentClass, list):
             self._equivalentClass = _equivalentClass
