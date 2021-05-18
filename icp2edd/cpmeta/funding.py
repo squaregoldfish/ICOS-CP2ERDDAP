@@ -31,6 +31,7 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
+    'cpmeta:fundingInfoProp': 'funding_info',
     'cpmeta:awardNumber': 'award_number',
     'cpmeta:awardTitle': 'award_title',
     'cpmeta:awardURI': 'award_uri',

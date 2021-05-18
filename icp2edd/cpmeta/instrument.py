@@ -39,7 +39,8 @@ _attr = {
     'cpmeta:hasOtcId': 'otcid',
     'cpmeta:hasSerialNumber': 'serial_number',
     'cpmeta:hasTcId': 'tcid',
-    'cpmeta:hasVendor': 'vendor'
+    'cpmeta:hasVendor': 'vendor',
+    'cpmeta:hasInstrumentComponent': 'component'
 }
 # list of equivalent class
 _equivalentClass = []

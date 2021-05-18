@@ -32,7 +32,9 @@ _logger = logging.getLogger(__name__)
 # Note: 'object/value' will be the output attribute name
 _attr = {
     'cpmeta:hasEcosystemType': 'type',
-    'cpmeta:hasSamplingPoint': 'sampling_point'
+    'cpmeta:hasSamplingPoint': 'sampling_point',
+    'cpmeta:hasMeanAnnualPrecip': 'mean_annual_precip',
+    'cpmeta:hasMeanAnnualRadiation': 'mean_annual_radiation'
 }
 # list of equivalent class
 _equivalentClass = []

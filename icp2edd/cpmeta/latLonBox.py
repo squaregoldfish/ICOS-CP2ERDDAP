@@ -31,6 +31,9 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
+    'cpmeta:latlongs': 'latlongs',
+    'cpmeta:hasLatitude': 'latitude',
+    'cpmeta:hasLongitude': 'longitude',
     'cpmeta:hasEasternBound': 'eastern_bound',
     'cpmeta:hasNorthernBound': 'northern_bound',
     'cpmeta:hasSouthernBound': 'southern_bound',

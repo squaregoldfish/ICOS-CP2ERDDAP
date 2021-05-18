@@ -37,25 +37,22 @@ _attr = {
     'cpmeta:hasAncillaryEntry': 'ancillary_entry',
     'cpmeta:hasClimateZone': 'climate_zone',
     'cpmeta:hasDocumentationObject': 'documentation',
-    'cpmeta:hasEasternBound': 'eastern_bound',
     'cpmeta:hasElevation': 'elevation',
     'cpmeta:hasFunding': 'funding',
-    'cpmeta:hasLatitude': 'latitude',
-    'cpmeta:hasLongitude': 'longitude',
     'cpmeta:hasMeanAnnualTemp': 'mean_annual_temperature',
-    'cpmeta:hasNorthernBound': 'northern_bound',
     'cpmeta:hasOperationalPeriod': 'operational_period',
     'cpmeta:hasResponsibleOrganization': 'organization',
-    'cpmeta:hasSouthernBound': 'southern_bound',
     'cpmeta:hasSpatialCoverage': 'location',
     'cpmeta:hasStationClass': 'class',
     'cpmeta:hasStationId': 'id',
     'cpmeta:hasStationSpecificParam': 'specific_parameter',
-    'cpmeta:hasWesternBound': 'western_bound',
-    'cpmeta:operatesOn': 'station_Site'
+    'cpmeta:operatesOn': 'station_Site',
+    'cpmeta:hasAssociatedPublication': 'associated_publication',
+    'cpmeta:hasTimeZoneOffset': 'time_zone_offset',
+    'cpmeta:hasDocumentationUri': 'documentation_uri'
 }
 # list of equivalent class
-_equivalentClass = []
+_equivalentClass = ['LatLonBox']
 
 
 # ----------------------------------------------
