@@ -7,6 +7,7 @@
 import logging
 import re
 import os
+import datetime
 from pprint import pformat
 # import from other lib
 # > pip
@@ -288,6 +289,7 @@ class IcpOnto(Onto):
         # set up class/instance variables
         self._type = 'icp'
         self._model = ontospy.Ontospy(self._uri)
+        self.propFromClass = {}
 
     def _get_namespaces(self):
         """ namespaces
@@ -335,6 +337,18 @@ class IcpOnto(Onto):
 
         # add extra base class
         self._add_base_classes()
+        # search base class of each property
+        self._get_prop_from_class()
+
+    def _get_prop_from_class(self):
+        """ """
+        for k, v in self.classHasProperty.items():
+            for p in v['base']:
+                if p not in self.propFromClass:
+                    self.propFromClass[p] = [k]
+                else:
+                    self.propFromClass[p] += [k]
+                    _logger.info(f"property -{p}- already have base class {self.propFromClass[p]}")
 
     def _add_base_classes(self):
         """ """
@@ -390,7 +404,7 @@ class IcpOnto(Onto):
         for c in self._model.all_classes:
             # c = model.get_class(uri=url+'DataObject')
             cs = str(c)
-            _ = {'base':[], 'inherit':[]}
+            _ = {'0': [], 'base':[], 'inherit':[]}
             # c.domain_of          # property own by the class
             # c.domain_of_inferred # also properties inherit
             for x in c.domain_of_inferred:
@@ -398,6 +412,7 @@ class IcpOnto(Onto):
                 for k, v in xx.items():
                     # k : class from property inherited
                     # _[k] = v
+                    _['0'] = [*_['0'], *v]
                     if k == cs:
                         _['base'] = [*_['base'], *v]
                     else:
@@ -409,6 +424,12 @@ class IcpOnto(Onto):
         pid = ''
         cookies = dict(CpLicenseAcceptedFor=pid)
         fileout = setupcfg.logPath / filename
+
+        if fileout.is_file():
+            # if fileout already exist rename it with date and time of the most recent metadata change
+            mtime = fileout.stat().st_mtime
+            dt = datetime.datetime.fromtimestamp(mtime).strftime('%Y-%m-%d_%H-%M')
+            fileout.replace(str(fileout)+'.'+dt)
 
         # Use 'with' to ensure the session context is closed after use.
         with requests.Session() as s:
@@ -532,11 +553,12 @@ class EddOnto(Onto):
         """
         """
         # init
-        _ = {'base': [], 'inherit': []}
+        _ = {'0': [], 'base': [], 'inherit': []}
         #
         klass = eval(k_.split(':')[1])
         inst = klass()
 
+        _['0'] = [*_['0'], *inst._attr, *inst._inherit]
         _['base'] = [*_['base'], *inst._attr]
         _['inherit'] = [*_['inherit'], *inst._inherit]
         # if k_ in self.isSubClassOf:
