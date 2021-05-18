@@ -52,7 +52,16 @@ _ns = {
     'prov': 'http://www.w3.org/ns/prov#',
     'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
     'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
-    'xsd': 'http://www.w3.org/2001/XMLSchema#'
+    'xsd': 'http://www.w3.org/2001/XMLSchema#',
+    'dc': 'http://purl.org/dc/terms/',
+    'dc11': 'http://purl.org/dc/elements/1.1/',
+    'sh': 'http://www.w3.org/ns/shacl#',
+    'skos': 'http://www.w3.org/2004/02/skos/core#',
+    'vann': 'http://purl.org/vocab/vann/',
+    'void': 'http://rdfs.org/ns/void#',
+    'xml': 'http://www.w3.org/XML/1998/namespace',
+    'sites': 'https://meta.fieldsites.se/ontologies/sites/',
+    'schema': 'http://schema.org/'
 }
 
 

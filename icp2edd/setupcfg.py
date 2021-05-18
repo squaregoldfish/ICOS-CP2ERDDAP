@@ -29,10 +29,11 @@ global erddapPath, erddapWebInfDir, erddapContentDir, \
        datasetXmlPath, datasetCsvPath, \
        icp2eddPath, logPath, log_filename, \
        submFrom, submUntil, product, lastversion, \
-       authorised_product, extraParam
+       authorised_product, extraParam, \
+       downloadOnto, writeOnto
 
 # private
-global _cfg_path, _update_log, _logcfg, _warning_handler, _error_handler, _fatal_handler
+global _cfg_path, _update_log, _logcfg, _warning_handler, _error_handler, _fatal_handler, _checkOnto
 
 
 def add_last_subm():
@@ -206,6 +207,25 @@ def _search_file(cfg_, filename_):
         raise FileNotFoundError
 
 
+def _chk_config_onto(cfg_):
+    """ """
+    global downloadOnto, writeOnto
+
+    # download rdf file
+    try:
+        downloadOnto = cfg_['onto']['download'].get(bool)
+    except confuse.exceptions.NotFoundError:
+        downloadOnto = False
+        # do not raise other exception as it will be by calling function
+
+    # write ontology files
+    try:
+        writeOnto = cfg_['onto']['write'].get(bool)
+    except confuse.exceptions.NotFoundError:
+        writeOnto = False
+        # do not raise other exception as it will be by calling function
+
+
 def _chk_config_extra(cfg_):
     """
     """
@@ -324,6 +344,8 @@ def _chk_config(cfg_):
         _chk_config_log(cfg_)
         # check authorised list from configuration file(s)
         _chk_config_authorised(cfg_)
+        # check ontology parameters from configuration file(s)
+        _chk_config_onto(cfg_)
         # check update parameters from configuration file(s)
         _chk_config_extra(cfg_)
         # check product parameters from configuration file(s)
@@ -486,10 +508,8 @@ def _setup_logger(config_):
     atexit.register(_logger_footer)
 
 
-def _parse(logfile_):
+def _parse():
     """set up parameter from command line arguments
-
-    :param logfile_: log filename, useless except to change the default log filename when using checkOntology
     """
     # define parser
     parser = argparse.ArgumentParser(
@@ -527,21 +547,36 @@ def _parse(logfile_):
                         help="parameters configuration file",
                         dest='extra.parameters'
                         )
-    parser.add_argument("--from",
-                        type=str,
-                        help="download dataset submitted from",
-                        dest='product.subm.from'
-                        )
-    parser.add_argument("--until",
-                        type=str,
-                        help="download dataset submitted until",
-                        dest='product.subm.until'
-                        )
-    parser.add_argument("--type",
-                        type=str,
-                        help="data 'type' to be used",
-                        dest='product.type'
-                        )
+    if not _checkOnto:
+        parser.add_argument("--from",
+                            type=str,
+                            help="download dataset submitted from",
+                            dest='product.subm.from'
+                            )
+        parser.add_argument("--until",
+                            type=str,
+                            help="download dataset submitted until",
+                            dest='product.subm.until'
+                            )
+        parser.add_argument("--type",
+                            type=str,
+                            help="data 'type' to be used",
+                            dest='product.type'
+                            )
+    else:
+        parser.add_argument("--write_ontology",
+                            action="store_const",
+                            const=True,
+                            help="write namespace, class, and property ontology tree for ICOS CP and icp2edd scripts",
+                            dest='onto.write'
+                            )
+        parser.add_argument("--download",
+                            action="store_const",
+                            const=True,
+                            help="download rdf ontology file from ICOS CP",
+                            dest='onto.download'
+                            )
+    #
     parser.add_argument("--arguments",
                         action="store_const",
                         const=True,
@@ -558,8 +593,9 @@ def _parse(logfile_):
     # parse arguments
     args = parser.parse_args()
 
-    if vars(args)['log.filename'] is None:
-        vars(args)['log.filename'] = logfile_
+    if _checkOnto and vars(args)['log.filename'] is None:
+        # vars(args)['log.filename'] = logfile_
+        vars(args)['log.filename'] = 'check_ontology.log'
 
     # TODO check and reformat args
     return args
@@ -642,14 +678,15 @@ def _show_arguments(cfg_, print_=False):
     logging.debug(f"log.verbose         : {cfg_['log']['verbose']}  ")
     logging.debug(f"log.level           : {cfg_['log']['level']}\n")
 
-    logging.debug(f"authorised.product  : {authorised_product}\n")
+    if not _checkOnto:
+        logging.debug(f"authorised.product  : {authorised_product}\n")
 
-    logging.debug(f"extra.parameters    : {extraParam}\n")
+        logging.debug(f"extra.parameters    : {extraParam}\n")
 
-    logging.debug(f"product.sub.from    : {submFrom}")
-    logging.debug(f"product.sub.until   : {submUntil}")
-    logging.debug(f"product.type        : {product}")
-    logging.debug(f"product.last        : {lastversion}")
+        logging.debug(f"product.sub.from    : {submFrom}")
+        logging.debug(f"product.sub.until   : {submUntil}")
+        logging.debug(f"product.type        : {product}")
+        logging.debug(f"product.last        : {lastversion}")
 
     if print_:
         print(f"config files:")
@@ -668,14 +705,18 @@ def _show_arguments(cfg_, print_=False):
         print(f"log.verbose         : {cfg_['log']['verbose']}  ")
         print(f"log.level           : {cfg_['log']['level']}\n")
 
-        print(f"authorised.product  : {authorised_product}\n")
+        if not _checkOnto:
+            print(f"authorised.product  : {authorised_product}\n")
 
-        print(f"extra.parameters    : {extraParam}\n")
+            print(f"extra.parameters    : {extraParam}\n")
 
-        print(f"product.sub.from    : {submFrom}")
-        print(f"product.sub.until   : {submUntil}")
-        print(f"product.type        : {product}")
-        print(f"product.last        : {lastversion}")
+            print(f"product.sub.from    : {submFrom}")
+            print(f"product.sub.until   : {submUntil}")
+            print(f"product.type        : {product}")
+            print(f"product.last        : {lastversion}")
+        else:
+            print(f"onto.write_ontology : {writeOnto}")
+            print(f"onto.download       : {downloadOnto}")
         exit(0)
 
 
@@ -687,17 +728,20 @@ def _show_version():
     exit(0)
 
 
-def main(logfile_=None):
+def main(checkOnto_=False):
     """set up icp2edd
 
     set up config file(s)
     set up logger
 
-    :param logfile_: log filename, useless except to change the default log filename when using checkOntology
+    :param checkOnto_: running checkOntology or not
     """
+    global _checkOnto
 
     # init default
     _default_logger()
+
+    _checkOnto = checkOnto_
 
     # setup package path
     _setup_path()
@@ -706,7 +750,7 @@ def main(logfile_=None):
     config = _setup_cfg()
 
     # read command line arguments
-    args = _parse(logfile_)
+    args = _parse()
 
     if args.version:
         _show_version()

@@ -32,13 +32,6 @@ _logger = logging.getLogger(__name__)
 # Note: 'object/value' will be the output attribute name
 _attr = {
     'cpmeta:asGeoJSON': 'geo_json',
-    'cpmeta:hasEasternBound': 'eastern_bound',
-    'cpmeta:hasElevation': 'elevation',
-    'cpmeta:hasLatitude': 'latitude',
-    'cpmeta:hasLongitude': 'longitude',
-    'cpmeta:hasNorthernBound': 'northern_bound',
-    'cpmeta:hasSouthernBound': 'southern_bound',
-    'cpmeta:hasWesternBound': 'western_bound',
     'geosparql:hasSerialization': 'serialization'
 }
 # list of equivalent class

@@ -34,12 +34,11 @@ def _check_namespace(icp_, edd_):
             edd_url = edd_.nsmap[k]
             if icp_url != edd_url:
                 _status = 1
-                print('icp',type(icp_url))
-                print('edd',type(edd_url))
                 _logger.error(f'value of -{k}- differ between ICOS CP -{icp_url}- and icp2edd -{edd_url}-')
         else:
+            help_msg = f"'{k}': '{v}'"
             _status = 1
-            _logger.error(f'missing ICOS CP namespace -{k}- in icp2edd')
+            _logger.error(f'missing ICOS CP namespace -{help_msg}- in icp2edd.')
 
     # compare icp2edd namespace to the ones of ICOS CP
     for k, v in edd_.nsmap.items():
@@ -62,11 +61,11 @@ def _check_class(icp_, edd_):
             for icp_class in sorted(v):
                 if icp_class not in edd_class_list:
                     if 'cpmeta' not in icp_class:
-                        _logger.warning(f"subclass of -{k}- differ.\n"
+                        _logger.warning(f"subclass of -{k}- differ. "
                                         f"\tICOS CP -{icp_class}- not found in icp2edd")
                     else:
                         _status = 1
-                        _logger.error(f'subclass of -{k}- differ.\n'
+                        _logger.error(f'subclass of -{k}- differ. '
                                       f'\tICOS CP -{icp_class}- not found in icp2edd')
         else:
             _miss += 1
@@ -105,13 +104,25 @@ def _check_property(icp_, edd_):
             edd_prop_list = edd_.isSubPropertyOf[k]
             for icp_prop in sorted(v):
                 if icp_prop not in edd_prop_list:
+                    if icp_prop in icp_.propFromClass:
+                        help_msg = f'property -{icp_prop}- come from class -{icp_.propFromClass[icp_prop]}-'
+                    else:
+                        url, ns, attr = icp_._from_ontospy_fmt(icp_prop)
+                        queryString = f"describe <{url}{attr}>"
+                        help_msg = f"base class of property -{icp_prop}- is unknown.\n "\
+                                   f"To get a clue, try to run {queryString} "\
+                                   f"in Carbon Portal SPARQL Endpoint "\
+                                   f"-https://meta.icos-cp.eu/sparqlclient/?type=TSV%20or%20Turtle-"
+
                     if 'cpmeta' not in icp_prop:
-                        _logger.warning(f"property of -{k}- differ.\n"
-                                        f"\tICOS CP -{icp_prop}- not found in icp2edd")
+                        _logger.warning(f"property of -{k}- differ. "
+                                        f"\tICOS CP -{icp_prop}- not found in icp2edd."
+                                        f"\t{help_msg}")
                     else:
                         _status = 1
-                        _logger.error(f'property of -{k}- differ.\n'
-                                      f'\tICOS CP -{icp_prop}- not found in icp2edd')
+                        _logger.error(f'property of -{k}- differ. '
+                                      f'\tICOS CP -{icp_prop}- not found in icp2edd.'
+                                      f'\t{help_msg}\n')
         else:
             _logger.warning(f"Can not find class -{k}- in icp2edd")
 
@@ -176,7 +187,7 @@ def _check_class_property(icp_, edd_):
     return _status
 
 
-def main(logfile_='check_onto.log'):
+def main():
     """check ICOS CP ontology versus the one use in icp2edd
 
     :param logfile_: log filename, force to change the default log filename when using checkOntology.py
@@ -188,7 +199,7 @@ def main(logfile_='check_onto.log'):
     use_ontospy_fmt = True
 
     # set up logger, paths, ...
-    setupcfg.main(logfile_)
+    setupcfg.main(checkOnto_=True)
     _logger = logging.getLogger(__name__)
 
     _logger.info(f"parse icp2edd class to set up cpmeta 'rdf'\n")
@@ -212,12 +223,19 @@ def main(logfile_='check_onto.log'):
     _logger.info(f"check class's property:\n")
     status += _check_class_property(icp, edd)
 
-    icp.print_ontology()
-    edd.print_ontology()
+    if setupcfg.downloadOnto:
+        print(f"download rdf ontology file from ICOS CP in {setupcfg.logPath}/cpmeta.rdf")
+        icp.download_rdf()
+
+    if setupcfg.writeOnto:
+        print(f"write namespace, class, and property ontology tree for ICOS CP "
+              f"and icp2edd scripts in {setupcfg.logPath}")
+        icp.print_ontology()
+        edd.print_ontology()
+
     # True == 1
     # False == 0
     if status:
-        # icp.download_rdf()
         _logger.critical(f"Change detected in ICOS CP, "
                          f"check diff between 'cpmeta_icp_*.txt' and 'cpmeta_edd_*.txt' ")
         print(f"Change detected in ICOS CP")
