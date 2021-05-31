@@ -237,7 +237,7 @@ def main():
     # False == 0
     if status:
         _logger.critical(f"Change detected in ICOS CP, "
-                         f"check diff between 'cpmeta_icp_*.txt' and 'cpmeta_edd_*.txt' ")
+                         f"Check output log for more details: {setupcfg.log_filename}")
         print(f"Change detected in ICOS CP")
     else:
         print(f"No change detected in ICOS CP")
