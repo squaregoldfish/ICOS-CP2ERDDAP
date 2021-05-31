@@ -486,6 +486,11 @@ def _setup_logger(config_):
                 logging.warning(f'log path {log_path} did not exist before.\n Check config file(s) '
                                 f'{config_.user_config_path()} and/or {config_.default_config_path}.')
 
+
+            if _checkOnto:
+                subject=cfg_log['handlers']['mail']['subject']
+                cfg_log['handlers']['mail']['subject'] = subject.replace('ICOS-CP2ERDDAP','CheckOntology')
+
             filename = cfg_log['handlers']['file']['filename']
             cfg_log['handlers']['file']['filename'] = str(log_path / filename)
 
