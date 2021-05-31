@@ -126,6 +126,6 @@ MAILTO=jpa029@uib.no
 # daily update (at 00:30) of ICOS-CP data portal synchronisation with ICOS-CP ERDDAP server
 30 00 * * * python3 -m icp2edd
 
-# weekly check (every monday at 01:30) of ICOS-CP data portal ontology
-30 01 * * 1 python3 -m icp2edd.checkOntology
+# weekly check (every monday at 06:00) of ICOS-CP data portal ontology
+00 06 * * 1 python3 -m icp2edd.checkOntology
 ```
