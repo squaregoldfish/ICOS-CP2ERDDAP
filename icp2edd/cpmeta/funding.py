@@ -35,7 +35,9 @@ _attr = {
     'cpmeta:awardNumber': 'award_number',
     'cpmeta:awardTitle': 'award_title',
     'cpmeta:awardURI': 'award_uri',
-    'cpmeta:hasFunder': 'funder'
+    'cpmeta:hasFunder': 'funder',
+    'cpmeta:hasEndDate': 'end_date',
+    'cpmeta:hasStartDate': 'start_date'
 }
 # list of equivalent class
 _equivalentClass = []
