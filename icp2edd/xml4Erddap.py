@@ -252,7 +252,7 @@ class Xml4Erddap(object):
 
 
 def concatenate():
-    """ concatenate header.xml dataset.XXX.xml footer.xml into local datasets.xml
+    """ concatenate header.xml users.xml dataset.XXX.xml footer.xml into local datasets.xml
 
     >>> xmlout = concatenate()
     concatenate in .../datasets.xml
@@ -269,6 +269,9 @@ def concatenate():
         header = setupcfg.icp2eddPath / 'dataset' / 'header.xml'
         _logger.debug('\t{}'.format(header))
         fp.write(header.read_text())
+        users = setupcfg.icp2eddPath / 'dataset' / 'users.xml'
+        _logger.debug('\t{}'.format(users))
+        fp.write(users.read_text())
         # add single dataset
         for ff in setupcfg.datasetXmlPath.glob('**/dataset.*.xml'):
             _logger.debug('\t{}'.format(ff))
