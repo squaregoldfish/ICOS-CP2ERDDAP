@@ -76,33 +76,38 @@ ERDDAP follows
               background-repeat: no-repeat;
               background-size: 100% 150px;"
        >
-    <tr>
-        <!-- TODO check width between background and logo -->
-        <td style="text-align:center; width:80px;">
-            <a rel="bookmark" href="https://www.icos-cp.eu/">
-                <img title="Integrated Carbon Observation System"
-                     src="&erddapUrl;/images/icos-logo.png"
-                     alt="ICOS"
-                     style="vertical-align:middle;">
-                </a>
-            </td>
-        <td style="text-align:left; font-size:x-large; color:#FFFFFF; ">
-            <strong>ERDDAP</strong>
-            <br><small><small><small>Easier access to scientific data</small></small></small>
-            </td>
-        <td style="text-align:right;  vertical-align: bottom; font-size:small;">
-            &loginInfo; &nbsp; &nbsp;
-            <br>Brought to you by
-            <a title="Integrated Carbon Observation System" rel="bookmark"
-               href="https://www.icos-cp.eu">ICOS</a>
-            <a title="Bjerknes Climate Data Centre" rel="bookmark"
-               href="https://www.bcdc.no/">BCDC</a>
-            <a title="Lund University" rel="bookmark"
-               href="https://www.lunduniversity.lu.se/">LU</a>
-            &nbsp; &nbsp;
-            </td>
-        </tr>
-    </table>
+   <tr>
+      <!-- TODO check width between background and logo -->
+      <td style="text-align:center; width:80px;">
+         <a rel="bookmark" href="https://www.icos-cp.eu/">
+            <img title="Integrated Carbon Observation System"
+               src="&erddapUrl;/images/icos-logo.png"
+               alt="ICOS"
+               style="vertical-align:middle;">
+         </a>
+      </td>
+      <td style="text-align:left; font-size:x-large; color:#FFFFFF; width: 50%;">
+         <strong>ERDDAP</strong>
+         <br><small><small><small>Easier access to scientific data</small></small></small>
+      </td>
+      <td style="font-size: small; width: 50%; height: 100%;">
+         <div style="position: relative; width: 100%; height: 100%;">
+            <div id="top" style="position: absolute; top: 0; right: 0; padding: 0.5%; font-weight: bold;">
+               &loginInfo;
+            </div>
+            <div id="bot" style="position: absolute; bottom: 0; right: 0; padding: 0.5%;">
+               Brought to you by
+               <a title="Integrated Carbon Observation System" rel="bookmark"
+                  href="https://www.icos-cp.eu">ICOS</a>
+               <a title="Bjerknes Climate Data Centre" rel="bookmark"
+                  href="https://www.bcdc.no/">BCDC</a>
+               <a title="Lund University" rel="bookmark"
+                  href="https://www.lunduniversity.lu.se/">LU</a>
+            </div>
+         </div>
+      </td>
+   </tr>
+</table>
 ]]></startBodyHtml5>
 
 <theShortDescriptionHtml><![CDATA[

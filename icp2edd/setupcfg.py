@@ -526,8 +526,7 @@ def _parse():
     # parser.add_argument("name", type=str, help="file name")
     # optional arguments
     parser.add_argument("-v", "--verbose",
-                        action="store_const",
-                        const=True,
+                        action="store_true",
                         help="print status messages to stdout",
                         dest='log.verbose'
                         )
@@ -570,27 +569,23 @@ def _parse():
                             )
     else:
         parser.add_argument("--write_ontology",
-                            action="store_const",
-                            const=True,
+                            action="store_true",
                             help="write namespace, class, and property ontology tree for ICOS CP and icp2edd scripts",
                             dest='onto.write'
                             )
         parser.add_argument("--download",
-                            action="store_const",
-                            const=True,
+                            action="store_true",
                             help="download rdf ontology file from ICOS CP",
                             dest='onto.download'
                             )
     #
     parser.add_argument("--arguments",
-                        action="store_const",
-                        const=True,
+                        action="store_true",
                         help="print arguments value (from config file and/or inline argument) and exit",
                         dest='arguments'
                         )
     parser.add_argument("--version",
-                        action="store_const",
-                        const=True,
+                        action="store_true",
                         help="print release version and exit",
                         dest='version'
                         )
