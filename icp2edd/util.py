@@ -5,10 +5,12 @@
 # --- import -----------------------------------
 # import from standard lib
 import logging
-from pathlib import Path
 import re
+from pathlib import Path
+
 # import from other lib
 import SPARQLWrapper
+
 # > conda forge
 # import from my project
 
@@ -20,8 +22,7 @@ _logger = logging.getLogger(__name__)
 # overwrite equality function in class SPARQLWrapper.SmartWrapper.Value
 # ----------------------------------------------
 def __value_eq__(self, other):
-    """ check equality of each dictionarys' element
-    """
+    """check equality of each dictionarys' element"""
     if type(other) is type(self):
         return self.__dict__ == other.__dict__
     return False
@@ -103,8 +104,8 @@ def combine_dict_in_set(d1_, d2_):
 
 
 # ----------------------------------------------
-def camelCase(word_, sep=' '):
-    """ rewrite with camelCase format
+def camelCase(word_, sep=" "):
+    """rewrite with camelCase format
 
     >>> word = ["Hello", "World", "Python", "Programming"]
     >>> camelCase(word)
@@ -129,16 +130,16 @@ def datasetidCase(filename_):
     """ """
     if not isinstance(filename_, Path):
         filename_ = Path(filename_)
-    return camelCase('icos_' + filename_.stem, sep='_')
+    return camelCase("icos_" + filename_.stem, sep="_")
 
 
 def filterBracket(name_):
     """ """
-    return re.sub(r'(.*)(\[.*\])(.*)', r'\1'r'\3', name_).strip()
+    return re.sub(r"(.*)(\[.*\])(.*)", r"\1" r"\3", name_).strip()
 
 
 # Press the green button in the gutter to run the script.
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     import doctest
 

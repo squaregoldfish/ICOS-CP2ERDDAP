@@ -6,6 +6,7 @@
 # import from standard lib
 # import from other lib
 from pbr.version import VersionInfo as _VersionInfo
+
 # import from my project
 
 __all__ = (

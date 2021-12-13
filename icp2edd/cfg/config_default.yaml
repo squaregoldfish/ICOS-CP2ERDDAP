@@ -2,9 +2,9 @@
 
 paths:
     # erddap: path of the main ERDDAP repository [tomcat]
-    erddap: '/home/jpa029/Code/apache-tomcat-8.5.57'
+    erddap: '/home/jpa029/erddap.localhost/apache-tomcat'
     # webinf: path to the 'WEB-INF' repository
-    webinf: '/home/jpa029/Code/apache-tomcat-8.5.57/webapps/ROOT/WEB-INF'
+    webinf: '/home/jpa029/erddap.localhost/apache-tomcat/webapps/ROOT/WEB-INF'
     # dataset: path where store file from each dataset
     dataset:
         # path where store csv file from ICOS CP for each dataset

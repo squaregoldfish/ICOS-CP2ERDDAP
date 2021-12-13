@@ -6,8 +6,9 @@
 # ----------------------------------------------
 # import from standard lib
 import atexit
-from time import time, strftime, localtime
 from datetime import timedelta
+from time import localtime, strftime, time
+
 # import from other lib
 # import from my project
 
@@ -20,7 +21,7 @@ def _secondsToStr(elapsed=None):
 
 
 def log(s, elapsed=None):
-    line = "-"*40
+    line = "-" * 40
     print(line)
     print(f"{_secondsToStr()} - {s}")
     if elapsed:
@@ -30,7 +31,7 @@ def log(s, elapsed=None):
 
 def endlog():
     end = time()
-    elapsed = end-start
+    elapsed = end - start
     log("End Program", _secondsToStr(elapsed))
 
 
