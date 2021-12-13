@@ -117,6 +117,11 @@ subsets of scientific datasets in common file formats and make graphs and maps.
 This particular ERDDAP installation has oceanographic data
 (for example, data from satellites and buoys).
 
+<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 1em;">
+   By downloading any of these data you are agreeing to the license which requires you to properly attribute the source of the data.<br>
+      We strongly encourage you to keep track of the dataset's digital object identifier (DOI) for this purpose.
+</p>
+
 [standardShortDescriptionHtml]
 
 ]]></theShortDescriptionHtml>

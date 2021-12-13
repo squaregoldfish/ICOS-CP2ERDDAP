@@ -1,16 +1,8 @@
 # Package info
 
-we use **pbr** to create this package
+we use **setuptools** to create this package
 
 ## How to set up/update  package library
-$ python3 setup.py sdist bdist_wheel
-
-This command should output a lot of text and once completed should generate two files in the
- **dist** directory.
-> The tar.gz file is a Source Archive whereas the .whl file is a Built Distribution.
-Newer pip versions preferentially install built distributions, but will fall back to source archives
-if needed. You should always upload a source archive and provide built archives for the platforms your
- project is compatible with.
 
 ## How to install package
 $ python3 -m pip install path/to/package/dist/icp2edd.SOME_RELEASE.tar.gz
@@ -30,7 +22,29 @@ $ pip(3) install -e git+https://github.com/{ username }/{ repo name }.git@{ tag 
 
 > for 'egg name', use the contents of project-name.egg-info/top_level.txt
 
+### exemple, for tag 0.7.0
+pip install git+https://github.com/BjerknesClimateDataCentre/ICOS-CP2ERDDAP.git@0.7.0#egg=icp2edd
+
 ## Version
+
+user2edd --version
+
+## Semantic Version (Sem-Ver):
+ Given a version number MAJOR.MINOR.PATCH, increment the:
+ - MAJOR version when you make incompatible API changes,
+ - MINOR version when you add functionality in a backwards-compatible manner, and
+ - PATCH version when you make backwards-compatible bug fixes.
+
+## Change version: bump2version
+```python
+bump2version part
+```
+`part`:
+    The part of the version to increase [`major`, `minor`, `patch`]
+
+> configuration file in `setup.cfg`
+
+see also [bump2version](https://github.com/c4urself/bump2version)
 
 ### Semantic Version (Sem-Ver):
  Given a version number MAJOR.MINOR.PATCH, increment the:
@@ -38,23 +52,31 @@ $ pip(3) install -e git+https://github.com/{ username }/{ repo name }.git@{ tag 
  - MINOR version when you add functionality in a backwards-compatible manner, and
  - PATCH version when you make backwards-compatible bug fixes.
 
-### **pbr** will automatically configure your version for you by parsing semantically-versioned Git tags, and commit.
+# Install and run ICOS-CP2ERDDAP
 
-- If the currently checked out revision is tagged, that tag is used as the version.
-- If the currently checked out revision is not tagged, then **pbr** take the last tagged version number
-and increment it to get a minimum target version.
-    - **pbr** then walk Git history back to the last release.
-    - Within each commit **pbr** look for a **Sem-Ver: pseudo header** and, if found, parse it looking for keywords.
-    > Unknown symbols are not an error (so that folk can’t wedge pbr or break their tree),
-but **pbr** will emit an info-level warning message.
+1. Create repo 'ICOS-CP2ERDDAP', and go in it:
 
-    The following pseudo header are recognized:
-    - feature
-    - api-break
-    - deprecation
-    - bugfix
+        $ mkdir ICOS-CP2ERDDAP
+        $ cd ICOS-CP2ERDDAP
 
-    A missing Sem-Ver line is equivalent to Sem-Ver: bugfix.
-    - The bugfix symbol causes a patch level increment to the version.
-    - The feature and deprecation symbols cause a minor version increment.
-    - The api-break symbol causes a major version increment.
+
+2. <a name="py39"></a>Create a virtualenv, and activate it:
+    Here I use conda, obviously you could use the virtualenv you are familiar with.
+
+    I run on python 3.9, so to avoid issue when running it, you should do the same.
+    First select python version you want to use
+
+        $ conda create --name ICOS-CP2ERDDAP python=3.9
+
+    Activate the virtualenv
+
+        $ conda activate ICOS-CP2ERDDAP
+
+3. <a name="git_dir"></a>Clone the github repo
+
+        $ git clone https://github.com/BjerknesClimateDataCentre/ICOS-CP2ERDDAP.git <icos-cp2erddap>
+
+4. Install the required environment:
+
+        $ cd <icos-cp2erddap>
+        $ pip install -r requirements/dev.txt
