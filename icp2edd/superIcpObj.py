@@ -10,7 +10,7 @@
     from superIcpObj import SuperICPObj
 
     supericpobj = SuperICPObj()     # initialise SuperICPObj
-    supericpobj.get_meta()          # get metadata from ICOS CP
+    supericpobj.getMeta()           # get metadata from ICOS CP
     supericpobj.show()              # print metadata
 """
 
@@ -18,65 +18,95 @@
 # import from standard lib
 import logging
 import traceback
+from pathlib import Path
 from pprint import pformat
+
 # import from other lib
 # > conda-forge
 # import from my project
 import icp2edd.setupcfg as setupcfg
-from icp2edd.icpObj import ICPObj
-# import all class from submodules in cpmeta
-from icp2edd.cpmeta import *
 import icp2edd.util as util
+from icp2edd.icpobj import *
 
 # --- module's variable ------------------------
 # load logger
 _logger = logging.getLogger(__name__)
 
-list_VariableObject = ["DatasetVariable", "DatasetColumn"]
-list_DataObject = ["DataObject"]
+list_VariableObject = ["cpmeta:DatasetVariable", "cpmeta:DatasetColumn"]
+list_DataObject = ["cpmeta:DataObject"]
 
-# list of object to not dig in in to avoid infinity loop / recursive search
-list_rec_search = ['NextVersionOf', 'RevisionOf', 'PrimarySource', 'QualityFlagFor']
+# list of object to not dig in to avoid infinity loop / recursive search
+list_rec_search = ["NextVersionOf", "RevisionOf", "PrimarySource", "QualityFlagFor"]
 
 # separator between object and attribute
-_sep = '_'
-dict_convAttr = {'type' + _sep + 'units': 'units'}
+_sep = "_"
+dict_convAttr = {"type" + _sep + "units": "units"}
 
 
 # ----------------------------------------------
 class SuperICPObj(object):
     """ """
-    def __init__(self):
-        """ """
+
+    def __init__(
+        self,
+        submfrom=None,
+    ):
+        """Initialise generic SuperICPObj.
+
+        It will be used to set up a sparql query, and get all metadata of ICPObj from ICOS CP.
+
+        Optionally we could select DataObject:
+            - submitted from 'submfrom'
+        """
+        self._from = submfrom
+        #
         self.meta = {}
         self.DataObject = {}
         self.DataVariable = {}
+        self.classprop = {}
         #
         self.tmp = {}
 
-        # list uri of all datasets already loaded
-        listuri = self._listDatasetLoaded()
-        #  listuri = 'https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z'
         try:
-            # to avoid too large Request-URI, loop over listuri
-            for uri in listuri:
-                _logger.info('get DataObject metadata from ICOS CP')
-                _ = DataObject(uri=uri)
+            if self._from is None:
+                # to avoid too large Request-URI, loop over listuri
+                # list uri of all datasets already loaded
+                listuri = self._listDatasetLoaded()
+                # listuri = [
+                #     "https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z",
+                # ]
+                for uri in listuri:
+                    _logger.info("get DataObject metadata from ICOS CP")
+                    _ = cpmeta.DataObject(uri=uri)
+                    _.getMeta()
+                    _.show()
+                    #
+                    self.meta = {**_.meta, **self.meta}
+            else:
+                # list all datasets submitted since self._from
+                _logger.info(
+                    f"get DataObject metadata from ICOS CP submitted since {self._from}"
+                )
+                # uri = "https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z"
+                # _ = cpmeta.DataObject(uri=uri)
+                _ = cpmeta.DataObject(submfrom=self._from)
                 _.getMeta()
                 _.show()
                 #
                 self.meta = {**_.meta, **self.meta}
+
         except Exception:
-            _logger.exception('Something goes wrong when loading metadata from DataObject')
+            _logger.exception(
+                "Something goes wrong when loading metadata from DataObject"
+            )
             raise  # Throw exception again so calling code knows it happened
 
         # get instance name
         (filename, line_number, function_name, text) = traceback.extract_stack()[-2]
-        self._instance_name = text[:text.find('=')].strip()
+        self._instance_name = text[: text.find("=")].strip()
 
     def getAttr(self):
-        """
-        """
+        """ """
         list_dataObj = self.meta.keys()
         # fill self.meta
         for uri in list_dataObj:
@@ -112,7 +142,7 @@ class SuperICPObj(object):
         def spread(uri_, exclude_=[], cnt_=0):
 
             cnt_ += 1
-            print('.'*cnt_, end="", flush=True)
+            print("." * cnt_, end="", flush=True)
 
             self.tmp[uri_] = {}
             if uri_ not in self.meta.keys():
@@ -120,17 +150,19 @@ class SuperICPObj(object):
                 raise SystemExit(1)
 
             for k, lv in self.meta[uri_].items():
-                if k in ['uri']:
+                if k in ["uri"]:
                     _logger.debug(f"ignore uri attribute")
                     # if k not in self.tmp[uri_].keys():
                     #     d = {k: str(lv[0].value)}
                     #     self.tmp[uri_] = util.combine_dict_in_list(d, self.tmp[uri_])
                 elif k in list_rec_search:
-                    _logger.debug(f'ignore {k} attribute. do not iterate to avoid recursive search')
+                    _logger.debug(
+                        f"ignore {k} attribute. do not iterate to avoid recursive search"
+                    )
                 else:
                     for v in lv:
                         d = {}
-                        if v.type != 'uri':
+                        if v.type != "uri":
                             d[k] = [v.value]
                         else:
                             objtype = ICPObj(uri=v.value).objtype
@@ -161,10 +193,12 @@ class SuperICPObj(object):
         if objtype in list_DataObject:
             # Warning: linked to:
             # - 'cpmeta:hasName' in StaticObject
-            if 'filename' not in self.meta[uri_]:
-                _logger.critical(f"can not find 'filename' attribute in meta of {uri_}.\n "
-                                 f"Check value of 'cpmeta:hasName' in StaticObject")
-            filename = Path(self.meta[uri_]['filename'][0].value)
+            if "filename" not in self.meta[uri_]:
+                _logger.critical(
+                    f"can not find 'filename' attribute in meta of {uri_}.\n "
+                    f"Check value of 'cpmeta:hasName' in StaticObject"
+                )
+            filename = Path(self.meta[uri_]["filename"][0].value)
             # datasetId = case.camel('icos_' + filename.stem, sep='_')
             datasetId = util.datasetidCase(filename)
 
@@ -173,10 +207,12 @@ class SuperICPObj(object):
         elif objtype in list_VariableObject:
             # Warning: linked to:
             # - 'cpmeta:hasColumnTitle in DatasetColumn
-            if 'column_title' not in self.meta[uri_]:
-                _logger.critical(f"can not find 'column_title' attribute in meta of {uri_}.\n "
-                                 f"Check value of 'cpmeta:hasColumnTitle' in DatasetColumn")
-            varname = self.meta[uri_]['column_title'][0].value
+            if "column_title" not in self.meta[uri_]:
+                _logger.critical(
+                    f"can not find 'column_title' attribute in meta of {uri_}.\n "
+                    f"Check value of 'cpmeta:hasColumnTitle' in DatasetColumn"
+                )
+            varname = self.meta[uri_]["column_title"][0].value
             # variableId = case.camel(varname, sep='_')
             variableId = util.filterBracket(varname)
 
@@ -197,22 +233,24 @@ class SuperICPObj(object):
         - 'NextVersionOf' : do not iterate to avoid recursive search inside previous versions
         """
         cnt_ += 1
-        print('.'*cnt_, end="", flush=True)
+        print("." * cnt_, end="", flush=True)
 
         for k, lv in self.meta[uri_].items():
-            if k == 'uri':
+            if k == "uri":
                 # do nothing, you are currently exploring it
                 _logger.debug(f"do nothing, you are currently exploring this uri -{k}-")
             elif k in list_rec_search:
                 # Warning: linked to:
-                # - 'cpmeta:isNextVersionOf' in StaticObject, and Collection
+                # - 'cpmeta:isNextVersionOf'  in StaticObject, and Collection
                 # - 'cpmeta:isQualityFlagFor' in DatasetColumn
-                # - 'prov:hadPrimarySource'  in StaticObject, and Collection
-                # - 'prov:wasRevisionOf'     in StaticObject, and Collection
-                _logger.debug(f'key {k} found. do not iterate to avoid recursive search')
+                # - 'prov:hadPrimarySource'   in StaticObject, and Collection
+                # - 'prov:wasRevisionOf'      in StaticObject, and Collection
+                _logger.debug(
+                    f"key {k} found. do not iterate to avoid recursive search"
+                )
             else:
                 for v in lv:
-                    if v.type == 'uri':
+                    if v.type == "uri":
                         uri = v.value
                         if uri in self.meta:
                             _logger.debug(f"do nothing, uri -{uri}- already in meta")
@@ -221,34 +259,42 @@ class SuperICPObj(object):
                             _ = ICPObj(uri=uri)
                             objtype = _.objtype
 
-                            try:
-                                klass = type(globals()[objtype]())
-                                _ = klass(uri=uri)
+                            # dummy patch cause issue on instrument data
+                            # https://meta.icos-cp.eu/objects/Rd3xqDBV1PhqO-7Y9GGIRw0q
+                            if objtype is not None:
                                 try:
-                                    _.getMeta()
-                                    self.meta = {**_.meta, **self.meta}
-                                    _logger.debug(f'dig into to explore {objtype} uri: {uri}')
-                                    self._getSubAttr(uri, cnt_)
+                                    klass = type(globals()[objtype]())
+                                    _ = klass(uri=uri)
+                                    try:
+                                        _.getMeta()
+                                        self.meta = {**_.meta, **self.meta}
+                                        _logger.debug(
+                                            f"dig into to explore {objtype} uri: {uri}"
+                                        )
+                                        self._getSubAttr(uri, cnt_)
+                                    except Exception:
+                                        _logger.exception(
+                                            f"can not found metadata from {objtype}[{uri}]"
+                                        )
+                                        raise
                                 except Exception:
-                                    _logger.exception(f'can not found metadata from {objtype}[{uri}]')
+                                    _logger.exception(
+                                        f"can not found class {objtype}, for object {uri}"
+                                    )
                                     raise
-                            except Exception:
-                                _logger.exception(f'can not found class {objtype}')
-                                raise
 
     def _listDatasetLoaded(self):
-        """
-        """
+        """ """
         # list directory containing csv file, return directory name
         output = set()
-        for csv in setupcfg.datasetCsvPath.glob('**/*.csv'):
-            output.add(csv.parent.name+'.csv')
+        for csv in setupcfg.datasetCsvPath.glob("**/*.csv"):
+            output.add(csv.parent.name + ".csv")
 
         # list URI related to those directory name(s)
-        _ = DataObject()
+        _ = cpmeta.DataObject()
         return _.listUri(list(output))
 
-    def show(self,  print_=False):
+    def show(self, print_=False):
         """ """
         if not isinstance(print_, bool):
             _logger.error(f"Invalid type argument -{print_}-")
@@ -257,7 +303,7 @@ class SuperICPObj(object):
         _logger.info(f"Class name: SuperICPObj:\n {pformat(self.meta)}")
         if print_:
             print("\nClass name: SuperICPObj")
-            print('\t'+pformat(self.meta))
+            print("\t" + pformat(self.meta))
 
         _logger.info(f"DataObject dictionary:\n {pformat(self.DataObject)}")
         if print_:
@@ -279,8 +325,84 @@ class SuperICPObj(object):
             else:
                 print(f"\tself.DataVariable dictionary empty !")
 
+    def getClassProperties(self):
+        """ """
+        list_dataObj = self.meta.keys()
+        # fill self.meta
+        for uri in list_dataObj:
+            print(f"\nlook in uri: {uri} ", end="")
+            _logger.info(f"look in uri: {uri}")
+            self._getSubAttr(uri)
+        print(f"")
 
-if __name__ == '__main__':
+        # get properties for each class object
+        for uri in self.meta.keys():
+            print(f"\nlook for properties in uri: {uri} ", end="")
+            _logger.info(f"look for properties in uri: {uri}")
+            _ = ICPObj(uri=uri)
+            objtype = _.objtype.replace(".", ":")
+            if objtype not in self.classprop:
+                self.classprop[objtype] = set()
+            list_props = _.getProperties()
+            # add properties if not already listed
+            self.classprop[objtype] = {*list_props, *self.classprop[objtype]}
+
+    def _getSubProp(self, uri_, cnt_=0):
+        """
+        dict1 = {name: value, name: value, ...}
+
+        special cases for keys 'uri' and 'NextVersionOf'.
+        - 'uri': do not iterate to avoid infinity loop
+        - 'NextVersionOf' : do not iterate to avoid recursive search inside previous versions
+        """
+        cnt_ += 1
+        print("." * cnt_, end="", flush=True)
+
+        for k, lv in self.meta[uri_].items():
+            if k == "uri":
+                # do nothing, you are currently exploring it
+                _logger.debug(f"do nothing, you are currently exploring this uri -{k}-")
+            elif k in list_rec_search:
+                # Warning: linked to:
+                # - 'cpmeta:isNextVersionOf' in StaticObject, and Collection
+                # - 'cpmeta:isQualityFlagFor' in DatasetColumn
+                # - 'prov:hadPrimarySource'  in StaticObject, and Collection
+                # - 'prov:wasRevisionOf'     in StaticObject, and Collection
+                _logger.debug(
+                    f"key {k} found. do not iterate to avoid recursive search"
+                )
+            else:
+                for v in lv:
+                    if v.type == "uri":
+                        uri = v.value
+                        if uri in self.meta:
+                            _logger.debug(f"do nothing, uri -{uri}- already in meta")
+                        else:
+                            # check object type
+                            _ = ICPObj(uri=uri)
+                            objtype = _.objtype
+
+                            try:
+                                klass = type(globals()[objtype]())
+                                _ = klass(uri=uri)
+                                try:
+                                    _.getMeta()
+                                    self.meta = {**_.meta, **self.meta}
+                                    _logger.debug(
+                                        f"dig into to explore {objtype} uri: {uri}"
+                                    )
+                                    self._getSubAttr(uri, cnt_)
+                                except Exception:
+                                    _logger.exception(
+                                        f"can not found metadata from {objtype}[{uri}]"
+                                    )
+                                    raise
+                            except Exception:
+                                _logger.exception(f"can not found class {objtype}")
+                                raise
+
+
+if __name__ == "__main__":
     import doctest
 
     doctest.testmod(optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)

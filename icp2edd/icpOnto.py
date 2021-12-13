@@ -2,25 +2,34 @@
 # -*- coding: utf-8 -*-
 # icpOnto.py
 
+
 # --- import -----------------------------------
 # import from standard lib
-import logging
-import re
-import os
 import datetime
-from pprint import pformat
+import logging
+import os
+import re
+from copy import deepcopy
+from importlib import import_module
+from inspect import isclass
+from pathlib import Path
+from pkgutil import iter_modules
+from pprint import pformat, pprint
+
 # import from other lib
 # > pip
 import ontospy
+
 # > conda forge
 import requests
 from requests.exceptions import HTTPError
+
 # import from my project
+import icp2edd.icpobj
 import icp2edd.setupcfg as setupcfg
-import icp2edd.cpmeta
-from icp2edd.icpObj import ICPObj
-# import all class from submodules in cpmeta
-from icp2edd.cpmeta import *
+from icp2edd.icpobj import *  # see __all__ in icpobj/__init__.py
+from icp2edd.icpobj.subproperties import hasSubProp
+from icp2edd.superIcpObj import SuperICPObj
 
 # --- module's variable ------------------------
 # load logger
@@ -36,8 +45,17 @@ _logger = logging.getLogger(__name__)
 class Onto(object):
     """ """
 
+    _default = {
+        "0": [],
+        "base": [],
+        "inherit": [],
+        "thing": [],
+        "unref": [],
+        "equivalence": [],
+    }
+
     def __init__(self, uri=None):
-        """ initialise generic ICOS CP object (ICPObj).
+        """initialise generic ICOS CP object (ICPObj).
 
         :param uri: ontology's uri ('http://meta.icos-cp.eu/ontologies/cpmeta/')
         """
@@ -46,26 +64,31 @@ class Onto(object):
         self._type = None
         self._model = None
         #
+        # nsmap = {namespace: url, ...}
+        # isSubClassOf = {class: [subclass, ...], ...}
+        # isSubPropertyOf = {prop: [subprop, ...], ...}
+        # classHasProperty = {0: {class: [prop, ...], ...}, base: {}, inherit: {}, ...}
         self.nsmap = {}
         self.isSubClassOf = {}
         self.isSubPropertyOf = {}
         self.classHasProperty = {}
+
         #
 
     def _get_namespaces(self):
-        """ namespaces """
+        """namespaces"""
         pass
 
     def _get_classes(self):
-        """ classes """
+        """classes"""
         pass
 
     def _get_properties(self):
-        """ properties """
+        """properties"""
         pass
 
     def _get_class_properties(self):
-        """ class's properties """
+        """class's properties"""
         pass
 
     def get_ontology(self):
@@ -94,7 +117,7 @@ class Onto(object):
         """
         _ = {}
         for k, v in dict_.items():
-            if k not in ['0', 'base', 'inherit']:
+            if k not in self._default.keys():
                 kk = func_(k)
             else:
                 kk = k
@@ -124,20 +147,22 @@ class Onto(object):
 
         try:
             # found = re.search('AAA(.+?)ZZZ', text).group(1)
-            found = re.search('\*(.+?)\*', text_).group(1)
+            found = re.search("\*(.+?)\*", text_).group(1)
         except AttributeError:
             # AAA, ZZZ not found in the original string
-            raise AttributeError(f'can not extract url, namespace and class name.\n'
-                                 f'do not recognize ontospy format -{text_}-')
+            raise AttributeError(
+                f"can not extract url, namespace and class name.\n"
+                f"do not recognize ontospy format -{text_}-"
+            )
 
         urlmap = {str(v): k for k, v in self.nsmap.items()}
 
-        if found.startswith('http'):
+        if found.startswith("http"):
             # get namespace
-            if '#' in found:
-                head_tail = found.split('#')
+            if "#" in found:
+                head_tail = found.split("#")
                 _ = head_tail[0]
-                url = str(_) + '#'
+                url = str(_) + "#"
                 # ns = str(Path(_).stem)
                 try:
                     ns = urlmap[url]
@@ -148,7 +173,7 @@ class Onto(object):
             else:
                 head_tail = os.path.split(found)
                 _ = head_tail[0]
-                url = str(_) + '/'
+                url = str(_) + "/"
                 # s3_tail = os.path.split(head_tail[0])
                 # ns = s3_tail[1]
                 try:
@@ -157,8 +182,10 @@ class Onto(object):
                     ns = Path(_).stem
                 attr = head_tail[1]
         else:
-            raise AttributeError(f'can not extract namespace and class name.\n'
-                                 f'do not recognize url -{found}-')
+            raise AttributeError(
+                f"can not extract namespace and class name.\n"
+                f"do not recognize url -{found}-"
+            )
 
         return url, ns, attr
 
@@ -167,21 +194,33 @@ class Onto(object):
         given icp2edd format ('cpmeta:IcosStation')
         return ontospy format ('<Class *http://.../cpmeta/IcosStation*>')
         """
-        if ':' in text_:
-            head_tail = text_.split(':')
+        if ":" in text_:
+            head_tail = text_.split(":")
             ns = head_tail[0]
             attr = head_tail[1]
+        elif text_ in ["ICPObj"]:
+            # no namespace in front of ICPObj
+            ns = None
+            attr = text_
         else:
-            raise AttributeError(f'can not reformat to ontospy format.\n'
-                                 f'do not recognize icp2edd format -{text_}-')
+            raise AttributeError(
+                f"can not reformat to ontospy format.\n"
+                f"do not recognize icp2edd format -{text_}-"
+            )
 
-        url = self.nsmap[ns]
+        url = ""
+        if ns is not None:
+            url = self.nsmap[ns]
+            klass = f"{ns}.{attr.replace('%20', '')}"
+        else:
+            # no namespace in front of ICPObj
+            klass = attr
 
         try:
-            _ = eval(attr)
-            return f'<Class *{url}{attr}*>'
-        except NameError:
-            return f'<Property *{url}{attr}*>'
+            _ = eval(klass)
+            return f"<Class *{url}{attr}*>"
+        except (NameError, AttributeError):
+            return f"<Property *{url}{attr}*>"
 
     def _to_icp2edd_fmt(self, text_):
         """
@@ -190,7 +229,7 @@ class Onto(object):
         """
         url, ns, attr = self._from_ontospy_fmt(text_)
 
-        return f'{ns}:{attr}'
+        return f"{ns}:{attr}"
 
     def as_icp2edd_fmt(self):
         """
@@ -217,50 +256,50 @@ class Onto(object):
         self.classHasProperty = self._refmt_to_ontospy(self.classHasProperty)
 
     @staticmethod
-    def _print_indent(f, k, level=0):
+    def _print_indent(f, k, level=0, depth=0):
         """ """
-        if level == 0:
+        if level <= depth:
             f.write(f"\n")
         f.write(f"\n{'-' * 3 * level}:{k:10}")
 
-    def _print_dic(self, f, dic, level=0):
+    def _print_dic(self, f, dic, level=0, depth=0):
         """ """
         for k, v in sorted(dic.items()):
-            self._print_indent(f, k, level=level)
+            self._print_indent(f, k, level=level, depth=depth)
             # what about pformat instead
             if isinstance(v, dict):
-                self._print_dic(f, v, level=level + 1)
+                self._print_dic(f, v, level=level + 1, depth=depth)
             elif isinstance(v, list):
                 for kk in sorted(v):
-                    self._print_indent(f, kk, level=level + 1)
+                    self._print_indent(f, kk, level=level + 1, depth=depth)
             else:
-                self._print_indent(f, v, level=level + 1)
+                self._print_indent(f, v, level=level + 1, depth=depth)
 
     def print_ontology(self):
         """ """
-        output = Path(setupcfg.logPath) / f'cpmeta_{self._type}_namespace.txt'
-        with open(output, 'w') as f:
+        output = Path(setupcfg.logPath) / f"cpmeta_{self._type}_namespace.txt"
+        with open(output, "w") as f:
             f.write(f"\n\nnamespaces:")
             f.write(f"\n{'-' * 40}")
             self._print_dic(f, self.nsmap)
 
-        output = Path(setupcfg.logPath) / f'cpmeta_{self._type}_classes.txt'
-        with open(output, 'w') as f:
+        output = Path(setupcfg.logPath) / f"cpmeta_{self._type}_classes.txt"
+        with open(output, "w") as f:
             f.write(f"\n\nclasses:")
             f.write(f"\n{'-' * 40}")
             self._print_dic(f, self.isSubClassOf)
 
-        output = Path(setupcfg.logPath) / f'cpmeta_{self._type}_properties.txt'
-        with open(output, 'w') as f:
+        output = Path(setupcfg.logPath) / f"cpmeta_{self._type}_properties.txt"
+        with open(output, "w") as f:
             f.write(f"\n\nproperties:")
             f.write(f"\n{'-' * 40}")
             self._print_dic(f, self.isSubPropertyOf)
 
-        output = Path(setupcfg.logPath) / f'cpmeta_{self._type}_classprop.txt'
-        with open(output, 'w') as f:
+        output = Path(setupcfg.logPath) / f"cpmeta_{self._type}_classprop.txt"
+        with open(output, "w") as f:
             f.write(f"\n\nclass properties:")
             f.write(f"\n{'-' * 40}")
-            self._print_dic(f, self.classHasProperty)
+            self._print_dic(f, self.classHasProperty, depth=1)
 
 
 def _onto2string(dict_):
@@ -280,6 +319,7 @@ def _onto2string(dict_):
 
 class IcpOnto(Onto):
     """ """
+
     def __init__(self, uri="http://meta.icos-cp.eu/ontologies/cpmeta/"):
         """
         initialise class with ontology from url,
@@ -287,12 +327,12 @@ class IcpOnto(Onto):
         """
         super().__init__(uri)
         # set up class/instance variables
-        self._type = 'icp'
+        self._type = "icp"
         self._model = ontospy.Ontospy(self._uri)
         self.propFromClass = {}
 
     def _get_namespaces(self):
-        """ namespaces
+        """namespaces
 
         namespace A has uri B
         nsmap[A] = B
@@ -304,7 +344,7 @@ class IcpOnto(Onto):
 
         # rename 'local' namespace
         try:
-            self.nsmap['cpmeta'] = self.nsmap.pop('')
+            self.nsmap["cpmeta"] = self.nsmap.pop("")
         except KeyError:
             pass
 
@@ -321,7 +361,7 @@ class IcpOnto(Onto):
                 self.nsmap[ns] = url
 
     def _get_classes(self):
-        """ classes
+        """classes
 
         class B is sub class of class A
          isSubClassOf[A] = B
@@ -335,35 +375,8 @@ class IcpOnto(Onto):
         # model.ontologyClassTree()
         # model.printClassTree()
 
-        # add extra base class
-        self._add_base_classes()
-        # search base class of each property
-        self._get_prop_from_class()
-
-    def _get_prop_from_class(self):
-        """ """
-        for k, v in self.classHasProperty.items():
-            for p in v['base']:
-                if p not in self.propFromClass:
-                    self.propFromClass[p] = [k]
-                else:
-                    self.propFromClass[p] += [k]
-                    _logger.info(f"property -{p}- already have base class {self.propFromClass[p]}")
-
-    def _add_base_classes(self):
-        """ """
-        _ = []
-        for klass in self.isSubClassOf['0']:
-            if 'cpmeta' not in klass:
-                _ = [*_, *self.isSubClassOf[klass]]
-            else:
-                _ = [*_, klass]
-
-        key = self._to_ontospy_fmt('cpmeta:ICPObj')
-        self.isSubClassOf[key] = _
-
     def _get_properties(self):
-        """ properties
+        """properties
 
         property B is sub property of property A
          isSubPropertyOf[A] = B
@@ -378,23 +391,8 @@ class IcpOnto(Onto):
         # model.ontologyPropTree()
         # model.printPropertyTree()
 
-        # add extra base property
-        self._add_base_properties()
-
-    def _add_base_properties(self):
-        """ """
-        _ = []
-        for klass in self.isSubPropertyOf['0']:
-            if klass in self.isSubPropertyOf:
-                _ = [*_, klass, *self.isSubPropertyOf[klass]]
-            else:
-                _ = [*_, klass]
-
-        key = self._to_ontospy_fmt('cpmeta:ICPObj')
-        self.isSubPropertyOf[key] = _
-
     def _get_class_properties(self):
-        """ class's properties
+        """class's properties
 
         property B is a property of class A
          classHasProperty[A] = B
@@ -404,7 +402,7 @@ class IcpOnto(Onto):
         for c in self._model.all_classes:
             # c = model.get_class(uri=url+'DataObject')
             cs = str(c)
-            _ = {'0': [], 'base':[], 'inherit':[]}
+            _ = deepcopy(self._default)
             # c.domain_of          # property own by the class
             # c.domain_of_inferred # also properties inherit
             for x in c.domain_of_inferred:
@@ -412,24 +410,54 @@ class IcpOnto(Onto):
                 for k, v in xx.items():
                     # k : class from property inherited
                     # _[k] = v
-                    _['0'] = [*_['0'], *v]
                     if k == cs:
-                        _['base'] = [*_['base'], *v]
+                        _["base"] = list({*_["base"], *v})
+                    elif "owl#Thing" in k:
+                        _["thing"] = list({*_["thing"], *v})
                     else:
-                        _['inherit'] = [*_['inherit'], *v]
+                        _["inherit"] = list({*_["inherit"], *v})
+
+                # copy all properties
+                _["0"] = [*_["base"], *_["inherit"]]
+
             self.classHasProperty[cs] = _
 
-    def download_rdf(self, filename='cpmeta.rdf'):
-        """ download rdf ontology file """
-        pid = ''
+        # look for properties not attached to ontology
+        self._get_extra_class_properties()
+
+    def _get_extra_class_properties(self):
+        """look for properties not referenced into ontology"""
+        # list all object already downloaded
+        # Note: maybe better list all object submitted since last time
+        _logger.info(f"initialise SuperICPObj object")
+        superObj = SuperICPObj(setupcfg.submFrom)
+        # recursively read properties of each object
+        # if prop not already listed in object's prop, add it
+        superObj.getClassProperties()
+        #
+        _ = self.classHasProperty
+        for k, lv in superObj.classprop.items():
+            key = self._to_ontospy_fmt(k)
+            list_prop = [f"<Property *{p}*>" for p in lv]
+            if key not in _:
+                _[key] = deepcopy(self._default)
+            #
+            _[key]["unref"] = list_prop
+            _[key]["0"] = list({*_[key]["0"], *list_prop})
+
+        self.classHasProperty = _
+
+    def download_rdf(self, filename="cpmeta.rdf"):
+        """download rdf ontology file"""
+        pid = ""
         cookies = dict(CpLicenseAcceptedFor=pid)
         fileout = setupcfg.logPath / filename
 
         if fileout.is_file():
             # if fileout already exist rename it with date and time of the most recent metadata change
             mtime = fileout.stat().st_mtime
-            dt = datetime.datetime.fromtimestamp(mtime).strftime('%Y-%m-%d_%H-%M')
-            fileout.replace(str(fileout)+'.'+dt)
+            dt = datetime.datetime.fromtimestamp(mtime).strftime("%Y-%m-%d_%H-%M")
+            fileout.replace(str(fileout) + "." + dt)
 
         # Use 'with' to ensure the session context is closed after use.
         with requests.Session() as s:
@@ -440,16 +468,16 @@ class IcpOnto(Onto):
             except HTTPError:  # as http_err:
                 # https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
                 # raise HTTPError(f'HTTP error occurred: {http_err}')  # Python 3.6
-                _logger.exception(f'HTTP error occurred:')
+                _logger.exception(f"HTTP error occurred:")
                 raise  #
             except Exception:  # as err:
                 # raise Exception(f'Other error occurred: {err}')  # Python 3.6
-                _logger.exception(f'Other error occurred:')
+                _logger.exception(f"Other error occurred:")
                 raise  #
             else:
                 # Success!
-                _logger.info(f'download file {self._uri} on {fileout}')
-                with open(fileout, 'wb') as f:
+                _logger.info(f"download file {self._uri} on {fileout}")
+                with open(fileout, "wb") as f:
                     for chunk in r.iter_content(chunk_size=1024):
                         if chunk:  # filter out keep-alive new chunks
                             f.write(chunk)
@@ -457,17 +485,17 @@ class IcpOnto(Onto):
 
 class EddOnto(Onto):
     """ """
+
     def __init__(self):
         """
         initialise class with ontology from icp2edd scripts
         """
         super().__init__()
         # set up class/instance variables
-        self._type = 'edd'
+        self._type = "edd"
 
     def _get_namespaces(self):
-        """ namespaces
-        """
+        """namespaces"""
         _ = ICPObj()
         for k, v in _._ns.items():
             # if k is None:
@@ -475,39 +503,53 @@ class EddOnto(Onto):
             self.nsmap[k] = v
 
     def _get_classes(self):
-        """ classes
+        """classes
 
-        get subclass from icp2edd.cpmeta
+        get subclass from icp2edd.icpobj
 
          class B is sub class of class A
           isSubClassOf[A] = B
         """
-        package = icp2edd.cpmeta
-
+        package = icp2edd.icpobj
         for importer, modname, ispkg in iter_modules(package.__path__):
-            # print("Found submodule %s (is a package: %s)" % (modname, ispkg))
             # import the module and iterate through its attributes
             modul = import_module(f"{package.__name__}.{modname}")
             for attr_name in dir(modul):
                 attr = getattr(modul, attr_name)
-                if isclass(attr):
-                    # select only class with method '_query', see ICPObj
-                    if hasattr(attr, '_query'):
-                        # print(f'attribute_name:{attr.__bases__[0].__name__} {attr}')
-                        parent = attr.__bases__[0].__name__
-                        if parent == 'object':
-                            continue
-                        parent = f'cpmeta:{parent}'
-                        if parent not in self.isSubClassOf.keys():
-                            self.isSubClassOf[parent] = []
 
-                        # keep only uniq value : list(set(mylist))
-                        self.isSubClassOf[parent] = list({*self.isSubClassOf[parent], f'cpmeta:{attr.__name__}'})
+                if isclass(attr):
+                    # select only class with method '_queryString', see ICPObj
+                    if hasattr(attr, "_queryString"):
+                        child = attr
+                        child_module = child.__module__.split(".")[-2]
+                        child = f"{child_module}:{child.__name__}"
+
+                        for i in range(len(attr.__bases__)):
+                            parent = attr.__bases__[i]
+                            if parent.__name__ == "object":
+                                continue
+
+                            parent_module = parent.__module__.split(".")[-2]
+                            if parent_module == "icpobj":
+                                parent = f"{parent.__name__}"
+                            else:
+                                parent = f"{parent_module}:{parent.__name__}"
+
+                            if parent not in self.isSubClassOf.keys():
+                                self.isSubClassOf[parent] = []
+
+                            # keep only uniq value : list(set(mylist))
+                            self.isSubClassOf[parent] = list(
+                                {
+                                    *self.isSubClassOf[parent],
+                                    f"{child}",
+                                }
+                            )
 
     def _get_properties(self):
-        """ properties
+        """properties
 
-        get all properties from icp2edd.cpmeta
+        get all properties from icp2edd.icpobj
 
         property B is sub property of property A
          isSubPropertyOf[A] = B
@@ -517,19 +559,24 @@ class EddOnto(Onto):
             for kk in v:
                 self._add_properties(kk)
 
+        for key in hasSubProp.keys():
+            self.isSubPropertyOf[key] = [k for k, v in hasSubProp[key].items()]
+
     def _add_properties(self, k):
         """
         # TODO find a way to define sub properties
         """
         # main property
-        key = 'cpmeta:ICPObj'
+        # key = "icpobj:ICPObj"
+        key = "0"
         if k not in self.isSubPropertyOf.keys():
-            klass = eval(k.split(':')[1])
+            # klass = eval(k.split(":")[1])
+            klass = eval(k.replace(":", "."))
             _ = klass()
             for p in _.attr.keys():
                 try:
                     if p in self.isSubPropertyOf[key]:
-                        _logger.info(f'property {p} already in class {key}')
+                        _logger.info(f"property {p} already in class {key}")
                     else:
                         self.isSubPropertyOf[key] += [p]
                 except KeyError:
@@ -537,9 +584,9 @@ class EddOnto(Onto):
                     self.isSubPropertyOf[key] = [p]
 
     def _get_class_properties(self):
-        """ class's properties
+        """class's properties
 
-        get properties of each class from icp2edd.cpmeta
+        get properties of each class from icp2edd.icpobj
 
         property B is a property of class A
          classHasProperty[A] = B
@@ -550,29 +597,34 @@ class EddOnto(Onto):
                 self._add_class_properties(kk)
 
     def _add_class_properties(self, k_):
-        """
-        """
+        """ """
         # init
-        _ = {'0': [], 'base': [], 'inherit': []}
+        _ = deepcopy(self._default)
         #
-        klass = eval(k_.split(':')[1])
+        # klass = eval(k_.split(":")[1])
+        klass = eval(k_.replace(":", "."))
         inst = klass()
 
-        _['0'] = [*_['0'], *inst._attr, *inst._inherit]
-        _['base'] = [*_['base'], *inst._attr]
-        _['inherit'] = [*_['inherit'], *inst._inherit]
-        # if k_ in self.isSubClassOf:
-        #     for kk in self.isSubClassOf[k_]:
-        #         _['inherit'] = [*_['inherit'], *self._get_list_properties(kk)]
+        if klass == "ICPObj":
+            _["thing"] = [*_["thing"], *inst._attr]
+
+        _["0"] = [*inst.attr]
+        _["base"] = [*inst._attr]
+        _["inherit"] = [*inst._inherit]
+        for k in inst._equivalentClass:
+            equiklass = eval(k.replace(":", "."))
+            inst2 = equiklass()
+            _["equivalence"] = list({*_["equivalence"], *inst2.attr})
+            _["0"] = list({*_["0"], *inst2.attr})
 
         self.classHasProperty[k_] = _
 
     @staticmethod
     def _get_list_properties(k_):
-        """
-        """
-        klass = eval(k_.split(':')[1])
+        """ """
+        klass = eval(k_.split(":")[1])
         _ = klass()
         return [str(x) for x in _.attr.keys()]
+
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

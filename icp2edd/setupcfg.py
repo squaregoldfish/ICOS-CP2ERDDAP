@@ -4,63 +4,68 @@
 
 # ----------------------------------------------
 # import from standard lib
-from pathlib import Path
+import argparse
+import atexit
+import datetime as dt
 import logging
 import logging.config
-import atexit
-import yaml
+import os
 import pkgutil
 import sys
-import os
 import warnings
-import argparse
-import datetime as dt
-from time import strftime, localtime
+from pathlib import Path
+from time import localtime, strftime
+
 # import from other lib
 import confuse  # Initialize config with your app
-from dateutil.parser import parse
 import errorhandler
+import yaml
+from dateutil.parser import parse
+
 # import from my project
 import icp2edd
 
 # --- module's variable ------------------------
 # public
-global erddapPath, erddapWebInfDir, erddapContentDir, \
-       datasetXmlPath, datasetCsvPath, \
-       icp2eddPath, logPath, log_filename, \
-       submFrom, submUntil, product, lastversion, \
-       authorised_product, extraParam, \
-       downloadOnto, writeOnto
+global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath, datasetCsvPath, icp2eddPath, logPath, log_filename, submFrom, submUntil, product, lastversion, authorised_product, extraParam, downloadOnto, writeOnto
 
 # private
 global _cfg_path, _update_log, _logcfg, _warning_handler, _error_handler, _fatal_handler, _checkOnto
 
 
 def add_last_subm():
-    """ register last submitted dates (used to load dataset)
-    """
+    """register last submitted dates"""
     global submUntil
 
     if submUntil is None:
         # use current date (UTC)
-        submUntil = dt.datetime.now(dt.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+        submUntil = (
+            dt.datetime.now(dt.timezone.utc)
+            .replace(hour=0, minute=0, second=0, microsecond=0)
+            .isoformat()
+        )
 
     with open(_update_log, "a") as file:
         if _update_log.stat().st_size == 0:
             # add header to empty file
-            file.write(f"# Previous submitted date(s) to load dataset from ICOS CP:\n")
+            if not _checkOnto:
+                header = "# Previous submitted date(s) to load dataset from ICOS CP:\n"
+            else:
+                header = (
+                    "# Previous submitted date(s) to check ontology from ICOS CP:\n"
+                )
+            file.write(header)
         file.write(f"from {submFrom} until {submUntil}\n")
 
 
 def _get_last_subm():
-    """ read last ending submitted date (used to load dataset) registered
-    """
+    """read last ending submitted date registered"""
     if _update_log.is_file() and _update_log.stat().st_size != 0:
         with open(_update_log, "rb") as file:
             file.seek(-2, os.SEEK_END)
-            while file.read(1) != b'\n':
+            while file.read(1) != b"\n":
                 file.seek(-2, os.SEEK_CUR)
-            return file.readline().decode().split('until')[1].rstrip('\n').lstrip()
+            return file.readline().decode().split("until")[1].rstrip("\n").lstrip()
     else:
         msg = f"Can not find file -{_update_log}- where look for last update"
         logging.debug(msg)
@@ -68,8 +73,7 @@ def _get_last_subm():
 
 
 def _chk_product_subm_timeseries(dt_):
-    """ check submitted date (used to load dataset) time series
-    """
+    """check submitted date (used to load dataset) time series"""
     # last update to be used
     duse = parse(dt_).isoformat()
     # last update registered
@@ -77,23 +81,27 @@ def _chk_product_subm_timeseries(dt_):
         dref = parse(_get_last_subm()).isoformat()
     except FileNotFoundError:
         # no previous date registered
-        logging.info('No previous dates registered. Can not check time series')
+        logging.info("No previous dates registered. Can not check time series")
     else:
         if dref < duse:
-            logging.debug(f" last ending date registered -{dref}- lower than starting date to be used -{duse}-")
+            logging.debug(
+                f" last ending date registered -{dref}- lower than starting date to be used -{duse}-"
+            )
         elif dref > duse:
-            logging.debug(f" last ending date registered -{dref}- greater than starting date to be used -{duse}-")
+            logging.debug(
+                f" last ending date registered -{dref}- greater than starting date to be used -{duse}-"
+            )
 
 
 def _chk_product_subm(cfg_):
-    """ check submitted dates
+    """check submitted dates
 
     dates assume to be UTC
     """
     global submFrom, submUntil
 
     try:
-        _ = cfg_['product']['subm']['from'].get()
+        _ = cfg_["product"]["subm"]["from"].get()
         if _ is not None:
             # submFrom = parse(_).astimezone(tz=dt.timezone.utc).isoformat()
             submFrom = parse(_).isoformat()
@@ -102,25 +110,37 @@ def _chk_product_subm(cfg_):
     except confuse.exceptions.NotFoundError:
         submFrom = None
     except Exception:
-        logging.exception(f'Invalid date format (submitted from); '
-                          f'Check arguments/configuration file(s)')
+        logging.exception(
+            f"Invalid date format (submitted from); "
+            f"Check arguments/configuration file(s)"
+        )
         raise  # Throw exception again so calling code knows it happened
 
     if submFrom is None:
         try:
-            submFrom = _get_last_subm()
+            if _checkOnto:
+                today = dt.datetime.now(dt.timezone.utc).replace(
+                    hour=0, minute=0, second=0, microsecond=0
+                )
+                submFrom = today - dt.timedelta(days=1)
+            else:
+                submFrom = _get_last_subm()
         except FileNotFoundError:
             # no previous date registered
-            logging.warning('No previous dates registered. No initial date to your request.')
+            logging.warning(
+                "No previous dates registered. No initial date to your request."
+            )
         except Exception:
-            logging.exception(f'Something goes wrong when looking for last submitted date')
+            logging.exception(
+                f"Something goes wrong when looking for last submitted date"
+            )
             raise  # Throw exception again so calling code knows it happened
     else:
         # check last update
         _chk_product_subm_timeseries(submFrom)
 
     try:
-        _ = cfg_['product']['subm']['until'].get()
+        _ = cfg_["product"]["subm"]["until"].get()
         if _ is not None:
             # submUntil = parse(_).astimezone(tz=dt.timezone.utc).isoformat()
             submUntil = parse(_).isoformat()
@@ -129,23 +149,25 @@ def _chk_product_subm(cfg_):
     except confuse.exceptions.NotFoundError:
         submUntil = None
     except Exception:
-        logging.exception(f'Invalid date format (submitted until); '
-                          f'Check arguments/configuration file(s)')
+        logging.exception(
+            f"Invalid date format (submitted until); "
+            f"Check arguments/configuration file(s)"
+        )
         raise  # Throw exception again so calling code knows it happened
 
     # check submission dates order
     if submFrom is not None and submUntil is not None and submFrom > submUntil:
-        msg =  f"Invalid dates. " \
-               f"End submission date -{submUntil}- lower than Start submission date -{submFrom}-. " \
-               f"Check arguments/configuration file(s)"
+        msg = (
+            f"Invalid dates. "
+            f"End submission date -{submUntil}- lower than Start submission date -{submFrom}-. "
+            f"Check arguments/configuration file(s)"
+        )
         logging.exception(msg)
         raise ValueError(msg)
 
 
 def _chk_config_product(cfg_):
-    """ check submitted dates, product and version
-
-    """
+    """check submitted dates, product and version"""
     global authorised_product, product
     global lastversion
     try:
@@ -154,14 +176,14 @@ def _chk_config_product(cfg_):
 
         # check product type
         try:
-            product = cfg_['product']['type'].as_choice(authorised_product)
+            product = cfg_["product"]["type"].as_choice(authorised_product)
         except confuse.exceptions.NotFoundError:
             product = None
             # do not raise other exception as it will be by calling function
 
         # check product version
         try:
-            lastversion = cfg_['product']['last'].get(bool)
+            lastversion = cfg_["product"]["last"].get(bool)
         except confuse.exceptions.NotFoundError:
             lastversion = None
             # do not raise other exception as it will be by calling function
@@ -172,7 +194,7 @@ def _chk_config_product(cfg_):
 
 
 def _search_file(cfg_, filename_):
-    """ search file in several directory
+    """search file in several directory
 
     look for file 'filename_' in:
     - local directory or given path
@@ -202,8 +224,10 @@ def _search_file(cfg_, filename_):
         # ~/path/to/package/cfg directory
         return Path(_cfg_path / filename_)
     else:
-        logging.exception(f"can not find file -{filename_}-; "
-                          f'Check arguments/configuration file(s)')
+        logging.exception(
+            f"can not find file -{filename_}-; "
+            f"Check arguments/configuration file(s)"
+        )
         raise FileNotFoundError
 
 
@@ -213,33 +237,35 @@ def _chk_config_onto(cfg_):
 
     # download rdf file
     try:
-        downloadOnto = cfg_['onto']['download'].get(bool)
+        downloadOnto = cfg_["onto"]["download"].get(bool)
     except confuse.exceptions.NotFoundError:
         downloadOnto = False
         # do not raise other exception as it will be by calling function
 
     # write ontology files
     try:
-        writeOnto = cfg_['onto']['write'].get(bool)
+        writeOnto = cfg_["onto"]["write"].get(bool)
     except confuse.exceptions.NotFoundError:
         writeOnto = False
         # do not raise other exception as it will be by calling function
 
 
 def _chk_config_extra(cfg_):
-    """
-    """
+    """ """
     global extraParam
 
     try:
-        extraParam = cfg_['extra']['parameters'].get(str)
+        extraParam = cfg_["extra"]["parameters"].get(str)
     except confuse.exceptions.NotFoundError:
-        logging.exception(f'Can not find extra parameters; '
-                          f'Check arguments/configuration file(s)')
+        logging.exception(
+            f"Can not find extra parameters; " f"Check arguments/configuration file(s)"
+        )
         raise  # Throw exception again so calling code knows it happened
     except Exception:
-        logging.exception(f'Invalid parameters yaml filename; '
-                          f'Check arguments/configuration file(s)')
+        logging.exception(
+            f"Invalid parameters yaml filename; "
+            f"Check arguments/configuration file(s)"
+        )
         raise  # Throw exception again so calling code knows it happened
 
     # check config file exist
@@ -247,89 +273,99 @@ def _chk_config_extra(cfg_):
 
 
 def _chk_config_authorised(cfg_):
-    """
-    """
+    """ """
     global authorised_product
 
     # Authorised product
     try:
-        authorised_product = cfg_['authorised']['product'].get(list)
+        authorised_product = cfg_["authorised"]["product"].get(list)
     except confuse.exceptions.NotFoundError:
         authorised_product = None
         # do not raise other exception as it will be by calling function
 
 
 def _chk_config_log(cfg_):
-    """
-    """
+    """ """
     # see _setup_logger
     pass
 
 
 def _chk_config_paths(cfg_):
-    """
-    """
+    """ """
     try:
         # check path to ERDDAP, and set up global variables
         #   path where ERDDAP has been previously installed, as well as
         #   path where xml files will be stored
         global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath
 
-        erddapPath = Path(cfg_['paths']['erddap'].get(str))
+        erddapPath = Path(cfg_["paths"]["erddap"].get(str))
         if not erddapPath.is_dir():
-            raise FileNotFoundError('can not find ERDDAP path {}.\n'
-                                    'Check config file(s) {} and/or {}'.format(erddapPath,
-                                                                               cfg_.user_config_path(),
-                                                                               cfg_.default_config_path))
-        logging.debug(f'erddapPath: {erddapPath}')
+            raise FileNotFoundError(
+                "can not find ERDDAP path {}.\n"
+                "Check config file(s) {} and/or {}".format(
+                    erddapPath, cfg_.user_config_path(), cfg_.default_config_path
+                )
+            )
+        logging.debug(f"erddapPath: {erddapPath}")
 
         # erddapWebInfDir = erddapPath / 'webapps' / <ROOT> / 'WEB-INF'
-        erddapWebInfDir = Path(cfg_['paths']['webinf'].get(str))
+        erddapWebInfDir = Path(cfg_["paths"]["webinf"].get(str))
         if not erddapWebInfDir.is_dir():
-            raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
-                                    'check ERDDAP installation. '.format(erddapWebInfDir))
-        logging.debug(f'erddapWebInfDir: {erddapWebInfDir}')
+            raise FileNotFoundError(
+                "can not find ERDDAP sub-directory {} \n"
+                "check ERDDAP installation. ".format(erddapWebInfDir)
+            )
+        logging.debug(f"erddapWebInfDir: {erddapWebInfDir}")
 
-        erddapContentDir = erddapPath / 'content' / 'erddap'
+        erddapContentDir = erddapPath / "content" / "erddap"
         if not erddapContentDir.is_dir():
-            raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
-                                    'check ERDDAP installation'.format(erddapContentDir))
-        logging.debug(f'erddapContentDir: {erddapContentDir}')
+            raise FileNotFoundError(
+                "can not find ERDDAP sub-directory {} \n"
+                "check ERDDAP installation".format(erddapContentDir)
+            )
+        logging.debug(f"erddapContentDir: {erddapContentDir}")
 
-        datasetXmlPath = Path(cfg_['paths']['dataset']['xml'].as_filename())
+        datasetXmlPath = Path(cfg_["paths"]["dataset"]["xml"].as_filename())
         if not datasetXmlPath.is_dir():
-            raise FileNotFoundError('can not find path where store dataset xml file {}.\n'
-                                    'Check config file(s) {} and/or {}'.format(datasetXmlPath,
-                                                                               cfg_.user_config_path(),
-                                                                               cfg_.default_config_path))
-        logging.debug(f'datasetXmlPath: {datasetXmlPath}')
+            raise FileNotFoundError(
+                "can not find path where store dataset xml file {}.\n"
+                "Check config file(s) {} and/or {}".format(
+                    datasetXmlPath, cfg_.user_config_path(), cfg_.default_config_path
+                )
+            )
+        logging.debug(f"datasetXmlPath: {datasetXmlPath}")
 
         # check path to csv files, and set up global variable
         #   path where csv files will be stored
         global datasetCsvPath
 
-        datasetCsvPath = Path(cfg_['paths']['dataset']['csv'].as_filename())
+        datasetCsvPath = Path(cfg_["paths"]["dataset"]["csv"].as_filename())
         if not datasetCsvPath.is_dir():
-            raise FileNotFoundError('Can not find path where store dataset csv file {}.\n'
-                                    'Check config file(s) {} and/or {}'.format(datasetCsvPath,
-                                                                               cfg_.user_config_path(),
-                                                                               cfg_.default_config_path))
-        logging.debug(f'datasetCsvPath: {datasetCsvPath}')
+            raise FileNotFoundError(
+                "Can not find path where store dataset csv file {}.\n"
+                "Check config file(s) {} and/or {}".format(
+                    datasetCsvPath, cfg_.user_config_path(), cfg_.default_config_path
+                )
+            )
+        logging.debug(f"datasetCsvPath: {datasetCsvPath}")
 
         # check path to log files, and set up global variable
         #   path where log files will be stored
         global logPath
 
-        logPath = Path(cfg_['paths']['log'].get(str))
+        logPath = Path(cfg_["paths"]["log"].get(str))
         if not logPath.is_dir():
             logPath.mkdir(parents=True, exist_ok=True)
-            warnings.warn('log path {} did not exist before.\n Check config file(s) {} and/or {}'.
-                          format(logPath, cfg_.user_config_path(), cfg_.default_config_path))
+            warnings.warn(
+                "log path {} did not exist before.\n Check config file(s) {} and/or {}".format(
+                    logPath, cfg_.user_config_path(), cfg_.default_config_path
+                )
+            )
 
-        logging.debug(f'logPath: {logPath}')
+        logging.debug(f"logPath: {logPath}")
 
     except Exception:
-        logging.exception('Something goes wrong when checking paths')
+        logging.exception("Something goes wrong when checking paths")
         raise  # Throw exception again so calling code knows it happened
 
 
@@ -351,7 +387,7 @@ def _chk_config(cfg_):
         # check product parameters from configuration file(s)
         _chk_config_product(cfg_)
     except Exception:
-        logging.exception('Something goes wrong when checking configuration file')
+        logging.exception("Something goes wrong when checking configuration file")
         raise  # Throw exception again so calling code knows it happened
 
 
@@ -363,10 +399,10 @@ def _find_package_path(name):
     """
     # Based on get_root_path from Flask by Armin Ronacher.
     loader = pkgutil.get_loader(name)
-    if loader is None or name == '__main__':
+    if loader is None or name == "__main__":
         return None
 
-    if hasattr(loader, 'get_filename'):
+    if hasattr(loader, "get_filename"):
         filepath = loader.get_filename(name)
     else:
         # Fall back to importing the specified module.
@@ -379,22 +415,26 @@ def _find_package_path(name):
 def _logger_header():
     """ """
     # add header to log file
-    logging.info(f'-------------------')
-    logging.info(f'package                  : {icp2edd.__name__}')
-    logging.info(f'version                  : {icp2edd.__version__}')
-    logging.info(f'start time               : {strftime("%Y-%m-%d %H:%M:%S", localtime())}')
-    logging.info(f'-------------------')
+    logging.info(f"-------------------")
+    logging.info(f"package                  : {icp2edd.__name__}")
+    logging.info(f"version                  : {icp2edd.__version__}")
+    logging.info(
+        f'start time               : {strftime("%Y-%m-%d %H:%M:%S", localtime())}'
+    )
+    logging.info(f"-------------------")
 
 
 def _logger_footer():
     """ """
     # add footer to log file
-    logging.info(f'-------------------')
+    logging.info(f"-------------------")
     logging.info(f"Warning     have occurred: {_warning_handler.fired}")
     logging.info(f"Error       have occurred: {_error_handler.fired}")
     logging.info(f"Fatal error have occurred: {_fatal_handler.fired}")
-    logging.info(f'end time                 : {strftime("%Y-%m-%d %H:%M:%S", localtime())}')
-    logging.info(f'-------------------')
+    logging.info(
+        f'end time                 : {strftime("%Y-%m-%d %H:%M:%S", localtime())}'
+    )
+    logging.info(f"-------------------")
     print(f"See output log for more details: {log_filename} ")
 
 
@@ -427,72 +467,78 @@ def _setup_logger(config_):
 
     _cfg_path = Path(_find_package_path(icp2edd.__pkg_cfg__))
     if not _cfg_path.is_dir():
-        logging.exception('Can not find configuration path')
+        logging.exception("Can not find configuration path")
         raise FileNotFoundError
 
-    _logcfg = _search_file(config_, 'logging.yaml')
+    _logcfg = _search_file(config_, "logging.yaml")
     try:
-        with open(_logcfg, 'rt') as file:
+        with open(_logcfg, "rt") as file:
             cfg_log = yaml.safe_load(file.read())
 
             try:
                 # overwrite default with config or parser value
-                _log_level = config_['log']['level'].get(str)
+                _log_level = config_["log"]["level"].get(str)
                 if _log_level is not None:
-                    cfg_log['handlers']['console']['level'] = _log_level.upper()
+                    cfg_log["handlers"]["console"]["level"] = _log_level.upper()
             except confuse.exceptions.NotFoundError:
                 pass
             except Exception:
-                logging.exception(f'Invalid log level; '
-                                  f'Check arguments/configuration file(s)')
+                logging.exception(
+                    f"Invalid log level; " f"Check arguments/configuration file(s)"
+                )
                 raise  # Throw exception again so calling code knows it happened
 
             try:
                 # if verbose activated, print output on console
-                _log_verbose = config_['log']['verbose'].get(bool)
+                _log_verbose = config_["log"]["verbose"].get(bool)
                 if _log_verbose is not None:
                     if not _log_verbose:
                         # disable log on console
-                        cfg_log['handlers'].pop('console')
-                        cfg_log['root']['handlers'].remove('console')
+                        cfg_log["handlers"].pop("console")
+                        cfg_log["root"]["handlers"].remove("console")
             except confuse.exceptions.NotFoundError:
                 pass
             except Exception:
-                logging.exception(f'Invalid log verbose; '
-                                  f'Check arguments/configuration file(s)')
+                logging.exception(
+                    f"Invalid log verbose; " f"Check arguments/configuration file(s)"
+                )
                 raise  # Throw exception again so calling code knows it happened
 
             try:
                 # rename log file with config or parser value
-                _log_filename = config_['log']['filename'].get()
+                _log_filename = config_["log"]["filename"].get()
                 if _log_filename is not None:
-                    cfg_log['handlers']['file']['filename'] = _log_filename
+                    cfg_log["handlers"]["file"]["filename"] = _log_filename
             except confuse.exceptions.NotFoundError:
                 pass
             except Exception:
-                logging.exception(f'Invalid log filename; '
-                                  f'Check arguments/configuration file(s)')
+                logging.exception(
+                    f"Invalid log filename; " f"Check arguments/configuration file(s)"
+                )
                 raise  # Throw exception again so calling code knows it happened
 
-            _paths_log = config_['paths']['log'].get()
+            _paths_log = config_["paths"]["log"].get()
             if _paths_log is not None:
                 log_path = Path(str(_paths_log))
             else:
                 # read path to output log file
-                log_path = Path(cfg_log['handlers']['file']['filename']).parent
+                log_path = Path(cfg_log["handlers"]["file"]["filename"]).parent
 
             if not log_path.is_dir():
                 log_path.mkdir(parents=True, exist_ok=True)
-                logging.warning(f'log path {log_path} did not exist before.\n Check config file(s) '
-                                f'{config_.user_config_path()} and/or {config_.default_config_path}.')
-
+                logging.warning(
+                    f"log path {log_path} did not exist before.\n Check config file(s) "
+                    f"{config_.user_config_path()} and/or {config_.default_config_path}."
+                )
 
             if _checkOnto:
-                subject=cfg_log['handlers']['mail']['subject']
-                cfg_log['handlers']['mail']['subject'] = subject.replace('ICOS-CP2ERDDAP','CheckOntology')
+                subject = cfg_log["handlers"]["mail"]["subject"]
+                cfg_log["handlers"]["mail"]["subject"] = subject.replace(
+                    "ICOS-CP2ERDDAP", "CheckOntology"
+                )
 
-            filename = cfg_log['handlers']['file']['filename']
-            cfg_log['handlers']['file']['filename'] = str(log_path / filename)
+            filename = cfg_log["handlers"]["file"]["filename"]
+            cfg_log["handlers"]["file"]["filename"] = str(log_path / filename)
 
             logging.config.dictConfig(cfg_log)
             # redirect warnings issued by the warnings module to the logging system.
@@ -503,10 +549,10 @@ def _setup_logger(config_):
             _fatal_handler = errorhandler.ErrorHandler(logging.CRITICAL)
 
             # keep log filename and path name
-            log_filename = Path(cfg_log['handlers']['file']['filename']).resolve()
+            log_filename = Path(cfg_log["handlers"]["file"]["filename"]).resolve()
 
     except Exception:
-        logging.exception('Error loading configuration file. Using default configs')
+        logging.exception("Error loading configuration file. Using default configs")
         raise  # Throw exception again so calling code knows it happened
 
     _logger_header()
@@ -514,88 +560,91 @@ def _setup_logger(config_):
 
 
 def _parse():
-    """set up parameter from command line arguments
-    """
+    """set up parameter from command line arguments"""
     # define parser
-    parser = argparse.ArgumentParser(
-        prog="icp2edd",
-        description="blabla"
-    )
+    parser = argparse.ArgumentParser(prog="icp2edd", description="blabla")
 
     # positional arguments
     # parser.add_argument("name", type=str, help="file name")
     # optional arguments
-    parser.add_argument("-v", "--verbose",
-                        action="store_true",
-                        help="print status messages to stdout",
-                        dest='log.verbose'
-                        )
-    parser.add_argument("--log_level",
-                        type=str,
-                        choices=['debug', 'info', 'warning', 'error', 'critical'],
-                        help="stdout logger level",
-                        dest='log.level'
-                        )
-    parser.add_argument("--log_filename",
-                        type=str,
-                        help="logger filename",
-                        dest='log.filename'
-                        )
-    parser.add_argument("--log_path",
-                        type=str,
-                        help="logger path, where log will be stored",
-                        dest='paths.log'
-                        )
-    parser.add_argument("--param",
-                        type=str,
-                        help="parameters configuration file",
-                        dest='extra.parameters'
-                        )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="print status messages to stdout",
+        dest="log.verbose",
+    )
+    parser.add_argument(
+        "--log_level",
+        type=str,
+        choices=["debug", "info", "warning", "error", "critical"],
+        help="stdout logger level",
+        dest="log.level",
+    )
+    parser.add_argument(
+        "--log_filename", type=str, help="logger filename", dest="log.filename"
+    )
+    parser.add_argument(
+        "--log_path",
+        type=str,
+        help="logger path, where log will be stored",
+        dest="paths.log",
+    )
+    parser.add_argument(
+        "--param",
+        type=str,
+        help="parameters configuration file",
+        dest="extra.parameters",
+    )
     if not _checkOnto:
-        parser.add_argument("--from",
-                            type=str,
-                            help="download dataset submitted from",
-                            dest='product.subm.from'
-                            )
-        parser.add_argument("--until",
-                            type=str,
-                            help="download dataset submitted until",
-                            dest='product.subm.until'
-                            )
-        parser.add_argument("--type",
-                            type=str,
-                            help="data 'type' to be used",
-                            dest='product.type'
-                            )
+        parser.add_argument(
+            "--from",
+            type=str,
+            help="download dataset submitted from",
+            dest="product.subm.from",
+        )
+        parser.add_argument(
+            "--until",
+            type=str,
+            help="download dataset submitted until",
+            dest="product.subm.until",
+        )
+        parser.add_argument(
+            "--type", type=str, help="data 'type' to be used", dest="product.type"
+        )
     else:
-        parser.add_argument("--write_ontology",
-                            action="store_true",
-                            help="write namespace, class, and property ontology tree for ICOS CP and icp2edd scripts",
-                            dest='onto.write'
-                            )
-        parser.add_argument("--download",
-                            action="store_true",
-                            help="download rdf ontology file from ICOS CP",
-                            dest='onto.download'
-                            )
+        parser.add_argument(
+            "--write_ontology",
+            action="store_true",
+            help="write namespace, class, and property ontology tree for ICOS CP and icp2edd scripts",
+            dest="onto.write",
+        )
+        parser.add_argument(
+            "--download",
+            action="store_true",
+            help="download rdf ontology file from ICOS CP",
+            dest="onto.download",
+        )
     #
-    parser.add_argument("--arguments",
-                        action="store_true",
-                        help="print arguments value (from config file and/or inline argument) and exit",
-                        dest='arguments'
-                        )
-    parser.add_argument("--version",
-                        action="store_true",
-                        help="print release version and exit",
-                        dest='version'
-                        )
+    parser.add_argument(
+        "--arguments",
+        action="store_true",
+        help="print arguments value (from config file and/or inline argument) and exit",
+        dest="arguments",
+    )
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="print release version and exit",
+        dest="version",
+    )
 
     # parse arguments
     args = parser.parse_args()
 
-    if _checkOnto and vars(args)['log.filename'] is None:
+    if _checkOnto and vars(args)["log.filename"] is None:
         # vars(args)['log.filename'] = logfile_
-        vars(args)['log.filename'] = 'check_ontology.log'
+        vars(args)["log.filename"] = "check_ontology.log"
 
     # TODO check and reformat args
     return args
@@ -612,7 +661,9 @@ def _setup_cfg():
     # set up configuration file
     try:
         # Read configuration file
-        config_ = confuse.LazyConfig('icp2edd', modname=icp2edd.__pkg_cfg__)  # Get a value from your YAML file
+        config_ = confuse.LazyConfig(
+            "icp2edd", modname=icp2edd.__pkg_cfg__
+        )  # Get a value from your YAML file
 
         # TODO check use of templates,
         #  cf examples in https://github.com/beetbox/confuse/tree/c244db70c6c2e92b001ce02951cf60e1c8793f75
@@ -629,21 +680,23 @@ def _setup_cfg():
 
 
 def _setup_path():
-    """ set up some useful path
-    """
+    """set up some useful path"""
     global icp2eddPath, _update_log
 
     icp2eddPath = Path(_find_package_path(__package__))
     if not icp2eddPath.is_dir():
-        logging.exception('Can not find package path')
+        logging.exception("Can not find package path")
         raise FileNotFoundError
 
-    update_log_path = icp2eddPath / '.log'
+    update_log_path = icp2eddPath / ".log"
     if not update_log_path.is_dir():
         update_log_path.mkdir(parents=True, exist_ok=True)
-        logging.warning(f'update log path -{update_log_path}- did not exist before.')
+        logging.warning(f"update log path -{update_log_path}- did not exist before.")
 
-    _update_log = update_log_path / 'update.log'
+    if not _checkOnto:
+        _update_log = update_log_path / "update.log"
+    else:
+        _update_log = update_log_path / "update_onto.log"
 
 
 def _default_logger():
@@ -653,8 +706,8 @@ def _default_logger():
     """
     logging.basicConfig(
         level=logging.INFO,
-        style='{',
-        format="{asctime} | {levelname:8} | {name} | {message}"
+        style="{",
+        format="{asctime} | {levelname:8} | {name} | {message}",
     )
     # redirect warnings issued by the warnings module to the logging system.
     logging.captureWarnings(True)
@@ -683,7 +736,8 @@ def _show_arguments(cfg_, print_=False):
 
         logging.debug(f"extra.parameters    : {extraParam}\n")
 
-        logging.debug(f"product.sub.from    : {submFrom}")
+    logging.debug(f"product.sub.from    : {submFrom}")
+    if not _checkOnto:
         logging.debug(f"product.sub.until   : {submUntil}")
         logging.debug(f"product.type        : {product}")
         logging.debug(f"product.last        : {lastversion}")
@@ -710,7 +764,8 @@ def _show_arguments(cfg_, print_=False):
 
             print(f"extra.parameters    : {extraParam}\n")
 
-            print(f"product.sub.from    : {submFrom}")
+        print(f"product.sub.from    : {submFrom}")
+        if not _checkOnto:
             print(f"product.sub.until   : {submUntil}")
             print(f"product.type        : {product}")
             print(f"product.last        : {lastversion}")
@@ -723,8 +778,8 @@ def _show_arguments(cfg_, print_=False):
 def _show_version():
     """ """
     # print release version
-    print(f'package: {icp2edd.__name__}')
-    print(f'version: {icp2edd.__version__}')
+    print(f"package: {icp2edd.__name__}")
+    print(f"version: {icp2edd.__version__}")
     exit(0)
 
 
@@ -768,13 +823,13 @@ def main(checkOnto_=False):
     _show_arguments(config, args.arguments)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
     _logger = logging.getLogger(__name__)
-    _logger.debug('This message should go to the log file')
-    _logger.info('So should this')
-    _logger.warning('And this, too')
-    _logger.error('\tAnd non-ASCII stuff, too, like Øresund and Malmö\n')
-    _logger.critical('this is critical')
+    _logger.debug("This message should go to the log file")
+    _logger.info("So should this")
+    _logger.warning("And this, too")
+    _logger.error("\tAnd non-ASCII stuff, too, like Øresund and Malmö\n")
+    _logger.critical("this is critical")
     # _logger.exception('raise en exception')

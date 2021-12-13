@@ -4,12 +4,14 @@
 
 # --- import -----------------------------------
 # import from standard lib
-from pathlib import Path
 import logging
+from pathlib import Path
+
 # import from other lib
 # > conda forge
 import pandas as pd
 from dateutil.parser import parse
+
 # import from my project
 import icp2edd.util as util
 
@@ -36,15 +38,15 @@ def time_format(datetime_, pre_=3):
     '1999-12-23T00:00:00.0000Z'
     """
     if not isinstance(datetime_, str):
-        raise TypeError(f'Invalid type value, datetime {datetime_} must be string.')
+        raise TypeError(f"Invalid type value, datetime {datetime_} must be string.")
 
     if not isinstance(pre_, int):
-        raise TypeError(f'Invalid type value, precision {pre_} must be integer.')
+        raise TypeError(f"Invalid type value, precision {pre_} must be integer.")
 
     try:
         dt = parse(datetime_)
     except Exception:
-        _logger.exception(f'Something goes wrong when parsing -{datetime_}-')
+        _logger.exception(f"Something goes wrong when parsing -{datetime_}-")
         raise  #
 
     cc = 10 ** (6 - pre_)
@@ -54,9 +56,9 @@ def time_format(datetime_, pre_=3):
     fmt2 = "%" + str(pre_) + "i"
 
     return fmt1 % (
-        dt.strftime('%Y-%m-%dT%H:%M:%S'),
+        dt.strftime("%Y-%m-%dT%H:%M:%S"),
         float(fmt2 % (round(dt.microsecond / cc))),
-        dt.strftime('Z')
+        dt.strftime("Z"),
     )
 
 
@@ -71,7 +73,7 @@ def modify(f):
     TODO check output file, see unittest and mock file
     """
     if not isinstance(f, Path):
-        raise TypeError(f'Invalid type value, f -{f}- must be Path object')
+        raise TypeError(f"Invalid type value, f -{f}- must be Path object")
 
     # Read data from file 'filename.csv'
     data = pd.read_csv(f)
@@ -83,10 +85,10 @@ def modify(f):
     data.rename(columns=lambda x: util.filterBracket(x), inplace=True)
 
     # reformat Date & Time with 3 decimals only
-    dt_list = ["Date/Time","TIMESTAMP"] # column name
+    dt_list = ["Date/Time", "TIMESTAMP"]  # column name
     if any(dt in data for dt in dt_list):
         for dt in dt_list:
-            if dt in  data:
+            if dt in data:
                 data[dt] = data[dt].apply(lambda x: time_format(x, 3))
     else:
         _logger.warning(f"Can not find 'Date/Time' column in csv file -{f}-")
@@ -95,11 +97,11 @@ def modify(f):
     # print(data.head())
 
     # Warning : overwrite file
-    data.to_csv(f, date_format='%Y-%m-%dT%H:%M:%S.%fZ', index=False)
+    data.to_csv(f, date_format="%Y-%m-%dT%H:%M:%S.%fZ", index=False)
 
 
 # Press the green button in the gutter to run the script.
-if __name__ == '__main__':
+if __name__ == "__main__":
     import doctest
 
     doctest.testmod(optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
