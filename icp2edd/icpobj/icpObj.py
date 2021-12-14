@@ -406,7 +406,7 @@ class ICPObj(object):
         _logger.debug(f"self.meta: {pformat(self.meta)}")
 
         # create/overwrite list of uri
-        # self._uri = self.meta.keys()
+        self._uri = list(self.meta.keys())
 
     def _groupby(self, res):
         """
@@ -430,6 +430,8 @@ class ICPObj(object):
          Furthermore, if the type of the SPARQL Value is 'uri' but not point to a 'meta.icos-cp.eu' element,
          the type value is change to 'literal' to avoid later issue digging into those URI
 
+         drop useless attribute 'type'
+
         :param res: SPARQL query output
         :return: {uri: {variable: [SPARQLWrapper.Value, ...], ...}, ...}
         """
@@ -442,10 +444,12 @@ class ICPObj(object):
             #
             dict2 = dict1[uri]
 
+            # remove useless key 'type'
+            binding.pop("type", None)
             for k, v in binding.items():
                 if k not in dict2.keys():
                     dict2[k] = []
-                # change type -to avoid later issue digging into those URI-
+                # change type to avoid later issue digging into those URI-
                 if v.type == "uri" and "meta.icos-cp.eu" not in v.value:
                     v.type = "literal"
                 # Using a in b is simply translates to b.__contains__(a)

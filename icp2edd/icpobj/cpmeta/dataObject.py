@@ -26,6 +26,7 @@ from pprint import pformat
 # import from other lib
 import requests
 from requests.exceptions import HTTPError
+from SPARQLWrapper.SmartWrapper import Value as SmartWrapperValue
 
 # import from my project
 import icp2edd.setupcfg as setupcfg
@@ -152,13 +153,15 @@ class DataObject(StaticObject):
         """
         super().getMeta()
         #
-        _ = self.meta[self._uri]
-        # if no doi create one
-        if "doi" not in _.keys():
-            url = "https://hdl.handle.net/11676/"
-            _["doi"] = url + str(Path(self._uri).stem)
-        #
-        _logger.info(f"self.meta[{self._uri}].doi: {_['doi']}")
+        for uri in list(self._uri):
+            _ = self.meta[uri]
+            # if no doi create one
+            if "doi" not in _.keys():
+                url = "https://hdl.handle.net/11676/"
+                binding = {"value": url + str(Path(uri).stem), "type": "literal"}
+                _["doi"] = [SmartWrapperValue("doi", binding)]
+            #
+            _logger.info(f"self.meta[{uri}].doi: {_['doi']}")
 
     def download(self):
         """download file associated to dataobject
