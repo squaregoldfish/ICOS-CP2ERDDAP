@@ -22,6 +22,8 @@ from pathlib import Path
 from pprint import pformat
 
 # import from other lib
+from SPARQLWrapper.SmartWrapper import Value as SmartWrapperValue
+
 # > conda-forge
 # import from my project
 import icp2edd.setupcfg as setupcfg
@@ -32,8 +34,8 @@ from icp2edd.icpobj import *
 # load logger
 _logger = logging.getLogger(__name__)
 
-list_VariableObject = ["cpmeta:DatasetVariable", "cpmeta:DatasetColumn"]
-list_DataObject = ["cpmeta:DataObject"]
+list_VariableObject = ["cpmeta.DatasetVariable", "cpmeta.DatasetColumn"]
+list_DataObject = ["cpmeta.DataObject"]
 
 # list of object to not dig in to avoid infinity loop / recursive search
 list_rec_search = ["NextVersionOf", "RevisionOf", "PrimarySource", "QualityFlagFor"]
@@ -161,6 +163,11 @@ class SuperICPObj(object):
                     )
                 else:
                     for v in lv:
+                        if not isinstance(v, SmartWrapperValue):
+                            raise TypeError(
+                                "invalid type: element -{v}- must be of type SmartWrapperValue"
+                            )
+
                         d = {}
                         if v.type != "uri":
                             d[k] = [v.value]
@@ -250,6 +257,11 @@ class SuperICPObj(object):
                 )
             else:
                 for v in lv:
+                    if not isinstance(v, SmartWrapperValue):
+                        raise TypeError(
+                            "invalid type: element -{v}- must be of type SmartWrapperValue"
+                        )
+
                     if v.type == "uri":
                         uri = v.value
                         if uri in self.meta:
@@ -373,6 +385,11 @@ class SuperICPObj(object):
                 )
             else:
                 for v in lv:
+                    if not isinstance(v, SmartWrapperValue):
+                        raise TypeError(
+                            "invalid type: element -{v}- must be of type SmartWrapperValue"
+                        )
+
                     if v.type == "uri":
                         uri = v.value
                         if uri in self.meta:
