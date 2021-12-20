@@ -122,7 +122,7 @@ def _chk_product_subm(cfg_):
                 today = dt.datetime.now(dt.timezone.utc).replace(
                     hour=0, minute=0, second=0, microsecond=0
                 )
-                submFrom = today - dt.timedelta(days=1)
+                submFrom = (today - dt.timedelta(days=1)).isoformat()
             else:
                 submFrom = _get_last_subm()
         except FileNotFoundError:
