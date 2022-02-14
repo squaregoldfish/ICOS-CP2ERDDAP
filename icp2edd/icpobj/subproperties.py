@@ -106,6 +106,9 @@ hasSubProp = {
     "skos:broader": {
         "cpmeta:broaderEcosystem": "broader_ecosystem",  # cpmeta/EcosystemType
     },
+    "skos:closeMatch": {
+        "skos:exactMatch": "exact_match",  # skos/core#Concept
+    },
     "ssn:hasSubSystem": {
         "cpmeta:hasInstrumentComponent": "component",  # cpmeta/Instrument
     },

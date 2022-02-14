@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# valueType.py
+# nercP01Concept.py
 
 """
-    The valueType module is used to explore ICOS CP cpmeta::ValueTypes' metadata.
+    The nercP01Concept module is used to explore terms nercP01Concepts' metadata.
 
     Example usage:
 
-    from cpmeta import ValueType
+    from skos import Concept
 
-    valueTypes = ValueType()         # initialise ICOS CP ValueType object
-    valueTypes.get_meta()            # get valueTypes' metadata from ICOS CP
-    valueTypes.show()                # print valueTypes' metadata
+    nercP01Concepts = NercP01Concept()        # initialise ICOS CP NercP01Concept object
+    nercP01Concepts.get_meta()                # get nercP01Concepts' metadata from ICOS CP
+    nercP01Concepts.show()                    # print nercP01Concepts' metadata
 """
 
 # --- import -----------------------------------
@@ -21,8 +21,7 @@ import traceback
 
 # import from other lib
 # import from my project
-from icp2edd.icpobj.cpmeta.dataObjectSpecifyingThing import DataObjectSpecifyingThing
-from icp2edd.icpobj.skos import Concept
+from icp2edd.icpobj.cpmeta.externalVocabConcept import ExternalVocabConcept
 
 # --- module's variable ------------------------
 # load logger
@@ -32,15 +31,13 @@ _logger = logging.getLogger(__name__)
 #   RDF triples: 'subject' + 'property/predicate' + 'object/value'
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
-_attr = {
-    "cpmeta:hasQuantityKind": "quantity",  # cpmeta/QuantityKind
-    "cpmeta:hasUnit": "units",  # xsd:string
-}
+_attr = {}
 # list of equivalent class
 _equivalentClass = []
 
+
 # ----------------------------------------------
-class ValueType(DataObjectSpecifyingThing, Concept):
+class NercP01Concept(ExternalVocabConcept):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -48,21 +45,21 @@ class ValueType(DataObjectSpecifyingThing, Concept):
     """
 
     def __init__(self, limit=None, uri=None):
-        """initialise instance of ValueType(DataObjectSpecifyingThing).
+        """initialise instance of NercP01Concep(ExternalVocabConcept).
 
-        It will be used to set up a sparql query, and get all metadata of ValueType from ICOS CP.
+        It will be used to set up a sparql query, and get all metadata of NercP01Concept from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select ValueType:
+        and/or select FileFormat:
         - with ICOS CP 'uri'
 
         Example:
-            ValueType(limit=5)
+            NercP01Concept(limit=5)
 
         :param limit: number of returned results
-        :param uri: ICOS CP URI ('http://meta.icos-cp.eu/resources/cpmeta/timeOfDay')
+        :param uri: ICOS CP URI
         """
         super().__init__()
         # set up class/instance variables
@@ -86,8 +83,7 @@ class ValueType(DataObjectSpecifyingThing, Concept):
             self._equivalentClass = _equivalentClass
 
         # object type URI
-        self._object = "http://meta.icos-cp.eu/ontologies/cpmeta/ValueType"
-
+        self._object = "http://meta.icos-cp.eu/ontologies/cpmeta/NercP01Concept"
         #
         self._objtype = None
         if self._object is not None:
@@ -102,7 +98,7 @@ if __name__ == "__main__":
     import doctest
 
     doctest.testmod(
-        extraglobs={"t": ValueType(limit=10)},
+        extraglobs={"t": NercP01Concept(limit=10)},
         optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
     )
 
