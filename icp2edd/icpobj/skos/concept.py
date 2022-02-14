@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# valueType.py
+# concept.py
 
 """
-    The valueType module is used to explore ICOS CP cpmeta::ValueTypes' metadata.
+    The concept module is used to explore terms concpets' metadata.
 
     Example usage:
 
-    from cpmeta import ValueType
+    from skos import Concept
 
-    valueTypes = ValueType()         # initialise ICOS CP ValueType object
-    valueTypes.get_meta()            # get valueTypes' metadata from ICOS CP
-    valueTypes.show()                # print valueTypes' metadata
+    concpets = Concept()       # initialise ICOS CP Concept object
+    concpets.get_meta()        # get concepts' metadata from ICOS CP
+    concpets.show()            # print concepts' metadata
 """
 
 # --- import -----------------------------------
@@ -21,8 +21,7 @@ import traceback
 
 # import from other lib
 # import from my project
-from icp2edd.icpobj.cpmeta.dataObjectSpecifyingThing import DataObjectSpecifyingThing
-from icp2edd.icpobj.skos import Concept
+from icp2edd.icpobj import ICPObj
 
 # --- module's variable ------------------------
 # load logger
@@ -33,14 +32,19 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    "cpmeta:hasQuantityKind": "quantity",  # cpmeta/QuantityKind
-    "cpmeta:hasUnit": "units",  # xsd:string
+    "skos:closeMatch": "close_match",  # skos/core#Concept
+    # subproperty {
+    # "skos:exactMatch": "exact_match",     # skos/core#Concept
+    # }
 }
 # list of equivalent class
 _equivalentClass = []
 
+# cpmeta/ValueType              is subClassOf skos/core#Concept
+# cpmeta/ExternalVocabConcept   is subClassOf skos/core#Concept
+
 # ----------------------------------------------
-class ValueType(DataObjectSpecifyingThing, Concept):
+class Concept(ICPObj):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -48,21 +52,21 @@ class ValueType(DataObjectSpecifyingThing, Concept):
     """
 
     def __init__(self, limit=None, uri=None):
-        """initialise instance of ValueType(DataObjectSpecifyingThing).
+        """initialise instance of Concept(ICPObj).
 
-        It will be used to set up a sparql query, and get all metadata of ValueType from ICOS CP.
+        It will be used to set up a sparql query, and get all metadata of Concept from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select ValueType:
+        and/or select FileFormat:
         - with ICOS CP 'uri'
 
         Example:
-            ValueType(limit=5)
+            Concept(limit=5)
 
         :param limit: number of returned results
-        :param uri: ICOS CP URI ('http://meta.icos-cp.eu/resources/cpmeta/timeOfDay')
+        :param uri: ICOS CP URI
         """
         super().__init__()
         # set up class/instance variables
@@ -86,8 +90,7 @@ class ValueType(DataObjectSpecifyingThing, Concept):
             self._equivalentClass = _equivalentClass
 
         # object type URI
-        self._object = "http://meta.icos-cp.eu/ontologies/cpmeta/ValueType"
-
+        self._object = "http://www.w3.org/2004/02/skos/core#Concept"
         #
         self._objtype = None
         if self._object is not None:
@@ -102,7 +105,7 @@ if __name__ == "__main__":
     import doctest
 
     doctest.testmod(
-        extraglobs={"t": ValueType(limit=10)},
+        extraglobs={"t": Concept(limit=10)},
         optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
     )
 
