@@ -11,6 +11,7 @@ import logging
 import logging.config
 import os
 import pkgutil
+import shutil
 import sys
 import warnings
 from pathlib import Path
@@ -30,7 +31,7 @@ import icp2edd
 global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath, datasetCsvPath, icp2eddPath, logPath, log_filename, submFrom, submUntil, product, lastversion, authorised_product, extraParam, downloadOnto, writeOnto
 
 # private
-global _cfg_path, _update_log, _logcfg, _warning_handler, _error_handler, _fatal_handler, _checkOnto
+global _config, _cfg_path, _update_log, _logcfg, _warning_handler, _error_handler, _fatal_handler, _checkOnto
 
 
 def add_last_subm():
@@ -56,6 +57,13 @@ def add_last_subm():
                 )
             file.write(header)
         file.write(f"from {submFrom} until {submUntil}\n")
+
+    # keep copy on user config directory
+    # ~/.config/<package> directory
+    update_save = Path(Path(_config.config_dir()) / _update_log.name)
+    # create directories if need be
+    update_save.parents[0].mkdir(parents=True, exist_ok=True)
+    shutil.copy(_update_log, update_save)
 
 
 def _get_last_subm():
@@ -791,7 +799,7 @@ def main(checkOnto_=False):
 
     :param checkOnto_: running checkOntology or not
     """
-    global _checkOnto
+    global _checkOnto, _config
 
     # init default
     _default_logger()
@@ -802,7 +810,7 @@ def main(checkOnto_=False):
     _setup_path()
 
     # read configuration file(s)
-    config = _setup_cfg()
+    _config = _setup_cfg()
 
     # read command line arguments
     args = _parse()
@@ -811,16 +819,16 @@ def main(checkOnto_=False):
         _show_version()
 
     # overwrite configuration file parameter with parser arguments
-    config.set_args(args, dots=True)
+    _config.set_args(args, dots=True)
 
     # read logging configuration file
-    _setup_logger(config)
+    _setup_logger(_config)
 
     # check configuration file
-    _chk_config(config)
+    _chk_config(_config)
 
     # print parameters use from config file and/or inline command
-    _show_arguments(config, args.arguments)
+    _show_arguments(_config, args.arguments)
 
 
 if __name__ == "__main__":

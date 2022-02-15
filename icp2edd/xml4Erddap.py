@@ -11,6 +11,7 @@ import subprocess
 import warnings
 from pathlib import Path
 from pprint import pformat
+import shutil
 
 # from importlib import resources
 # import from other lib
@@ -428,7 +429,10 @@ def replaceXmlBy(dsxmlout):
         dsxml.unlink()
 
     _logger.info(f"create hard link to: {dsxmlout}")
-    dsxmlout.link_to(dsxml)
+    try:
+        dsxmlout.link_to(dsxml)
+    except:
+        shutil.copy(dsxmlout, dsxml)
 
 
 # Press the green button in the gutter to run the script.
