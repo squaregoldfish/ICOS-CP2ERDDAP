@@ -25,11 +25,11 @@ from dateutil.parser import parse
 
 # import from my project
 import icp2edd
+from icp2edd.icpobj import *
 
 # --- module's variable ------------------------
 # public
-global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath, datasetCsvPath, icp2eddPath, logPath, log_filename, submFrom, submUntil, product, lastversion, authorised_product, extraParam, downloadOnto, writeOnto
-
+global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath, datasetCsvPath, icp2eddPath, logPath, log_filename, submFrom, submUntil, product, lastversion, authorised_product, extraParam, downloadOnto, writeOnto, allowed_objects
 # private
 global _config, _cfg_path, _update_log, _logcfg, _warning_handler, _error_handler, _fatal_handler, _checkOnto
 
@@ -641,6 +641,12 @@ def _parse():
         dest="arguments",
     )
     parser.add_argument(
+        "--allow_obj",
+        action="store_true",
+        help="print list of allowed objects and exit",
+        dest="allowed_objects",
+    )
+    parser.add_argument(
         "--version",
         action="store_true",
         help="print release version and exit",
@@ -707,6 +713,16 @@ def _setup_path():
         _update_log = update_log_path / "update_onto.log"
 
 
+def _setup_allowed_objects():
+    """set up allowed objects list
+
+    Actually copy to a global variable dictionary from icpobj/__init__
+    """
+    global allowed_objects
+
+    allowed_objects = sorted(globals()["allowed_objects"])
+
+
 def _default_logger():
     """creates default logger, before any setting up
 
@@ -723,6 +739,8 @@ def _default_logger():
 
 def _show_arguments(cfg_, print_=False):
     """ """
+    global allowed_objects
+
     logging.debug(f"config files:")
     logging.debug(f"   pkg              : {cfg_.default_config_path}")
     logging.debug(f"   user             : {cfg_.user_config_path()}")
@@ -749,6 +767,10 @@ def _show_arguments(cfg_, print_=False):
         logging.debug(f"product.sub.until   : {submUntil}")
         logging.debug(f"product.type        : {product}")
         logging.debug(f"product.last        : {lastversion}")
+
+    logging.debug(f"\nallowed objects:")
+    for obj in allowed_objects:
+        logging.debug(f"    {obj}")
 
     if print_:
         print(f"config files:")
@@ -780,7 +802,23 @@ def _show_arguments(cfg_, print_=False):
         else:
             print(f"onto.write_ontology : {writeOnto}")
             print(f"onto.download       : {downloadOnto}")
+
+        print(f"\nallowed objects:")
+        # allowed_objects coming from icpobj/**/__init__
+        for obj in allowed_objects:
+            print(f"    {obj}")
         exit(0)
+
+
+def _show_allowed_objects():
+    """ """
+    global allowed_objects
+
+    print(f"allowed objects:")
+    # allowed_objects coming from icpobj/**/__init__
+    for obj in allowed_objects:
+        print(f"    {obj}")
+    exit(0)
 
 
 def _show_version():
@@ -826,6 +864,12 @@ def main(checkOnto_=False):
 
     # check configuration file
     _chk_config(_config)
+
+    # set up allowed objects list
+    _setup_allowed_objects()
+
+    if args.allowed_objects:
+        _show_allowed_objects()
 
     # print parameters use from config file and/or inline command
     _show_arguments(_config, args.arguments)
