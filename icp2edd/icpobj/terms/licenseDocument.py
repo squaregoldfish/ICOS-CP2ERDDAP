@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# dataObjectSpecifyingThing.py
+# licenseDocument.py
 
 """
-    The dataObjectSpecifyingThing module is used to explore ICOS CP cpmeta::DataObjectSpecifyingThings' metadata.
+    The licenseDocument module is used to explore terms LicenseDocuments' metadata.
 
     Example usage:
 
-    from cpmeta import DataObjectSpecifyingThing
+    from terms import LicenseDocument
 
-    dataObjectSpecifyingThings = DataObjectSpecifyingThing()  # initialise ICOS CP DataObjectSpecifyingThing object
-    dataObjectSpecifyingThings.get_meta()                     # get dataObjectSpecifyingThings' metadata from ICOS CP
-    dataObjectSpecifyingThings.show()                         # print dataObjectSpecifyingThings' metadata
+    license_documents = LicenseDocument()   # initialise ICOS CP LicenseDocument object
+    license_documents.get_meta()            # get license_documents' metadata from ICOS CP
+    license_documents.show()                # print license_documents' metadata
 """
 
 # --- import -----------------------------------
@@ -32,24 +32,17 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    "cpmeta:impliesDefaultLicence": "license_document",  # terms/LicenseDocument
+    "terms:license": "license",  #
+    "skos:closeMatch": "close_match",  # skos/Concept
+    # subproperty {
+    #   "skos:exactMatch": "exact_match",  # skos/Concept
+    # }
 }
 # list of equivalent class
 _equivalentClass = []
 
-# cpmeta/ValueType          is subClassOf cpmeta/DataObjectSpecifyingThing
-# cpmeta/DatasetColumn      is subClassOf cpmeta/DataObjectSpecifyingThing
-# cpmeta/QuantityKind       is subClassOf cpmeta/DataObjectSpecifyingThing
-# cpmeta/DataObjectSpec     is subClassOf cpmeta/DataObjectSpecifyingThing
-# cpmeta/DataTheme          is subClassOf cpmeta/DataObjectSpecifyingThing
-# cpmeta/Project            is subClassOf cpmeta/DataObjectSpecifyingThing
-# cpmeta/DatasetSpec        is subClassOf cpmeta/DataObjectSpecifyingThing
-# cpmeta/ValueFormat        is subClassOf cpmeta/DataObjectSpecifyingThing
-# cpmeta/DatasetVariable    is subClassOf cpmeta/DataObjectSpecifyingThing
-# cpmeta/VariableInfo       is subClassOf cpmeta/DataObjectSpecifyingThing
-
 # ----------------------------------------------
-class DataObjectSpecifyingThing(ICPObj):
+class LicenseDocument(ICPObj):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -57,18 +50,18 @@ class DataObjectSpecifyingThing(ICPObj):
     """
 
     def __init__(self, limit=None, uri=None):
-        """initialise instance of DataObjectSpecifyingThing(ICPObj).
+        """initialise instance of LicenseDocument(ICPObj).
 
-        It will be used to set up a sparql query, and get all metadata of DataObjectSpecifyingThing from ICOS CP.
+        It will be used to set up a sparql query, and get all metadata of LicenseDocument from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select DataObjectSpecifyingThing:
+        and/or select LicenseDocument:
         - with ICOS CP 'uri'
 
         Example:
-            DataObjectSpecifyingThing(limit=5)
+            LicenseDocument(limit=5)
 
         :param limit: number of returned results
         :param uri: ICOS CP URI
@@ -95,10 +88,7 @@ class DataObjectSpecifyingThing(ICPObj):
             self._equivalentClass = _equivalentClass
 
         # object type URI
-        self._object = (
-            "http://meta.icos-cp.eu/ontologies/cpmeta/DataObjectSpecifyingThing"
-        )
-
+        self._object = "http://purl.org/dc/terms/LicenseDocument"
         #
         self._objtype = None
         if self._object is not None:
@@ -113,7 +103,7 @@ if __name__ == "__main__":
     import doctest
 
     doctest.testmod(
-        extraglobs={"t": DataObjectSpecifyingThing(limit=10)},
+        extraglobs={"t": LicenseDocument(limit=10)},
         optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
     )
 

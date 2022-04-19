@@ -74,9 +74,8 @@ class SuperICPObj(object):
                 # to avoid too large Request-URI, loop over listuri
                 # list uri of all datasets already loaded
                 listuri = self._listDatasetLoaded()
-                # listuri = [
-                #     "https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z",
-                # ]
+                # listuri = ["https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z",]
+                # listuri = ["https://meta.icos-cp.eu/objects/-GpJLAEmZzHt48iB3l1eBuct"]
                 for uri in listuri:
                     _logger.info("get DataObject metadata from ICOS CP")
                     _ = cpmeta.DataObject(uri=uri)
@@ -109,7 +108,7 @@ class SuperICPObj(object):
 
     def getAttr(self):
         """ """
-        list_dataObj = self.meta.keys()
+        list_dataObj = list(self.meta.keys())
         # fill self.meta
         for uri in list_dataObj:
             print(f"\nlook in uri: {uri} ", end="")
@@ -132,7 +131,7 @@ class SuperICPObj(object):
 
     def _renameKeyDic(self, _):
         """
-        rename dictionary keys:
+        rename dictionary keys (if listed in dict_convAttr):
         :return: renamed dictionary
         """
         for oldKey, newKey in dict_convAttr.items():
@@ -141,6 +140,8 @@ class SuperICPObj(object):
 
     def repack(self, uri_):
         # TODO see if it could be merge with getSubAttr
+        _logger.debug(f"repack uri {uri_}")
+
         def spread(uri_, exclude_=[], cnt_=0):
 
             cnt_ += 1
@@ -148,7 +149,7 @@ class SuperICPObj(object):
 
             self.tmp[uri_] = {}
             if uri_ not in self.meta.keys():
-                _logger.critical(f"Try to spread unknown uri -{uri_}-")
+                _logger.critical(f"Try spreading unknown uri -{uri_}-")
                 raise SystemExit(1)
 
             for k, lv in self.meta[uri_].items():
@@ -226,7 +227,7 @@ class SuperICPObj(object):
             self.DataVariable[variableId] = spread(uri_)
 
         else:
-            _logger.error(f"should not be run on {objtype}")
+            _logger.error(f"should not be run objtype {objtype}")
 
         # clean
         # self.tmp = {}
@@ -294,6 +295,8 @@ class SuperICPObj(object):
                                         f"can not found class {objtype}, for object {uri}"
                                     )
                                     raise
+                            else:
+                                self.meta[uri] = {}
 
     def _listDatasetLoaded(self):
         """ """
