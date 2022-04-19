@@ -306,8 +306,12 @@ class SuperICPObj(object):
             output.add(csv.parent.name + ".csv")
 
         # list URI related to those directory name(s)
-        _ = cpmeta.DataObject()
-        return _.listUri(list(output))
+        uri_list = []
+        for chunk in util.chunks(list(output), 10):
+            _ = cpmeta.DataObject()
+            uri_list.append(_.listUri(list(chunk)))
+
+        return uri_list
 
     def show(self, print_=False):
         """ """
