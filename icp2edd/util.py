@@ -138,6 +138,12 @@ def filterBracket(name_):
     return re.sub(r"(.*)(\[.*\])(.*)", r"\1" r"\3", name_).strip()
 
 
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i : i + n]
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
 

@@ -9,11 +9,13 @@ attributes:
     #   origin_name: target_name
     convert:
         type_units: 'units'
+        license_exact_match: 'license'
     # if need be which attribute is kept
     # by default, values of attribute with same name are concatenated in a single one
     keep:
         # keep attribute(s) from icoscp (overwrite attribute(s) from erddap)
         icoscp:
+            - 'license'
         # keep attribute(s) from erddap (overwrite attribute(s) from icoscp)
         erddap:
             - 'units'

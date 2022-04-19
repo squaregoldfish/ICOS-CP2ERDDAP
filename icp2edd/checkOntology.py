@@ -29,8 +29,8 @@ def _check_namespace(icp_, edd_):
     _status = 0
     # compare ICOS CP namespace to the ones of icp2edd
     for k, v in icp_.nsmap.items():
+        icp_url = v
         if k in edd_.nsmap.keys():
-            icp_url = v
             edd_url = edd_.nsmap[k]
             if icp_url != edd_url:
                 _status = 1
@@ -38,9 +38,12 @@ def _check_namespace(icp_, edd_):
                     f"value of -{k}- differ between ICOS CP -{icp_url}- and icp2edd -{edd_url}-"
                 )
         else:
-            help_msg = f"'{k}': '{v}'"
-            _status = 1
-            _logger.error(f"missing ICOS CP namespace -{help_msg}- in icp2edd.")
+            if icp_url not in edd_.nsmap.values():
+                help_msg = f"'{k}': '{v}'"
+                _status = 1
+                _logger.error(f"missing ICOS CP namespace -{help_msg}- in icp2edd.")
+            else:
+                _logger.warning(f"ICOS CP and icp2edd namespace differ for {icp_url}")
 
     # compare icp2edd namespace to the ones of ICOS CP
     for k, v in edd_.nsmap.items():

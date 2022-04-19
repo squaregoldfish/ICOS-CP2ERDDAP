@@ -33,4 +33,11 @@ for (_, module_name, _) in iter_modules([str(package_dir)]):
         if isclass(attribute):
             # Add the class to this package's variables
             globals()[f"{module_name}.{attribute_name}"] = attribute
-    #         # __all__.append(f"{module_name}.{attribute_name}")
+            #         # __all__.append(f"{module_name}.{attribute_name}")
+            # Add url_object to allowed objects list
+            try:
+                inst = attribute()
+                if hasattr(inst, "_object") and inst._object:
+                    globals().setdefault("allowed_objects", set()).add(inst._object)
+            except Exception:
+                pass

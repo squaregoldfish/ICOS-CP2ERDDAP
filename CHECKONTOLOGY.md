@@ -57,6 +57,8 @@ check on [ICOS-CP SPARQL endpoint](https://meta.icos-cp.eu/sparqlclient/?type=TS
 `vim -d cpmeta_icp_properties.txt cpmeta_edd_properties.txt`  
 `vim -d cpmeta_icp_classprop.txt cpmeta_edd_classprop.txt`
 
+> **Note:** first focus on part '0'
+
 check on [ICOS-CP SPARQL endpoint](https://meta.icos-cp.eu/sparqlclient/?type=TSV%20or%20Turtle), from result:  
 
 if the property is a subproperty of another  

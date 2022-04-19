@@ -27,6 +27,7 @@ from dateutil.parser import parse
 from SPARQLWrapper import SPARQLWrapper2
 
 # import from my project
+import icp2edd.setupcfg as setupcfg
 import icp2edd.util as util
 from icp2edd.icpobj.subproperties import hasSubProp
 
@@ -259,10 +260,9 @@ class ICPObj(object):
         # filter: submission time
         if "cpmeta:wasSubmittedBy" in self.attr.keys():
             query = (
-                query + "\n\t?uri cpmeta:wasSubmittedBy ["
-                "\n\t\tprov:endedAtTime ?submTime ;"
-                "\n\t\tprov:wasAssociatedWith ?submitter"
-                "\n\t\t] ."
+                query + "\n\t?uri cpmeta:wasSubmittedBy ?subm ."
+                "\n\t?subm prov:endedAtTime ?submTime ;"
+                "\n\t\tprov:wasAssociatedWith ?submitter ."
                 f"\n\t{self._filterSubmTime(self._from, op_='>=')} "
                 f"# _filterSubmTime(from, op_='>=')"
                 f"\n\t{self._filterSubmTime(self._until, op_='<=')} "
@@ -310,39 +310,45 @@ class ICPObj(object):
             raise  #
 
     def _getObject(self):
-
-        if self._is_url(self._uri):
-            queryString = (
-                """
-            select ?objtype
-            where{
-             <%s> rdf:type ?objtype
-            }
-            """
-                % self._uri
-            )
+        """ """
+        if not setupcfg.allowed_objects:
+            _logger.warning("no 'allowed_objects' list")
+            return self._object
         else:
-            raise TypeError(f"Invalid object format: {self._uri}")
-
-        res = self._query(queryString)
-        # keep only icos-cp object
-        res.bindings = list(
-            v for v in res.bindings if "meta.icos-cp.eu" in v["objtype"].value
-        )
-        # check only one result
-        if len(res.bindings) > 1:
-            _logger.error(
-                f"Invalid number of result -{len(res.bindings)}-"
-                f" for uri:{self._uri}"
-            )
-
-        for result in res.bindings:
-            uri = result["objtype"].value
-            # check is uri
-            if self._is_url(uri):
-                return uri
+            if self._is_url(self._uri):
+                queryString = (
+                    """
+                select ?objtype
+                where{
+                 <%s> rdf:type ?objtype
+                }
+                """
+                    % self._uri
+                )
             else:
-                raise TypeError(f"Invalid object format: {uri}")
+                raise TypeError(f"Invalid object format: {self._uri}")
+
+            res = self._query(queryString)
+            # keep only icos-cp object
+            res.bindings = list(
+                v
+                for v in res.bindings
+                if v["objtype"].value in setupcfg.allowed_objects
+            )
+            # check only one result
+            if len(res.bindings) > 1:
+                _logger.error(
+                    f"Invalid number of result -{len(res.bindings)}-"
+                    f" for uri:{self._uri}"
+                )
+
+            for result in res.bindings:
+                uri = result["objtype"].value
+                # check is uri
+                if self._is_url(uri):
+                    return uri
+                else:
+                    raise TypeError(f"Invalid object format: {uri}")
 
     def _getObjectType(self):
 
@@ -725,8 +731,8 @@ class ICPObj(object):
                 select ?uri
                 where{
                  VALUES ?name {%s}
-                 ?uri rdf:type <%s> ;
-                     cpmeta:hasName ?name .
+                 ?uri cpmeta:hasName ?name ;
+                     rdf:type <%s> .
                  FILTER NOT EXISTS {[] cpmeta:isNextVersionOf ?uri}
                 }
                 """ % (
