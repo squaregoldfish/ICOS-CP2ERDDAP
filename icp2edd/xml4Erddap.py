@@ -404,7 +404,11 @@ def changeAttr(ds, gloatt, out=None):
                                 # append ERDDAP attributes with ICOS CP one
                                 attrNode.remove(att)
                                 gloatt[srcname][att.get("name")].append(att.text)
-                    for k, v in gloatt[srcname].items():
+
+                    # for k, v in gloatt[srcname].items():
+                    sortedkeys = sorted(gloatt.keys(), key=lambda x: x.lower())
+                    for k in sortedkeys:
+                        v = gloatt[k]
                         subnode = etree.SubElement(attrNode, "att", name=k)
                         subnode.text = ", ".join([str(x) for x in v])
 
