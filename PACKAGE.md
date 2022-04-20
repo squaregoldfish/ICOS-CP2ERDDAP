@@ -27,7 +27,7 @@ pip install git+https://github.com/BjerknesClimateDataCentre/ICOS-CP2ERDDAP.git@
 
 ## Version
 
-user2edd --version
+icp2edd --version
 
 ## Semantic Version (Sem-Ver):
  Given a version number MAJOR.MINOR.PATCH, increment the:

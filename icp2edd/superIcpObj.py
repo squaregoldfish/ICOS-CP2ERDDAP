@@ -52,6 +52,7 @@ class SuperICPObj(object):
     def __init__(
         self,
         submfrom=None,
+        product=None,
     ):
         """Initialise generic SuperICPObj.
 
@@ -61,6 +62,7 @@ class SuperICPObj(object):
             - submitted from 'submfrom'
         """
         self._from = submfrom
+        self._product = product
         #
         self.meta = {}
         self.DataObject = {}
@@ -90,7 +92,7 @@ class SuperICPObj(object):
                 )
                 # uri = "https://meta.icos-cp.eu/objects/uwXo3eDGipsYBv0ef6H2jJ3Z"
                 # _ = cpmeta.DataObject(uri=uri)
-                _ = cpmeta.DataObject(submfrom=self._from)
+                _ = cpmeta.DataObject(submfrom=self._from, product=self._product)
                 _.getMeta()
                 _.show()
                 #
