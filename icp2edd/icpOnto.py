@@ -430,7 +430,9 @@ class IcpOnto(Onto):
         # list all object already downloaded
         # Note: maybe better list all object submitted since last time
         _logger.info(f"initialise SuperICPObj object")
-        superObj = SuperICPObj(setupcfg.submFrom)
+        _submfrom = setupcfg.submFrom
+        _product = setupcfg.product
+        superObj = SuperICPObj(submfrom=_submfrom, product=_product)
         # recursively read properties of each object
         # if prop not already listed in object's prop, add it
         superObj.getClassProperties()
