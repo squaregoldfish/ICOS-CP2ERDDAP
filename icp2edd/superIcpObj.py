@@ -26,6 +26,7 @@ from SPARQLWrapper.SmartWrapper import Value as SmartWrapperValue
 
 # > conda-forge
 # import from my project
+import icp2edd.parameters as parameters
 import icp2edd.setupcfg as setupcfg
 import icp2edd.util as util
 from icp2edd.icpobj import *
@@ -39,11 +40,6 @@ list_DataObject = ["cpmeta.DataObject"]
 
 # list of object to not dig in to avoid infinity loop / recursive search
 list_rec_search = ["NextVersionOf", "RevisionOf", "PrimarySource", "QualityFlagFor"]
-
-# separator between object and attribute
-_sep = "_"
-dict_convAttr = {"type" + _sep + "units": "units"}
-
 
 # ----------------------------------------------
 class SuperICPObj(object):
@@ -71,6 +67,11 @@ class SuperICPObj(object):
         self.classprop = {}
         #
         self.tmp = {}
+
+        # check parameters file
+        param = parameters.main()
+        #
+        self.dict_convAttr = param["attributes"]["convert"]
 
         try:
             if self._from is None:
@@ -137,7 +138,7 @@ class SuperICPObj(object):
         rename dictionary keys (if listed in dict_convAttr):
         :return: renamed dictionary
         """
-        for oldKey, newKey in dict_convAttr.items():
+        for oldKey, newKey in self.dict_convAttr.items():
             _ = dict((newKey, v) if k == oldKey else (k, v) for k, v in _.items())
         return _
 
