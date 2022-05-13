@@ -59,7 +59,8 @@ class SuperICPObj(object):
         It will be used to set up a sparql query, and get all metadata of ICPObj from ICOS CP.
 
         Optionally we could select DataObject:
-            - submitted from 'submfrom'
+            - submitted from date 'submfrom'
+            - submitted from product 'product'
         """
         self._from = submfrom
         self._product = product
