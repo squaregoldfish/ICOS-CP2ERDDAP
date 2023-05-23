@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# externalVocabConcept.py
+# webpageSpecifyingThing.py
 
 """
-    The externalVocabConcept module is used to explore terms externalVocabConcepts' metadata.
+    The webpageSpecifyingThing module is used to explore ICOS CP cpmeta::WebpageSpecifyingThing's metadata.
 
     Example usage:
 
-    from skos import Concept
+    from cpmeta import WebpageSpecifyingThing
 
-    externalVocabConcepts = ExternalVocabConcept()  # initialise ICOS CP ExternalVocabConcept object
-    externalVocabConcepts.get_meta()                # get externalVocabConcepts' metadata from ICOS CP
-    externalVocabConcepts.show()                    # print externalVocabConcepts' metadata
+    webpageSpecifyingThing = WebpageSpecifyingThing()           # initialise ICOS CP WebpageSpecifyingThing object
+    webpageSpecifyingThing.get_meta()            # get webpageSpecifyingThing's metadata from ICOS CP
+    webpageSpecifyingThing.show()                # print webpageSpecifyingThing's metadata
 """
 
 # --- import -----------------------------------
@@ -21,7 +21,7 @@ import traceback
 
 # import from other lib
 # import from my project
-from icp2edd.icpobj.skos.concept import Concept
+from icp2edd.icpobj.icpObj import ICPObj
 
 # --- module's variable ------------------------
 # load logger
@@ -35,8 +35,9 @@ _attr = {}
 # list of equivalent class
 _equivalentClass = []
 
+
 # ----------------------------------------------
-class ExternalVocabConcept(Concept):
+class WebpageSpecifyingThing(ICPObj):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -44,21 +45,21 @@ class ExternalVocabConcept(Concept):
     """
 
     def __init__(self, limit=None, uri=None):
-        """initialise instance of ExternalVocabConcept(ICPObj).
+        """initialise instance of Funding(ICPObj).
 
-        It will be used to set up a sparql query, and get all metadata of ExternalVocabConcept from ICOS CP.
+        It will be used to set up a sparql query, and get all metadata of Funding from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select FileFormat:
+        and/or select Funding:
         - with ICOS CP 'uri'
 
         Example:
-            ExternalVocabConcept(limit=5)
+            Funding(limit=5)
 
         :param limit: number of returned results
-        :param uri: ICOS CP URI
+        :param uri: ICOS CP URI ('<http://meta.icos-cp.eu/resources/fundings/3_1-0452%2F147%2F158')
         """
         super().__init__()
         # set up class/instance variables
@@ -82,7 +83,8 @@ class ExternalVocabConcept(Concept):
             self._equivalentClass = _equivalentClass
 
         # object type URI
-        self._object = "http://meta.icos-cp.eu/ontologies/cpmeta/ExternalVocabConcept"
+        self._object = "http://meta.icos-cp.eu/ontologies/cpmeta/WebpageSpecifyingThing"
+
         #
         self._objtype = None
         if self._object is not None:
@@ -97,9 +99,6 @@ if __name__ == "__main__":
     import doctest
 
     doctest.testmod(
-        extraglobs={"t": ExternalVocabConcept(limit=10)},
+        extraglobs={"t": WebpageSpecifyingThing(limit=10)},
         optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
     )
-
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

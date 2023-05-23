@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# nercP01Concept.py
+# webpageElements.py
 
 """
-    The nercP01Concept module is used to explore terms nercP01Concepts' metadata.
+    The webpageElements module is used to explore ICOS CP cpmeta::WebpageElements's metadata.
 
     Example usage:
 
-    from skos import Concept
+    from cpmeta import WebpageElements
 
-    nercP01Concepts = NercP01Concept()        # initialise ICOS CP NercP01Concept object
-    nercP01Concepts.get_meta()                # get nercP01Concepts' metadata from ICOS CP
-    nercP01Concepts.show()                    # print nercP01Concepts' metadata
+    webpageElements = WebpageSpecifyingThing()           # initialise ICOS CP WebpageElements object
+    webpageElements.get_meta()            # get webpageElements's metadata from ICOS CP
+    webpageElements.show()                # print webpageElements's metadata
 """
 
 # --- import -----------------------------------
@@ -21,7 +21,7 @@ import traceback
 
 # import from other lib
 # import from my project
-from icp2edd.icpobj.cpmeta.externalVocabConcept import ExternalVocabConcept
+from icp2edd.icpobj.cpmeta.webpageSpecifyingThing import WebpageSpecifyingThing
 
 # --- module's variable ------------------------
 # load logger
@@ -37,7 +37,7 @@ _equivalentClass = []
 
 
 # ----------------------------------------------
-class NercP01Concept(ExternalVocabConcept):
+class WebpageElements(WebpageSpecifyingThing):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -45,21 +45,21 @@ class NercP01Concept(ExternalVocabConcept):
     """
 
     def __init__(self, limit=None, uri=None):
-        """initialise instance of NercP01Concep(ExternalVocabConcept).
+        """initialise instance of Funding(ICPObj).
 
-        It will be used to set up a sparql query, and get all metadata of NercP01Concept from ICOS CP.
+        It will be used to set up a sparql query, and get all metadata of Funding from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select FileFormat:
+        and/or select Funding:
         - with ICOS CP 'uri'
 
         Example:
-            NercP01Concept(limit=5)
+            Funding(limit=5)
 
         :param limit: number of returned results
-        :param uri: ICOS CP URI
+        :param uri: ICOS CP URI ('<http://meta.icos-cp.eu/resources/fundings/3_1-0452%2F147%2F158')
         """
         super().__init__()
         # set up class/instance variables
@@ -83,7 +83,8 @@ class NercP01Concept(ExternalVocabConcept):
             self._equivalentClass = _equivalentClass
 
         # object type URI
-        self._object = "http://meta.icos-cp.eu/ontologies/cpmeta/NercP01Concept"
+        self._object = "http://meta.icos-cp.eu/ontologies/cpmeta/WebpageElements"
+
         #
         self._objtype = None
         if self._object is not None:
@@ -98,9 +99,6 @@ if __name__ == "__main__":
     import doctest
 
     doctest.testmod(
-        extraglobs={"t": NercP01Concept(limit=10)},
+        extraglobs={"t": WebpageElements(limit=10)},
         optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
     )
-
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

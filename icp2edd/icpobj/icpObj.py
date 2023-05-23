@@ -68,6 +68,7 @@ _ns = {
     "ssn": "http://www.w3.org/ns/ssn/",
     "terms": "http://purl.org/dc/terms/",
     "vann": "http://purl.org/vocab/vann/",
+    "voaf": "http://purl.org/vocommons/voaf#",
     "void": "http://rdfs.org/ns/void#",
     "wdcgg": "http://meta.icos-cp.eu/resources/wdcgg/",
     "xml": "http://www.w3.org/XML/1998/namespace",

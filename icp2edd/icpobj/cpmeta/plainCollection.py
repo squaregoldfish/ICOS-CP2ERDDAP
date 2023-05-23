@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# collection.py
+# plainCollection.py
 
 """
-    The collection module is used to explore ICOS CP cpmeta::Collections' metadata.
+    The plainCollection module is used to explore ICOS CP cpmeta::PlainCollection metadata.
 
     Example usage:
 
-    from cpmeta import Collection
+    from cpmeta import PlainCollection
 
-    collections = Collection()        # initialise ICOS CP Collection object
-    collections.get_meta()            # get collections' metadata from ICOS CP
-    collections.show()                # print collections' metadata
+    plainCollection = PlainCollection()        # initialise ICOS CP PlainCollection object
+    plainCollection.get_meta()            # get plainCollection' metadata from ICOS CP
+    plainCollection.show()                # print plainCollection' metadata
 """
 
 # --- import -----------------------------------
@@ -21,7 +21,7 @@ import traceback
 
 # import from other lib
 # import from my project
-from icp2edd.icpobj.cpmeta.plainCollection import PlainCollection
+from icp2edd.icpobj.prov import Entity
 
 # --- module's variable ------------------------
 # load logger
@@ -37,7 +37,7 @@ _equivalentClass = []
 
 
 # ----------------------------------------------
-class Collection(PlainCollection):
+class PlainCollection(Entity):
     """
     >>> t.getMeta()
     >>> t.show(True)
@@ -87,7 +87,7 @@ class Collection(PlainCollection):
             self._equivalentClass = _equivalentClass
 
         # object type URI
-        self._object = "http://meta.icos-cp.eu/ontologies/cpmeta/Collection"
+        self._object = "http://meta.icos-cp.eu/ontologies/cpmeta/PlainCollection"
 
         #
         self._objtype = None
@@ -103,9 +103,6 @@ if __name__ == "__main__":
     import doctest
 
     doctest.testmod(
-        extraglobs={"t": Collection(limit=10)},
+        extraglobs={"t": PlainCollection(limit=10)},
         optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
     )
-
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

@@ -52,7 +52,7 @@ _equivalentClass = []
 
 
 # ----------------------------------------------
-class DatasetVariable(DataObjectSpecifyingThing, ObservableProperty):
+class DatasetVariable(ObservableProperty):
     """
     >>> t.getMeta()
     >>> t.show(True)

@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# collection.py
+# specificDatasetType.py
 
 """
-    The collection module is used to explore ICOS CP cpmeta::Collections' metadata.
+    The specificDatasetType module is used to explore ICOS CP cpmeta::SpecificDatasetType metadata.
 
     Example usage:
 
-    from cpmeta import Collection
+    from cpmeta import QuantityKind
 
-    collections = Collection()        # initialise ICOS CP Collection object
-    collections.get_meta()            # get collections' metadata from ICOS CP
-    collections.show()                # print collections' metadata
+    specificDatasetType = QuantityKind()      # initialise ICOS CP SpecificDatasetType object
+    specificDatasetType.get_meta()            # get specificDatasetType metadata from ICOS CP
+    specificDatasetType.show()                # print specificDatasetType metadata
 """
 
 # --- import -----------------------------------
@@ -21,7 +21,7 @@ import traceback
 
 # import from other lib
 # import from my project
-from icp2edd.icpobj.cpmeta.plainCollection import PlainCollection
+from icp2edd.icpobj.cpmeta.dataObjectSpecifyingThing import DataObjectSpecifyingThing
 
 # --- module's variable ------------------------
 # load logger
@@ -37,38 +37,34 @@ _equivalentClass = []
 
 
 # ----------------------------------------------
-class Collection(PlainCollection):
+class SpecificDatasetType(DataObjectSpecifyingThing):
     """
     >>> t.getMeta()
     >>> t.show(True)
 
     """
 
-    def __init__(self, limit=None, lastversion=None, uri=None):
-        """initialise instance of Collection(Entity)
-        #Organization.
+    def __init__(self, limit=None, uri=None):
+        """initialise instance of QuantityKind(DataObjectSpecifyingThing).
 
-        It will be used to set up a sparql query, and get all metadata of Collection from ICOS CP.
+        It will be used to set up a sparql query, and get all metadata of QuantityKind from ICOS CP.
 
         Optionally we could limit the number of output:
         - limit the amount of returned results
 
-        and/or select Collection:
-        - only from the 'lastversion'
+        and/or select QuantityKind:
         - with ICOS CP 'uri'
 
         Example:
-            Collection(limit=5)
+            QuantityKind(limit=5)
 
         :param limit: number of returned results
-        :param lastversion: select only last release [True,False]
-        :param uri: ICOS CP URI
+        :param uri: ICOS CP URI ('http://meta.icos-cp.eu/resources/cpmeta/velocity')
         """
         super().__init__()
         # set up class/instance variables
         self._uri = uri
         self._limit = limit
-        self._lastversion = lastversion
 
         # inherit properties
         self._inherit = {**self.attr}
@@ -87,7 +83,7 @@ class Collection(PlainCollection):
             self._equivalentClass = _equivalentClass
 
         # object type URI
-        self._object = "http://meta.icos-cp.eu/ontologies/cpmeta/Collection"
+        self._object = "http://meta.icos-cp.eu/ontologies/cpmeta/SpecificDatasetType"
 
         #
         self._objtype = None
@@ -103,9 +99,6 @@ if __name__ == "__main__":
     import doctest
 
     doctest.testmod(
-        extraglobs={"t": Collection(limit=10)},
+        extraglobs={"t": SpecificDatasetType(limit=10)},
         optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
     )
-
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

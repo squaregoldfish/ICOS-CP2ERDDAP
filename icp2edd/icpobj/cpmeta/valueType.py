@@ -40,7 +40,7 @@ _attr = {
 _equivalentClass = []
 
 # ----------------------------------------------
-class ValueType(DataObjectSpecifyingThing, Concept):
+class ValueType(Concept):
     """
     >>> t.getMeta()
     >>> t.show(True)
