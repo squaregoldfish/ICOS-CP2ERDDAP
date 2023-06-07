@@ -21,7 +21,7 @@ import traceback
 
 # import from other lib
 # import from my project
-from icp2edd.icpobj.geosparql.spatialObject import SpatialObject
+from icp2edd.icpobj.geo.spatialObject import SpatialObject
 
 # --- module's variable ------------------------
 # load logger
@@ -32,7 +32,7 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    "geosparql:hasSerialization": "serialization",  # Literal
+    "geo:hasSerialization": "serialization",  # Literal
     # subproperty {
     # "cpmeta:asGeoJSON": "geojson",  # string
     # }

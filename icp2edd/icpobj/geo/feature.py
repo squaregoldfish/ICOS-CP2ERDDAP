@@ -21,7 +21,7 @@ import traceback
 
 # import from other lib
 # import from my project
-from icp2edd.icpobj.geosparql.spatialObject import SpatialObject
+from icp2edd.icpobj.geo.spatialObject import SpatialObject
 
 # --- module's variable ------------------------
 # load logger
@@ -32,7 +32,7 @@ _logger = logging.getLogger(__name__)
 # {'property/predicate': 'object/value'}
 # Note: 'object/value' will be the output attribute name
 _attr = {
-    "geosparql:hasGeometry": "geometry",  # geosparql#Geometry
+    "geo:hasGeometry": "geometry",  # geosparql#Geometry
     # subproperty {
     # "cpmeta:hasSpatialCoverage": "location",  # cpmeta/DataObject | cpmeta/Station | geosparql#Feature
     # }

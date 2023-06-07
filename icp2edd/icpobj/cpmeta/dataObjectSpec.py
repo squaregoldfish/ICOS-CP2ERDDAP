@@ -34,7 +34,6 @@ _logger = logging.getLogger(__name__)
 _attr = {
     "cpmeta:hasAssociatedProject": "project",  # cpmeta/Project
     "cpmeta:hasDataTheme": "data_theme",  # cpmeta/DataTheme
-    "terms:format": "terms_format",  #
     # subproperty {
     # "cpmeta:hasEncoding": "encoding",  # cpmeta/ObjectEncoding
     # "cpmeta:hasFormat": "format",  # cpmeta/ObjectFormat

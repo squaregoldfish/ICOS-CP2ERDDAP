@@ -49,11 +49,6 @@ _attr = {
     # "cpmeta:hasTimeZoneOffset": "time_zone_offset",  # xsd:integer
     # }
     "cpmeta:hasClimateZone": "climate_zone",  # cpmeta/ClimateZone
-    "terms:bibliographicCitation": "bibliographic_citation",  # rdfs:Literal
-    # subproperty {
-    # "cpmeta:hasAssociatedPublication": "associated_publication",  # xsd:anyURI
-    # "cpmeta:hasDocumentationUri": "documentation_uri",  # xsd:anyURI
-    # }
     "cpmeta:hasDocumentationObject": "documentation",  # cpmeta/DocumentObject
     "cpmeta:hasElevation": "elevation",  # xsd:float
     "cpmeta:hasFunding": "funding",  # cpmeta/Funding

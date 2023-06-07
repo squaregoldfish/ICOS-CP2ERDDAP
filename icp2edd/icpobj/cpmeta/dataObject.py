@@ -42,25 +42,12 @@ _logger = logging.getLogger(__name__)
 # Note: 'object/value' will be the output attribute name
 _attr = {
     "cpmeta:hasObjectSpec": "specification",  # cpmeta/DataObjectSpec
-    "cpmeta:hasFormatSpecificMetadata": "format",  # rdfs:Literal
-    # subproperty {
-    # "wdcgg:CONTACT%20POINT": "contact_point",  #
-    # "wdcgg:CONTRIBUTOR": "contributor",  #
-    # "wdcgg:MEASUREMENT%20METHOD": "measurement_method",  #
-    # "wdcgg:MEASUREMENT%20SCALE": "measurement_scale",  #
-    # "wdcgg:MEASUREMENT%20UNIT": "measurement_unit",  #
-    # "wdcgg:OBSERVATION%20CATEGORY": "observation_category",  #
-    # "wdcgg:PARAMETER": "parameter",  #
-    # "wdcgg:SAMPLING%20TYPE": "sampling_type",  #
-    # "wdcgg:TIME%20INTERVAL": "time_interval",  #
-    # }
     "cpmeta:hasKeyword": "keyword",  # xsd:string
     "cpmeta:hasKeywords": "keywords",  # xsd:string
     "cpmeta:hasActualVariable": "variable",
     "cpmeta:hasSpatialCoverage": "location",  # cpmeta/SpatialCoverage
     "cpmeta:hasTemporalResolution": "temporal_resolution",  # xsd:string
     "cpmeta:hasVariableName": "variable_name",  # xsd:string
-    "terms:license": "license",  #
 }
 # list of equivalent class
 _equivalentClass = ["cpmeta.SimpleDataObject", "cpmeta.SpatialDataObject"]

@@ -6,23 +6,9 @@ hasSubProp = {
     "cpmeta:fundingInfoProp": {
         "cpmeta:funderIdentifier": "id",  # xsd:string
         "cpmeta:funderIdentifierType": "id_type",  # rdfs:Datatype
-        "cpmeta:awardNumber": "award_number",  # xsd:string
-        "cpmeta:awardURI": "award_uri",  # xsd:anyURI
-        "cpmeta:awardTitle": "award_title",  # xsd:string
     },
     "cpmeta:hasExtraRoleInfo": {
         "cpmeta:hasAttributionWeight": "attribution_weight",  # xsd:integer
-    },
-    "cpmeta:hasFormatSpecificMetadata": {
-        "wdcgg:CONTACT%20POINT": "contact_point",  #
-        "wdcgg:CONTRIBUTOR": "contributor",  #
-        "wdcgg:MEASUREMENT%20METHOD": "measurement_method",  #
-        "wdcgg:MEASUREMENT%20SCALE": "measurement_scale",  #
-        "wdcgg:MEASUREMENT%20UNIT": "measurement_unit",  #
-        "wdcgg:OBSERVATION%20CATEGORY": "observation_category",  #
-        "wdcgg:PARAMETER": "parameter",  #
-        "wdcgg:SAMPLING%20TYPE": "sampling_type",  #
-        "wdcgg:TIME%20INTERVAL": "time_interval",  #
     },
     "cpmeta:hasPolicy": {
         "cpmeta:hasHideFromSearchPolicy": "hide_from_search_policy",  # xsd:boolean
@@ -72,22 +58,14 @@ hasSubProp = {
         "cpmeta:hasSouthernBound": "southern_bound",  # xsd:double
         "cpmeta:hasWesternBound": "western_bound",  # xsd:double
     },
-    "geosparql:hasGeometry": {
+    "geo:hasGeometry": {
         "cpmeta:hasSpatialCoverage": "location",  # cpmeta/DataObject | cpmeta/Station | geosparql#Feature
-    },
-    "geosparql:hasSerialization": {
-        "cpmeta:asGeoJSON": "geojson",  # string
     },
     "prov:atLocation": {
         "cpmeta:hasSamplingPoint": "sampling_point",  # cpmeta.Position, cpmeta.DataAcquisition
         "cpmeta:locatedAt": "located_at",  # geosparql#Feature
         "cpmeta:operatesOn": "station_Site",  # cpmeta/Site
         "cpmeta:wasPerformedAt": "geofeature",  # geosparql#Feature
-    },
-    "prov:wasAssociatedWith": {
-        "cpmeta:wasHostedBy": "organisation",  # organization
-        "cpmeta:wasPerformedBy": "performed_by",
-        "cpmeta:wasParticipatedInBy": "participated_in_by",
     },
     "prov:wasAssociatedWith": {
         "cpmeta:wasHostedBy": "organisation",  # organization
@@ -105,6 +83,7 @@ hasSubProp = {
         "cpmeta:wasSubmittedBy": "submission",  # cpmeta/DataSubmission
     },
     "schema:image": {
+        "cpmeta:hasCoverImage": "cover_image",
         "cpmeta:hasDepiction": "depiction",  #
         "cpmeta:hasIcon": "icon",  #
         "cpmeta:hasMarkerIcon": "marker_icon",  #
@@ -117,17 +96,5 @@ hasSubProp = {
     },
     "ssn:hasSubSystem": {
         "cpmeta:hasInstrumentComponent": "component",  # cpmeta/Instrument
-    },
-    "terms:bibliographicCitation": {
-        "cpmeta:hasAssociatedPublication": "associated_publication",  # xsd:anyURI
-        "cpmeta:hasDocumentationUri": "documentation_uri",  # xsd:anyURI
-    },
-    "terms:format": {
-        "cpmeta:hasEncoding": "encoding",  # cpmeta/ObjectEncoding
-        "cpmeta:hasFormat": "format",  # cpmeta/ObjectFormat
-    },
-    "terms:title": {
-        "cpmeta:hasName": "name",  # xsd:string
-        "cpmeta:hasVariableTitle": "variable_title",  # xsd:string
-    },
+    }
 }

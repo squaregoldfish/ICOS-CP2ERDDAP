@@ -47,10 +47,6 @@ _attr = {
     "prov:hadPrimarySource": "PrimarySource",  # prov#Entity
     # Warning: linked to:
     # - superIcpObj.py:_getSubAttr(): elif k in 'PrimarySource':
-    "terms:hasPart": "part",  #
-    "terms:creator": "creator",  #
-    "terms:description": "description",  # xsd:string
-    "terms:title": "title",  # xsd:string
     # subproperty {
     # "cpmeta:hasName": "name",  # xsd:string
     # "cpmeta:hasVariableTitle": "variable_title",  # xsd:string

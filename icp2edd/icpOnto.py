@@ -28,6 +28,7 @@ from requests.exceptions import HTTPError
 import icp2edd.icpobj
 import icp2edd.setupcfg as setupcfg
 from icp2edd.icpobj import *  # see __all__ in icpobj/__init__.py
+from icp2edd.icpobj.icpObj import ICPObj
 from icp2edd.icpobj.subproperties import hasSubProp
 from icp2edd.superIcpObj import SuperICPObj
 

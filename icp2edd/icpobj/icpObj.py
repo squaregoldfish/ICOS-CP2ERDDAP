@@ -44,20 +44,30 @@ _attr = {
     "rdfs:label": "label",
     "rdfs:seeAlso": "see_also",
     "rdf:type": "type",  #
-    "terms:date": "date",  #
-    "terms:dateSubmitted": "date_submitted",  #
     "ssn:forProperty": "for_property",  #
 }
 # list of equivalent class
 _equivalentClass = []
 # namespace
 _ns = {
+    "brick": "https://brickschema.org/schema/Brick#",
     "cpmeta": "http://meta.icos-cp.eu/ontologies/cpmeta/",
+    "csvw": "http://www.w3.org/ns/csvw#",
     "dc": "http://purl.org/dc/elements/1.1/",
-    "geosparql": "http://www.opengis.net/ont/geosparql#",
-    "otcmeta": "http://meta.icos-cp.eu/ontologies/otcmeta/",
+    "dcam": "http://purl.org/dc/dcam/",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dcmitype": "http://purl.org/dc/dcmitype/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "default1": "http://creativecommons.org/ns#",
+    "doap": "http://usefulinc.com/ns/doap#",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "geo": "http://www.opengis.net/ont/geosparql#",
+    "odrl": "http://www.w3.org/ns/odrl/2/",
+    "org": "http://www.w3.org/ns/org#",
     "owl": "http://www.w3.org/2002/07/owl#",
+    "prof": "http://www.w3.org/ns/dx/prof/",
     "prov": "http://www.w3.org/ns/prov#",
+    "qb": "http://purl.org/linked-data/cube#",
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
     "schema": "http://schema.org/",
@@ -67,10 +77,12 @@ _ns = {
     "sosa": "http://www.w3.org/ns/sosa/",
     "ssn": "http://www.w3.org/ns/ssn/",
     "terms": "http://purl.org/dc/terms/",
+    "time": "http://www.w3.org/2006/time#",
     "vann": "http://purl.org/vocab/vann/",
     "voaf": "http://purl.org/vocommons/voaf#",
     "void": "http://rdfs.org/ns/void#",
     "wdcgg": "http://meta.icos-cp.eu/resources/wdcgg/",
+    "wgs": "https://www.w3.org/2003/01/geo/wgs84_pos#",
     "xml": "http://www.w3.org/XML/1998/namespace",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
 }

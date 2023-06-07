@@ -21,7 +21,7 @@ import traceback
 
 # import from other lib
 # import from my project
-from icp2edd.icpobj.geosparql import Feature
+from icp2edd.icpobj.geo import Feature
 
 # --- module's variable ------------------------
 # load logger
